@@ -6,6 +6,10 @@ export interface AssEvent {
   font?: string;
   size?: number;
   color?: string;
+  outline?: number;
+  shadow?: number;
+  box?: boolean;
+  boxColor?: string;
 }
 
 export interface AssStyle {
@@ -32,6 +36,16 @@ export function toAssColor(input: string): string {
   if (/^&h[0-9a-f]{8}$/i.test(value)) return "&H" + value.slice(2).toUpperCase();
   if (/^&h[0-9a-f]{6}$/i.test(value)) return "&H00" + value.slice(2).toUpperCase();
   const hex = NAMED_COLORS[value.toLowerCase()] ?? value;
+  const m8 = /^#?([0-9a-f]{8})$/i.exec(hex);
+  if (m8) {
+    // #rrggbbaa -> ASS &Haa(bbggrr), alpha inverted (00 = opaque)
+    const rr = m8[1]!.slice(0, 2);
+    const gg = m8[1]!.slice(2, 4);
+    const bb = m8[1]!.slice(4, 6);
+    const aa = m8[1]!.slice(6, 8);
+    const assAlpha = (255 - parseInt(aa, 16)).toString(16).padStart(2, "0");
+    return `&H${assAlpha}${bb}${gg}${rr}`.toUpperCase();
+  }
   const m = /^#?([0-9a-f]{6})$/i.exec(hex);
   if (!m) return "&H00FFFFFF";
   const rr = m[1]!.slice(0, 2);
@@ -83,12 +97,57 @@ export function buildAss(
   events: AssEvent[],
   opts: { width: number; height: number; style?: Partial<AssStyle> },
 ): string {
-  const style: AssStyle = {
-    font: opts.style?.font ?? "DejaVu Sans",
-    size: opts.style?.size ?? 42,
-    color: opts.style?.color ?? "&H00FFFFFF",
-    marginV: opts.style?.marginV ?? 64,
-  };
+  const baseFont = opts.style?.font ?? "DejaVu Sans";
+  const baseSize = opts.style?.size ?? 42;
+  const baseColor = toAssColor(opts.style?.color ?? "&H00FFFFFF");
+  const baseMarginV = opts.style?.marginV ?? 64;
+
+  const styleLine = (
+    name: string,
+    font: string,
+    size: number,
+    color: string,
+    borderStyle: number,
+    outline: number,
+    shadow: number,
+    outlineColour: string,
+  ): string =>
+    `Style: ${name},${font},${size},${color},&H000000FF,${outlineColour},&H80000000,0,0,0,0,100,100,0,0,${borderStyle},${outline},${shadow},2,10,10,${baseMarginV},1`;
+
+  const defaultKey = JSON.stringify([baseFont, baseSize, baseColor, 1, 2, 1, "&H00000000"]);
+  const styleNames = new Map<string, string>([[defaultKey, "Default"]]);
+  const styles: string[] = [
+    styleLine("Default", baseFont, baseSize, baseColor, 1, 2, 1, "&H00000000"),
+  ];
+
+  const lines = events.map((e) => {
+    const box = e.box ?? false;
+    const font = e.font ?? baseFont;
+    const size = e.size ?? baseSize;
+    const color = toAssColor(e.color ?? baseColor);
+    const shadow = e.shadow ?? 1;
+    const rawOutline = e.outline ?? 2;
+    const borderStyle = box ? 3 : 1;
+    // With BorderStyle=3 the outline width is the box padding; keep a visible
+    // minimum when the caller explicitly asks for no outline.
+    const outline = box && rawOutline <= 0 ? 8 : rawOutline;
+    const outlineColour = box ? toAssColor(e.boxColor ?? "&H80000000") : "&H00000000";
+
+    const key = JSON.stringify([font, size, color, borderStyle, outline, shadow, outlineColour]);
+    let name = styleNames.get(key);
+    if (!name) {
+      name = `S${styleNames.size}`;
+      styleNames.set(key, name);
+      styles.push(
+        styleLine(name, font, size, color, borderStyle, outline, shadow, outlineColour),
+      );
+    }
+
+    const { an, marginV } = alignmentFor(e.position);
+    const override = `{\\an${an}}`;
+    const text = override + escapeAssText(e.text);
+    return `Dialogue: 0,${assTime(e.start)},${assTime(e.end)},${name},,0,0,${marginV},,${text}`;
+  });
 
   const header = [
     "[Script Info]",
@@ -100,18 +159,11 @@ export function buildAss(
     "",
     "[V4+ Styles]",
     "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding",
-    `Style: Default,${style.font},${style.size},${style.color},&H000000FF,&H00000000,&H80000000,0,0,0,0,100,100,0,0,1,2,1,2,10,10,${style.marginV},1`,
+    ...styles,
     "",
     "[Events]",
     "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text",
   ];
-
-  const lines = events.map((e) => {
-    const { an, marginV } = alignmentFor(e.position);
-    const override = `{\\an${an}}`;
-    const text = override + escapeAssText(e.text);
-    return `Dialogue: 0,${assTime(e.start)},${assTime(e.end)},Default,,0,0,${marginV},,${text}`;
-  });
 
   return [...header, ...lines, ""].join("\n");
 }

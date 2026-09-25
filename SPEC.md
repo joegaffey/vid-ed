@@ -192,6 +192,10 @@ path so it is stable across re-runs.
   exported slides enter the timeline: the **harness/agent captures the image**
   (e.g. a browser screenshot of a gist page); the tool only scales/crops and
   holds it. `zoom` crops a region for legibility.
+- Text overlays use per-event ASS styles, so each can differ. `style.box: true`
+  draws a background box (libass `BorderStyle=3`) using `box_color`
+  (`#rrggbb[aa]` or `&Haabbggrr`); `outline`/`shadow` are configurable. This
+  keeps labels readable over busy screen-capture footage.
 - Burn styled captions via the `subtitles`/`ass` filter when requested.
 - Export CC sidecar alongside the video.
 
@@ -344,6 +348,13 @@ overlays:
     start: 1.0
     end: 3.5
     style: { size: 64, color: "#ffffff" }
+  # readable over busy footage: a semi-opaque background box
+  - type: text
+    text: "Without a tool, the graph renders EMPTY"
+    start: 58
+    end: 67.5
+    position: bottom
+    style: { size: 44, color: "#ffffff", box: true, box_color: "#000000cc", outline: 0 }
 ```
 
 ## 7. CLI surface (proposed)

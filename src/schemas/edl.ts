@@ -158,9 +158,13 @@ export const TextOverlaySchema = z.object({
   position: z.string().default("bottom"),
   style: z
     .object({
-      size: z.number().default(48),
+      size: z.number().default(42),
       color: z.string().default("white"),
       font: z.string().optional(),
+      box: z.boolean().default(false),
+      box_color: z.string().default("&H80000000"),
+      outline: z.number().default(2),
+      shadow: z.number().default(1),
     })
     .default({}),
 });

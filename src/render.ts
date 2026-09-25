@@ -261,6 +261,10 @@ export function buildRenderPlan(edl: Edl, opts: BuildOptions): RenderPlan {
         font: overlay.style.font,
         size: overlay.style.size,
         color: overlay.style.color,
+        box: overlay.style.box,
+        boxColor: overlay.style.box_color,
+        outline: overlay.style.outline,
+        shadow: overlay.style.shadow,
       });
     }
   }

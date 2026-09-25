@@ -123,6 +123,68 @@ test("ass helpers format time, colours and events", () => {
   assert.ok(ass.includes("a:b"));
 });
 
+test("toAssColor handles 8-digit CSS hex with inverted alpha", () => {
+  assert.equal(toAssColor("#000000cc"), "&H33000000");
+  assert.equal(toAssColor("#ff000080"), "&H7F0000FF");
+});
+
+test("buildAss leaves default overlays unchanged", () => {
+  const ass = buildAss([{ start: 0, end: 1, text: "hi", position: "bottom" }], {
+    width: 640,
+    height: 480,
+  });
+  assert.equal((ass.match(/^Style: /gm) ?? []).length, 1);
+  assert.ok(
+    ass.includes(
+      "Style: Default,DejaVu Sans,42,&H00FFFFFF,&H000000FF,&H00000000,&H80000000,0,0,0,0,100,100,0,0,1,2,1,2,10,10,64,1",
+    ),
+  );
+});
+
+test("buildAss renders a background box (BorderStyle=3) when box is true", () => {
+  const ass = buildAss(
+    [
+      {
+        start: 0,
+        end: 5,
+        text: "Without a tool, the graph renders EMPTY",
+        position: "bottom",
+        box: true,
+        boxColor: "#000000cc",
+        outline: 0,
+      },
+    ],
+    { width: 640, height: 480 },
+  );
+  // box colour (alpha inverted) and BorderStyle=3 with a visible min padding
+  assert.ok(ass.includes("&H33000000"));
+  assert.ok(ass.includes(",3,8,1,"));
+  assert.equal((ass.match(/^Style: /gm) ?? []).length, 2);
+});
+
+test("buildRenderPlan emits boxed overlay ASS", () => {
+  const { edl } = loadEdlFromString(`schema: vided.edl/1
+timeline:
+  - { id: a, source: clipA, out: 4 }
+overlays:
+  - type: text
+    text: "Renders EMPTY"
+    start: 0
+    end: 3
+    position: bottom
+    style: { size: 44, color: "#ffffff", box: true, box_color: "#000000cc", outline: 0 }
+`);
+  const plan = buildRenderPlan(edl!, {
+    root: "/tmp",
+    resolveSource: resolve,
+    ffmpeg: "ffmpeg",
+    workDir: "/tmp/work",
+  });
+  assert.equal(plan.artifacts.length, 1);
+  assert.ok(plan.artifacts[0]!.content.includes(",3,8,1,"));
+  assert.ok(plan.artifacts[0]!.content.includes("&H33000000"));
+});
+
 const TITLE_EDL = `schema: vided.edl/1
 output:
   resolution: 640x480

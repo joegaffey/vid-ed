@@ -131,6 +131,19 @@ timeline:
     zoom: { x: 0, y: 0.4, w: 1, h: 0.34 }
 ```
 
+**Text overlays** are placed on the concatenated video. Over busy footage,
+give a label a background box so it stays readable:
+
+```yaml
+overlays:
+  - type: text
+    text: "Without a tool, the graph renders EMPTY"
+    start: 58
+    end: 67.5
+    position: bottom
+    style: { size: 44, color: "#ffffff", box: true, box_color: "#000000cc", outline: 0 }
+```
+
 ## Example agent prompt
 
 Everything above is driven by talking to the agent. For the chaptered demo in
