@@ -1,0 +1,76 @@
+# Example vided edit script (EDL).
+# `source` values are either manifest asset ids or paths relative to the project.
+# Validate with:  vided compose examples/edit.yaml --check --lint
+# Render with:    vided render examples/edit.yaml --dry-run
+
+schema: vided.edl/1
+
+output:
+  path: out/final.mp4
+  resolution: 1920x1080
+  fps: 30
+  video_codec: libx264
+  audio_codec: aac
+  loudness_lufs: -14
+  crf: 23
+  preset: medium
+
+timeline:
+  # A title card is a timeline item with `title` instead of `source`.
+  - id: title
+    title: "My Project"
+    subtitle: "An agentic edit"
+    duration: 3
+    background: "#101820"
+    transition_out: { type: fade, duration: 0.5 }
+  - id: chapter1
+    title: "Chapter 1"
+    subtitle: "The opening"
+    duration: 2.5
+    background: "#1b2a41"
+  - id: broll
+    source: <asset-id-1>
+    in: 0
+    out: 5
+    transition_in: { type: fade, duration: 0.5 }
+  - id: chapter2
+    title: "Chapter 2"
+    subtitle: "The build"
+    duration: 2.5
+    background: "#2a1b41"
+  - id: detail
+    source: <asset-id-2>
+    in: 2
+    out: 8
+    speed: 0.5
+
+audio:
+  voiceover:
+    source: work/narration.wav
+    start: 0
+    gain_db: 0
+  music:
+    source: assets/bed.mp3
+    gain_db: -18
+    duck_under_voiceover: true
+    loop: true
+
+overlays:
+  - type: image
+    source: <image-asset-id>
+    start: 0
+    end: 4
+    position: top-right
+    opacity: 0.9
+    width: 160
+  - type: text
+    text: "Chapter 1"
+    start: 1
+    end: 3.5
+    position: bottom
+    style: { size: 64, color: "#ffffff" }
+
+captions:
+  mode: soft            # soft (default) | burn (opt-in) | none
+  file: work/captions.srt
+  export: [srt, vtt]

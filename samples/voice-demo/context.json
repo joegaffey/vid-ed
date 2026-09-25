@@ -1,0 +1,106 @@
+{
+  "schema": "vided.context/1",
+  "project": "demo",
+  "created_at": "2026-09-25T16:46:00.057Z",
+  "totals": {
+    "assets": 4,
+    "duration_s": 9,
+    "unique_frames": 3
+  },
+  "assets": [
+    {
+      "id": "0b8435bf4d33",
+      "path": "input/clip01.mp4",
+      "kind": "video",
+      "duration_s": 3,
+      "tags": [
+        "test-pattern",
+        "colour-bars"
+      ],
+      "scenes": [
+        {
+          "id": "s0",
+          "start": 0,
+          "end": 3
+        }
+      ],
+      "transcript": [],
+      "frames": [
+        {
+          "t": 0,
+          "scene": "s0",
+          "description": "Colour test pattern with vertical bars.",
+          "tags": [
+            "test-pattern",
+            "colour-bars"
+          ],
+          "quality": 0.6
+        }
+      ]
+    },
+    {
+      "id": "2060a68bbfe2",
+      "path": "input/still.png",
+      "kind": "image",
+      "tags": [],
+      "scenes": [],
+      "transcript": [],
+      "frames": []
+    },
+    {
+      "id": "7b2fbf34cc30",
+      "path": "input/clip02.mp4",
+      "kind": "video",
+      "duration_s": 6,
+      "tags": [
+        "solid",
+        "red",
+        "blue"
+      ],
+      "scenes": [
+        {
+          "id": "s0",
+          "start": 0,
+          "end": 2
+        },
+        {
+          "id": "s1",
+          "start": 2,
+          "end": 6
+        }
+      ],
+      "transcript": [],
+      "frames": [
+        {
+          "t": 0,
+          "scene": "s0",
+          "description": "Flat red screen.",
+          "tags": [
+            "solid",
+            "red"
+          ],
+          "quality": 0.2
+        },
+        {
+          "t": 2,
+          "scene": "s1",
+          "description": "Flat blue screen.",
+          "tags": [
+            "solid",
+            "blue"
+          ],
+          "quality": 0.2
+        }
+      ]
+    },
+    {
+      "id": "fb262cf15fac",
+      "path": "input/notes.txt",
+      "kind": "text",
+      "tags": [],
+      "scenes": [],
+      "transcript": [],
+      "frames": []
+    }
+  ]
+}

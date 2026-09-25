@@ -1,0 +1,17 @@
+# Example narration script for `vided tts`.
+#   vided tts examples/narration.yaml
+# Writes work/narration.wav + work/narration.timing.json, then:
+#   vided captions --from narration
+
+schema: vided.narration/1
+voice: en_US-amy-medium
+segments:
+  - id: intro
+    text: "Welcome to the demo."
+    gap_after: 0.5
+  - id: body
+    text: "In the next minute we will walk through the key ideas, one at a time."
+    gap_after: 0.4
+  - id: outro
+    text: "That's everything. Thanks for watching."
+    gap_after: 0

@@ -1,0 +1,113 @@
+{
+  "schema": "vided.context/1",
+  "project": "vision-demo",
+  "created_at": "2026-09-25T16:52:05.925Z",
+  "totals": {
+    "assets": 4,
+    "duration_s": 6,
+    "unique_frames": 3
+  },
+  "assets": [
+    {
+      "id": "99c9512e147a",
+      "path": "input/person.png",
+      "kind": "image",
+      "tags": [],
+      "scenes": [],
+      "transcript": [],
+      "frames": []
+    },
+    {
+      "id": "ba46544cb54e",
+      "path": "input/chart.png",
+      "kind": "image",
+      "tags": [],
+      "scenes": [],
+      "transcript": [],
+      "frames": []
+    },
+    {
+      "id": "d5f26551fc09",
+      "path": "input/landscape.png",
+      "kind": "image",
+      "tags": [],
+      "scenes": [],
+      "transcript": [],
+      "frames": []
+    },
+    {
+      "id": "dfec4d2e934a",
+      "path": "input/scenes.mp4",
+      "kind": "video",
+      "duration_s": 6,
+      "tags": [
+        "illustration",
+        "house",
+        "outdoor",
+        "daytime",
+        "chart",
+        "data",
+        "graph",
+        "bars",
+        "person",
+        "stick-figure",
+        "diagram"
+      ],
+      "scenes": [
+        {
+          "id": "s0",
+          "start": 0,
+          "end": 2
+        },
+        {
+          "id": "s1",
+          "start": 2,
+          "end": 4
+        },
+        {
+          "id": "s2",
+          "start": 4,
+          "end": 6
+        }
+      ],
+      "transcript": [],
+      "frames": [
+        {
+          "t": 0,
+          "scene": "s0",
+          "description": "Flat illustration of a house with an orange facade, dark-red triangular roof and a brown door, sitting on green grass under a blue sky with a yellow sun in the upper right.",
+          "tags": [
+            "illustration",
+            "house",
+            "outdoor",
+            "daytime"
+          ],
+          "quality": 0.7
+        },
+        {
+          "t": 2,
+          "scene": "s1",
+          "description": "Bar chart on a white background with four vertical bars in blue, orange, green and red; values rise from blue to green then fall at red.",
+          "tags": [
+            "chart",
+            "data",
+            "graph",
+            "bars"
+          ],
+          "quality": 0.8
+        },
+        {
+          "t": 4,
+          "scene": "s2",
+          "description": "Stick-figure person with a round peach-coloured head and black line body, arms and legs on a cream background.",
+          "tags": [
+            "person",
+            "stick-figure",
+            "diagram"
+          ],
+          "quality": 0.6
+        }
+      ]
+    }
+  ]
+}

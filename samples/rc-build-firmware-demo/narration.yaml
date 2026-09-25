@@ -1,0 +1,42 @@
+schema: vided.narration/1
+voice: en_US-amy-medium
+segments:
+  - text: "Welcome to the build!"
+    start: 0
+    gap_after: 0.2
+  - text: "First, the adapter case."
+    start: 3
+    gap_after: 0.2
+  - text: "The workspace fills with parts: the circuit board and the housing."
+    start: 5.5
+    gap_after: 0.2
+  - text: "The board slots into place, with vents and connectors lining up."
+    start: 13.5
+    gap_after: 0.2
+  - text: "And the finished case comes together, lid and all."
+    start: 23.5
+    gap_after: 0.2
+  - text: "Every board and standoff has its place."
+    start: 30
+    gap_after: 0.2
+  - text: "Next, the firmware that turns RC signals into a joystick."
+    start: 37.5
+    gap_after: 0.2
+  - text: "We include the Joystick library and define the throttle and steering pins."
+    start: 40
+    gap_after: 0.2
+  - text: "In setup, we enable the pins, then set the X and Y axis ranges."
+    start: 47
+    gap_after: 0.2
+  - text: "And in the loop, pulseIn reads each channel and feeds it to the joystick axes."
+    start: 54
+    gap_after: 0.2
+  - text: "Now, let's test it."
+    start: 62
+    gap_after: 0.2
+  - text: "Out on track, our 3D-printed wheel rim does the steering."
+    start: 63.5
+    gap_after: 0.2
+  - text: "And it works! RACELOGIC timing keeps score as the laps come in."
+    start: 74
+    gap_after: 0.2

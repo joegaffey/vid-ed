@@ -1,0 +1,60 @@
+1
+00:00:00,000 --> 00:00:01,628
+Welcome to the build!
+
+2
+00:00:03,000 --> 00:00:05,255
+First, the adapter case.
+
+3
+00:00:05,500 --> 00:00:09,903
+The workspace fills with parts: the
+circuit board and the housing.
+
+4
+00:00:13,500 --> 00:00:18,193
+The board slots into place, with vents and
+connectors lining up.
+
+5
+00:00:23,500 --> 00:00:27,090
+And the finished case comes together, lid
+and all.
+
+6
+00:00:30,000 --> 00:00:32,975
+Every board and standoff has its place.
+
+7
+00:00:37,500 --> 00:00:42,123
+Next, the firmware that turns RC signals
+into a joystick.
+
+8
+00:00:42,323 --> 00:00:47,283
+We include the Joystick library and define
+the throttle and steering pins.
+
+9
+00:00:47,483 --> 00:00:52,676
+In setup, we enable the pins, then set the
+X and Y axis ranges.
+
+10
+00:00:54,000 --> 00:00:59,390
+And in the loop, pulseIn reads each
+channel and feeds it to the joystick axes.
+
+11
+00:01:02,000 --> 00:01:03,988
+Now, let's test it.
+
+12
+00:01:04,188 --> 00:01:08,660
+Out on track, our 3D-printed wheel rim
+does the steering.
+
+13
+00:01:14,000 --> 00:01:19,241
+And it works! RACELOGIC timing keeps score
+as the laps come in.

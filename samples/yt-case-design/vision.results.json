@@ -1,0 +1,417 @@
+{
+  "schema": "vided.vision.results/1",
+  "frames": [
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00001.jpg",
+      "description": "Editor viewport with a File menu dialog (Import/Export) open over the empty grid scene.",
+      "tags": [
+        "ui",
+        "menu",
+        "empty-scene"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00004.jpg",
+      "description": "A single red cube sitting in the centre of the grid floor; coloured data panel top-left.",
+      "tags": [
+        "cube",
+        "primitive",
+        "red"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00009.jpg",
+      "description": "An 'Add Part' dialog (part name, base shape dropdown, colour, parent group) over the grid.",
+      "tags": [
+        "ui",
+        "dialog",
+        "add-part"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00022.jpg",
+      "description": "Viewport showing a flat green PCB profile, a large red block and a small white cube on the grid.",
+      "tags": [
+        "pcb",
+        "block",
+        "layout"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00030.jpg",
+      "description": "Green enclosure box and a green circuit board resting on a red base plane.",
+      "tags": [
+        "enclosure",
+        "pcb",
+        "model"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00048.jpg",
+      "description": "Long grey enclosure with a green circuit board inside, viewed from the side.",
+      "tags": [
+        "enclosure",
+        "pcb",
+        "side-view"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/scene_00001.jpg",
+      "description": "Close-up of a green circuit board seated in the opening of a grey enclosure.",
+      "tags": [
+        "pcb",
+        "enclosure",
+        "closeup"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00050.jpg",
+      "description": "A green vented box mounted inside a grey enclosure.",
+      "tags": [
+        "vented-box",
+        "enclosure",
+        "closeup"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00109.jpg",
+      "description": "The green vented box inside the grey enclosure, angled view.",
+      "tags": [
+        "vented-box",
+        "enclosure"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/scene_00002.jpg",
+      "description": "Close-up of a green circuit board with a connector seated inside the enclosure.",
+      "tags": [
+        "pcb",
+        "connector",
+        "closeup"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00110.jpg",
+      "description": "Close-up of the green circuit board and an XT60-style connector inside the enclosure.",
+      "tags": [
+        "pcb",
+        "connector",
+        "closeup"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/scene_00005.jpg",
+      "description": "Grey enclosure with a green connector protruding from its side.",
+      "tags": [
+        "enclosure",
+        "connector"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/scene_00007.jpg",
+      "description": "Open grey enclosure revealing a green circuit board inside, on the grid floor.",
+      "tags": [
+        "enclosure",
+        "pcb",
+        "open"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/scene_00008.jpg",
+      "description": "Close-up of the green vented box inside the enclosure.",
+      "tags": [
+        "vented-box",
+        "closeup"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00116.jpg",
+      "description": "Long open grey enclosure with a green circuit board strip inside, top-down.",
+      "tags": [
+        "enclosure",
+        "pcb",
+        "topdown"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00119.jpg",
+      "description": "Grey enclosure with a red panel fitted at one end.",
+      "tags": [
+        "enclosure",
+        "red-panel"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00120.jpg",
+      "description": "Close-up of a green circuit board with traces and pads inside the enclosure.",
+      "tags": [
+        "pcb",
+        "traces",
+        "closeup"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00121.jpg",
+      "description": "Grey box with a green connector strip at the bottom front.",
+      "tags": [
+        "enclosure",
+        "connector"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00125.jpg",
+      "description": "Grey enclosure with a red interior and an orange box inside, angled view.",
+      "tags": [
+        "enclosure",
+        "red-interior",
+        "orange-box"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/scene_00009.jpg",
+      "description": "Close-up of the red interior with the orange box inside the enclosure.",
+      "tags": [
+        "red-interior",
+        "closeup"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/scene_00010.jpg",
+      "description": "Enclosure with a red inner wall and a green base with vent slots.",
+      "tags": [
+        "enclosure",
+        "vent-slots",
+        "red"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00144.jpg",
+      "description": "Long enclosure with two green circuit boards mounted inside, top-down.",
+      "tags": [
+        "enclosure",
+        "pcb",
+        "topdown"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00155.jpg",
+      "description": "Enclosure with green circuit boards, a red component and cylindrical posts, top-down.",
+      "tags": [
+        "enclosure",
+        "pcb",
+        "topdown"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00157.jpg",
+      "description": "Long enclosure with two green circuit boards (one with a connector) and cylindrical posts.",
+      "tags": [
+        "enclosure",
+        "pcb",
+        "topdown"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/scene_00011.jpg",
+      "description": "Interior close-up with green circuit boards and cylindrical posts.",
+      "tags": [
+        "pcb",
+        "standoff",
+        "closeup"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/scene_00014.jpg",
+      "description": "Plain grey interior wall with a small cylindrical post.",
+      "tags": [
+        "interior",
+        "grey"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/scene_00017.jpg",
+      "description": "Close-up of green circuit boards and a grey cylindrical standoff.",
+      "tags": [
+        "pcb",
+        "standoff",
+        "closeup"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00165.jpg",
+      "description": "Extreme close-up of a green circuit board with mounting holes and a grey post.",
+      "tags": [
+        "pcb",
+        "holes",
+        "macro"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/scene_00018.jpg",
+      "description": "Grey interior with cylindrical posts and a green circuit board with holes.",
+      "tags": [
+        "pcb",
+        "standoff",
+        "interior"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/scene_00023.jpg",
+      "description": "Close-up of a green circuit board with a connector and cylindrical posts.",
+      "tags": [
+        "pcb",
+        "connector",
+        "closeup"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00185.jpg",
+      "description": "Long open enclosure with a green circuit board and a red strip inside.",
+      "tags": [
+        "enclosure",
+        "pcb",
+        "red-strip"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/scene_00024.jpg",
+      "description": "Top-down into the enclosure with two green circuit boards and cylindrical posts.",
+      "tags": [
+        "enclosure",
+        "pcb",
+        "topdown"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00191.jpg",
+      "description": "Enclosure with green circuit boards inside, top-down.",
+      "tags": [
+        "enclosure",
+        "pcb",
+        "topdown"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00198.jpg",
+      "description": "End-on view into the enclosure with a green circuit board and posts.",
+      "tags": [
+        "enclosure",
+        "pcb",
+        "end-view"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00200.jpg",
+      "description": "Long enclosure with a green circuit board strip and a cylindrical post, angled.",
+      "tags": [
+        "enclosure",
+        "pcb",
+        "angled"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00201.jpg",
+      "description": "Close-up of a green circuit board with a connector and posts inside the enclosure.",
+      "tags": [
+        "pcb",
+        "connector",
+        "closeup"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00204.jpg",
+      "description": "Close-up of the enclosure edge with red trim and cylindrical posts.",
+      "tags": [
+        "enclosure",
+        "red-trim",
+        "closeup"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00205.jpg",
+      "description": "Enclosure interior with red trim, cylindrical posts and a green circuit board strip.",
+      "tags": [
+        "enclosure",
+        "red-trim",
+        "interior"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00215.jpg",
+      "description": "An 'Add Part' dialog over a grey box with a green connector on the grid.",
+      "tags": [
+        "ui",
+        "dialog",
+        "add-part"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00224.jpg",
+      "description": "Close-up of a green connector/PCB profile next to grey parts.",
+      "tags": [
+        "connector",
+        "pcb",
+        "closeup"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/scene_00026.jpg",
+      "description": "Close-up of a plain grey/tan interior wall.",
+      "tags": [
+        "interior",
+        "grey"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00226.jpg",
+      "description": "Grey bracket parts lying on the grid floor.",
+      "tags": [
+        "bracket",
+        "parts"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00227.jpg",
+      "description": "Grey profile/bracket part on the grid floor.",
+      "tags": [
+        "bracket",
+        "profile"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00228.jpg",
+      "description": "Grey bracket and base parts on the grid floor.",
+      "tags": [
+        "bracket",
+        "parts"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00231.jpg",
+      "description": "Enclosure with the lid removed, showing green circuit boards and a red block plus a green connector.",
+      "tags": [
+        "enclosure",
+        "pcb",
+        "open"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00232.jpg",
+      "description": "Enclosure with its lid panel lying beside it on the grid floor.",
+      "tags": [
+        "enclosure",
+        "lid",
+        "exploded"
+      ]
+    },
+    {
+      "frame": ".vided/frames/6968766a76c9/u_00233.jpg",
+      "description": "Final view: open enclosure and the separate lid panel on the grid floor.",
+      "tags": [
+        "enclosure",
+        "lid",
+        "final"
+      ]
+    }
+  ]
+}

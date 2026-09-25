@@ -1,0 +1,19 @@
+{
+  "schema": "vided.vision.results/1",
+  "frames": [
+    {
+      "frame": ".vided/frames/<asset-id>/scene_00001.webp",
+      "description": "Presenter standing at a whiteboard, pointing at a diagram.",
+      "tags": ["presenter", "whiteboard", "indoor"],
+      "quality": 0.8,
+      "in": 2.0,
+      "out": 6.5
+    },
+    {
+      "frame": ".vided/frames/<asset-id>/u_00000000.webp",
+      "description": "Wide shot of a city skyline at dusk.",
+      "tags": ["broll", "city", "outdoor"],
+      "quality": 0.9
+    }
+  ]
+}

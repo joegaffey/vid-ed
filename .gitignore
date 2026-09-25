@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.vided/
+work/
+out/
+*.log
+.DS_Store
+
+# generated media (published externally, not committed)
+*.mp4
+*.mkv
+*.mov
+*.webm
+*.gif
+*.wav
