@@ -142,7 +142,7 @@ Everything above is driven by talking to the agent. For the chaptered demo in
 > (`http://gist.github.com/joegaffey/15bc76fa8b89fa941570b381fa884ad4`).
 > I built the 3D editor myself, it's called "3table". The track test was hard
 > to drive because I was recording the video with one hand and steering with
-> the other. Use a Piper voice-over and soft (not burned) captions.
+> the other.
 
 The agent then scanned the media, sampled/deduped and described frames,
 captured the gist page with the browser, wrote `edit.yaml` + `narration.yaml`,
