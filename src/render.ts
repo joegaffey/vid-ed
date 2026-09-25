@@ -321,6 +321,7 @@ export function buildRenderPlan(edl: Edl, opts: BuildOptions): RenderPlan {
     }
 
     const delay = vo && vo.start > 0 ? `,adelay=${Math.round(vo.start * 1000)}|${Math.round(vo.start * 1000)}` : "";
+    const resample = `,aresample=${output.audio_sample_rate}`;
     if (vo && music) {
       filters.push(
         `[${voIdx}:a]volume=${vo.gain_db}dB${delay},asplit=2[voa][vos]`,
@@ -334,12 +335,12 @@ export function buildRenderPlan(edl: Edl, opts: BuildOptions): RenderPlan {
       } else {
         filters.push(`[mua][voa]amix=inputs=2:duration=longest:normalize=0[amixed]`);
       }
-      filters.push(`[amixed]loudnorm=I=${output.loudness_lufs}[aout]`);
+      filters.push(`[amixed]loudnorm=I=${output.loudness_lufs}${resample}[aout]`);
     } else if (vo) {
-      filters.push(`[${voIdx}:a]volume=${vo.gain_db}dB${delay},loudnorm=I=${output.loudness_lufs}[aout]`);
+      filters.push(`[${voIdx}:a]volume=${vo.gain_db}dB${delay},loudnorm=I=${output.loudness_lufs}${resample}[aout]`);
     } else if (music) {
       filters.push(
-        `[${muIdx}:a]volume=${music.gain_db}dB,atrim=0:${duration.toFixed(3)},loudnorm=I=${output.loudness_lufs}[aout]`,
+        `[${muIdx}:a]volume=${music.gain_db}dB,atrim=0:${duration.toFixed(3)},loudnorm=I=${output.loudness_lufs}${resample}[aout]`,
       );
     }
   }
@@ -365,7 +366,13 @@ export function buildRenderPlan(edl: Edl, opts: BuildOptions): RenderPlan {
     "-crf", String(output.crf),
     "-preset", output.preset,
   );
-  if (hasAudio) args.push("-c:a", output.audio_codec);
+  if (hasAudio) {
+    args.push(
+      "-c:a", output.audio_codec,
+      "-ar", String(output.audio_sample_rate),
+      "-b:a", output.audio_bitrate,
+    );
+  }
   args.push("-movflags", "+faststart", output.path);
 
   return {

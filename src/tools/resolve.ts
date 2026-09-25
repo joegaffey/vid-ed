@@ -69,3 +69,15 @@ export async function requireTool(config: Config, name: ToolName): Promise<strin
   }
   return bin;
 }
+
+let cachedFfmpegMajor: number | undefined;
+
+/** Major version of the configured ffmpeg, or undefined if undetectable. */
+export async function ffmpegMajorVersion(config: Config): Promise<number | undefined> {
+  if (cachedFfmpegMajor !== undefined) return cachedFfmpegMajor;
+  const bin = config.tools.ffmpeg ?? DEFAULTS.ffmpeg;
+  const status = await probeTool("ffmpeg", bin);
+  const m = status.version?.match(/^(\d+)/);
+  cachedFfmpegMajor = m ? Number(m[1]) : undefined;
+  return cachedFfmpegMajor;
+}

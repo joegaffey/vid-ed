@@ -8,6 +8,8 @@ export const OutputSchema = z.object({
   fps: z.number().default(30),
   video_codec: z.string().default("libx264"),
   audio_codec: z.string().default("aac"),
+  audio_sample_rate: z.number().int().default(48000),
+  audio_bitrate: z.string().default("192k"),
   loudness_lufs: z.number().default(-14),
   crf: z.number().default(23),
   preset: z.string().default("medium"),

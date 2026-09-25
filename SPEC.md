@@ -283,6 +283,8 @@ output:
   fps: 30
   video_codec: libx264
   audio_codec: aac
+  audio_sample_rate: 48000
+  audio_bitrate: 192k
   loudness_lufs: -14
 
 timeline:

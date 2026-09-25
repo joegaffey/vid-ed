@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { hammingDistance } from "../hash.js";
 import { clusterFrames, dedupeFrames, applyBudget, densityBudget } from "../dedupe.js";
-import { buildCuts, mergeFrames, sceneOf } from "../frames.js";
+import { buildCuts, fpsFlagForMajor, mergeFrames, sceneOf } from "../frames.js";
 import { parseWhisperJson } from "../text.js";
 
 test("hammingDistance counts differing bits", () => {
@@ -97,4 +97,11 @@ test("mergeFrames drops uniform frames near scene cuts, preferring scene", () =>
     merged.map((f) => f.path),
     ["u0.webp", "s5.webp", "u10.webp"],
   );
+});
+
+test("fpsFlagForMajor picks a flag compatible with the ffmpeg version", () => {
+  assert.deepEqual(fpsFlagForMajor(7), ["-fps_mode", "vfr"]);
+  assert.deepEqual(fpsFlagForMajor(5), ["-fps_mode", "vfr"]);
+  assert.deepEqual(fpsFlagForMajor(4), ["-vsync", "vfr"]);
+  assert.deepEqual(fpsFlagForMajor(undefined), ["-vsync", "vfr"]);
 });

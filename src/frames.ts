@@ -2,7 +2,7 @@ import { mkdir, readdir, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { execa } from "execa";
 import type { Config } from "./config.js";
-import { requireTool } from "./tools/resolve.js";
+import { ffmpegMajorVersion, requireTool } from "./tools/resolve.js";
 
 export interface RawFrame {
   t: number;
@@ -15,6 +15,20 @@ function scaleFilter(maxWidth: number): string {
   return `scale=w='min(iw,${maxWidth})':h=-1`;
 }
 
+/** `-fps_mode vfr` (ffmpeg >= 5.1) or the legacy `-vsync vfr` on 4.x. */
+export function fpsFlagForMajor(major?: number): string[] {
+  return major !== undefined && major >= 5 ? ["-fps_mode", "vfr"] : ["-vsync", "vfr"];
+}
+
+async function vfrArgs(config: Config): Promise<string[]> {
+  return fpsFlagForMajor(await ffmpegMajorVersion(config));
+}
+
+function ffmpegError(action: string, stderr: string): Error {
+  const tail = stderr.split("\n").filter((l) => l.trim()).slice(-2).join(" ");
+  return new Error(`ffmpeg ${action} failed: ${tail}`);
+}
+
 export async function sceneFrames(
   config: Config,
   input: string,
@@ -25,19 +39,20 @@ export async function sceneFrames(
   const ffmpeg = await requireTool(config, "ffmpeg");
   await mkdir(outDir, { recursive: true });
   const pattern = join(outDir, "scene_%05d.jpg");
-  const { stderr } = await execa(
+  const res = await execa(
     ffmpeg,
     [
       "-y", "-i", input,
       "-vf", `select='gt(scene,${threshold})',${scaleFilter(maxWidth)},showinfo`,
-      "-fps_mode", "vfr",
+      ...(await vfrArgs(config)),
       pattern,
     ],
     { reject: false },
   );
+  if (res.exitCode !== 0) throw ffmpegError("scene detection", res.stderr);
 
   const times: number[] = [];
-  for (const m of stderr.matchAll(SHOWINFO_PTS)) times.push(Number(m[1]));
+  for (const m of res.stderr.matchAll(SHOWINFO_PTS)) times.push(Number(m[1]));
 
   const files = (await readdir(outDir))
     .filter((f) => f.startsWith("scene_") && f.endsWith(".jpg"))
@@ -81,18 +96,19 @@ export async function uniformFrames(
   const ffmpeg = await requireTool(config, "ffmpeg");
   await mkdir(outDir, { recursive: true });
   const pattern = join(outDir, "u_%05d.jpg");
-  const { stderr } = await execa(
+  const res = await execa(
     ffmpeg,
     [
       "-y", "-i", input,
       "-vf", `fps=1/${interval},${scaleFilter(maxWidth)},showinfo`,
-      "-fps_mode", "vfr",
+      ...(await vfrArgs(config)),
       pattern,
     ],
     { reject: false },
   );
+  if (res.exitCode !== 0) throw ffmpegError("uniform sampling", res.stderr);
   const times: number[] = [];
-  for (const m of stderr.matchAll(SHOWINFO_PTS)) times.push(Number(m[1]));
+  for (const m of res.stderr.matchAll(SHOWINFO_PTS)) times.push(Number(m[1]));
   const files = (await readdir(outDir))
     .filter((f) => f.startsWith("u_") && f.endsWith(".jpg"))
     .sort();

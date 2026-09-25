@@ -99,6 +99,24 @@ audio:
   assert.equal(plan.duration, 5);
 });
 
+test("buildRenderPlan resamples audio and sets encoder rate/bitrate", () => {
+  const { edl } = loadEdlFromString(`${EDL}
+audio:
+  voiceover: { source: vo, start: 0.5 }
+`);
+  const plan = buildRenderPlan(edl!, {
+    root: "/tmp",
+    resolveSource: (s) => ({ vo: { path: "/tmp/vo.wav" } })[s] ?? resolve(s),
+    ffmpeg: "ffmpeg",
+    workDir: "/tmp/work",
+  });
+  assert.ok(plan.filter.includes("loudnorm=I=-14,aresample=48000[aout]"));
+  const ai = plan.args.indexOf("-ar");
+  assert.equal(plan.args[ai + 1], "48000");
+  const bi = plan.args.indexOf("-b:a");
+  assert.equal(plan.args[bi + 1], "192k");
+});
+
 test("parseResolution and positionExpr helpers", () => {
   assert.deepEqual(parseResolution("1920x1080"), [1920, 1080]);
   assert.throws(() => parseResolution("nope"));
