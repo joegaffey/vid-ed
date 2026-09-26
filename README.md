@@ -162,8 +162,8 @@ overlays:
 
 ## Example agent prompt
 
-Everything above is driven by talking to the agent. For the chaptered demo in
-`samples/rc-build-gist-demo/`, the prompt was roughly:
+Everything above is driven by talking to the agent. The chaptered demo was
+produced from a prompt like this:
 
 > Combine my two YouTube videos — the 3D case design
 > (<https://www.youtube.com/watch?v=11TeA7der1Q>) and the controller test
@@ -279,26 +279,13 @@ Run `vided <command> --help` for flags.
 
 ### Legacy (v0.1 — EDL `vided.edl/1`, no clips stage)
 
-These predate the clip model and won't parse under 0.2; the `v0.1` git tag is
-their contract. Published where noted.
+The older samples (`rc-build-gist-demo`, `rc-build-firmware-demo`,
+`rc-build-demo`, `voice-demo`, `vision-demo`, `yt-case-design`,
+`yt-controller-test`) were **removed from `main`** — they predate the clip model
+and won't parse under 0.2. They remain on the **`v0.1` git tag**. The one
+published v0.1 cut (superseded by the 0.2 demo above):
+**https://youtu.be/YWU-AIhnUwo**.
 
-- **`samples/rc-build-gist-demo/`** — chaptered build-and-test cut with title
-  cards, browser-captured firmware walkthrough, Piper voice-over, soft captions.
-  **Published (v0.1):** https://youtu.be/YWU-AIhnUwo — superseded by the 0.2
-  demo above. (artifacts: `edit.yaml`, `narration.yaml`, `brief.md`,
-  `captions.srt`, `gist-code.png`)
-- `samples/rc-build-firmware-demo/` — the same cut with tool-rendered code
-  slides instead of screen captures. *(not published)*
-- `samples/rc-build-demo/` — the chaptered cut before the firmware chapter.
-  *(not published)*
-- `samples/voice-demo/` — narrated, captioned 9s edit (Piper) with SRT/VTT,
-  context pack, and vision round-trip artifacts. *(not published)*
-- `samples/vision-demo/` — synthetic scenes described by the vision pass, then
-  narrated and captioned. *(not published)*
-- `samples/yt-case-design/` — a real 7.8-min YouTube video analysed to 47
-  described frames; analysis artifacts only. *(not published)*
-- `samples/yt-controller-test/` — a 33s cockpit clip analysed to 8 described
-  frames; analysis artifacts only. *(not published)*
 
 
 ## Development
