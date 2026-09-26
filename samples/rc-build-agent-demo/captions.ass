@@ -1,0 +1,31 @@
+[Script Info]
+ScriptType: v4.00+
+WrapStyle: 0
+ScaledBorderAndShadow: yes
+PlayResX: 1920
+PlayResY: 1080
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,DejaVu Sans,42,&H00FFFFFF,&H000000FF,&H00000000,&H80000000,0,0,0,0,100,100,0,0,1,2,1,2,10,10,64,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:05.58,Default,,0,0,24,,{\an2}This is my DIY RC sim-racing controller\Nbuild: a receiver adapter, a little
+Dialogue: 0,0:00:05.58,0:00:08.71,Default,,0,0,24,,{\an2}firmware, a custom case, and a track test.
+Dialogue: 0,0:00:09.06,0:00:15.13,Default,,0,0,24,,{\an2}The core is a receiver adapter that reads\Ntwo RC channels and presents itself to the
+Dialogue: 0,0:00:15.13,0:00:16.64,Default,,0,0,24,,{\an2}PC as a USB joystick.
+Dialogue: 0,0:00:16.94,0:00:22.64,Default,,0,0,24,,{\an2}Its firmware is tiny: throttle on pin two,\Nsteering on pin three, mapped straight
+Dialogue: 0,0:00:22.64,0:00:24.26,Default,,0,0,24,,{\an2}onto the joystick axes.
+Dialogue: 0,0:00:24.66,0:00:31.07,Default,,0,0,24,,{\an2}The adapter needed a home, so I modelled a\Ncase in 3table, the CAD editor I built
+Dialogue: 0,0:00:31.07,0:00:31.62,Default,,0,0,24,,{\an2}myself.
+Dialogue: 0,0:00:31.92,0:00:37.47,Default,,0,0,24,,{\an2}Starting from a blank grid, I shaped a\Nlong grey shell around the circuit board —\Na
+Dialogue: 0,0:00:37.47,0:00:41.08,Default,,0,0,24,,{\an2}green lid, snap-fit tabs, and a power\Nswitch up front.
+Dialogue: 0,0:00:41.38,0:00:46.55,Default,,0,0,24,,{\an2}Inside there are ribs, threaded mounting\Nposts, and slots that hold the board
+Dialogue: 0,0:00:46.55,0:00:48.57,Default,,0,0,24,,{\an2}exactly where it needs to sit.
+Dialogue: 0,0:00:48.92,0:00:51.21,Default,,0,0,24,,{\an2}Then came the track test.
+Dialogue: 0,0:00:51.46,0:00:56.79,Default,,0,0,24,,{\an2}Full disclosure: I was filming with one\Nhand and steering with the other, so the
+Dialogue: 0,0:00:56.79,0:00:58.59,Default,,0,0,24,,{\an2}driving is, frankly, brave.
+Dialogue: 0,0:00:58.84,0:01:02.30,Default,,0,0,24,,{\an2}But the controller worked, and that is the\Nwhole point.
+Dialogue: 0,0:01:02.65,0:01:08.79,Default,,0,0,24,,{\an2}Receiver adapter, a few lines of firmware,\Na case modelled in 3table, and one very
+Dialogue: 0,0:01:08.79,0:01:11.26,Default,,0,0,24,,{\an2}sketchy lap. Thanks for watching.

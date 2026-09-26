@@ -1,0 +1,79 @@
+{
+  "schema": "vided.narration.timing/1",
+  "engine": "piper",
+  "voice": "en_US-amy-medium",
+  "audio": "/tmp/opencode/agent-demo/work/narration.wav",
+  "duration": 71.262,
+  "segments": [
+    {
+      "id": "intro",
+      "text": "This is my DIY RC sim-racing controller build: a receiver adapter, a little firmware, a custom case, and a track test.",
+      "start": 0,
+      "end": 8.71,
+      "gap_after": 0.35
+    },
+    {
+      "id": "adapter-1",
+      "text": "The core is a receiver adapter that reads two RC channels and presents itself to the PC as a USB joystick.",
+      "start": 9.06,
+      "end": 16.644,
+      "gap_after": 0.3
+    },
+    {
+      "id": "firmware-1",
+      "text": "Its firmware is tiny: throttle on pin two, steering on pin three, mapped straight onto the joystick axes.",
+      "start": 16.944,
+      "end": 24.261,
+      "gap_after": 0.4
+    },
+    {
+      "id": "case-1",
+      "text": "The adapter needed a home, so I modelled a case in 3table, the CAD editor I built myself.",
+      "start": 24.661,
+      "end": 31.618,
+      "gap_after": 0.3
+    },
+    {
+      "id": "case-2",
+      "text": "Starting from a blank grid, I shaped a long grey shell around the circuit board — a green lid, snap-fit tabs, and a power switch up front.",
+      "start": 31.918,
+      "end": 41.081,
+      "gap_after": 0.3
+    },
+    {
+      "id": "case-3",
+      "text": "Inside there are ribs, threaded mounting posts, and slots that hold the board exactly where it needs to sit.",
+      "start": 41.381,
+      "end": 48.57,
+      "gap_after": 0.35
+    },
+    {
+      "id": "test-1",
+      "text": "Then came the track test.",
+      "start": 48.92,
+      "end": 51.21,
+      "gap_after": 0.25
+    },
+    {
+      "id": "test-2",
+      "text": "Full disclosure: I was filming with one hand and steering with the other, so the driving is, frankly, brave.",
+      "start": 51.46,
+      "end": 58.591,
+      "gap_after": 0.25
+    },
+    {
+      "id": "test-3",
+      "text": "But the controller worked, and that is the whole point.",
+      "start": 58.841,
+      "end": 62.303,
+      "gap_after": 0.35
+    },
+    {
+      "id": "outro",
+      "text": "Receiver adapter, a few lines of firmware, a case modelled in 3table, and one very sketchy lap. Thanks for watching.",
+      "start": 62.653,
+      "end": 71.262,
+      "gap_after": 0
+    }
+  ]
+}

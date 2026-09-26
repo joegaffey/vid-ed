@@ -1,0 +1,82 @@
+1
+00:00:00,000 --> 00:00:05,583
+This is my DIY RC sim-racing controller
+build: a receiver adapter, a little
+
+2
+00:00:05,583 --> 00:00:08,710
+firmware, a custom case, and a track test.
+
+3
+00:00:09,060 --> 00:00:15,127
+The core is a receiver adapter that reads
+two RC channels and presents itself to the
+
+4
+00:00:15,127 --> 00:00:16,644
+PC as a USB joystick.
+
+5
+00:00:16,944 --> 00:00:22,643
+Its firmware is tiny: throttle on pin two,
+steering on pin three, mapped straight
+
+6
+00:00:22,643 --> 00:00:24,261
+onto the joystick axes.
+
+7
+00:00:24,661 --> 00:00:31,065
+The adapter needed a home, so I modelled a
+case in 3table, the CAD editor I built
+
+8
+00:00:31,065 --> 00:00:31,618
+myself.
+
+9
+00:00:31,918 --> 00:00:37,469
+Starting from a blank grid, I shaped a
+long grey shell around the circuit board —
+a
+
+10
+00:00:37,469 --> 00:00:41,081
+green lid, snap-fit tabs, and a power
+switch up front.
+
+11
+00:00:41,381 --> 00:00:46,554
+Inside there are ribs, threaded mounting
+posts, and slots that hold the board
+
+12
+00:00:46,554 --> 00:00:48,570
+exactly where it needs to sit.
+
+13
+00:00:48,920 --> 00:00:51,210
+Then came the track test.
+
+14
+00:00:51,460 --> 00:00:56,792
+Full disclosure: I was filming with one
+hand and steering with the other, so the
+
+15
+00:00:56,792 --> 00:00:58,591
+driving is, frankly, brave.
+
+16
+00:00:58,841 --> 00:01:02,303
+But the controller worked, and that is the
+whole point.
+
+17
+00:01:02,653 --> 00:01:08,792
+Receiver adapter, a few lines of firmware,
+a case modelled in 3table, and one very
+
+18
+00:01:08,792 --> 00:01:11,262
+sketchy lap. Thanks for watching.

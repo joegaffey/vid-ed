@@ -278,8 +278,8 @@ Working demos produced by the toolchain:
   one-paragraph prompt, and drove the whole pipeline itself (`annotate` on 50
   frames → `clips` → `script`/`tts`/`captions` → `compose` → `render`).
   Published: **https://www.youtube.com/watch?v=6v21-kAtpUo** (artifacts:
-  `clips.yaml`, `edit.yaml`, `narration.yaml`, `brief.md`, `work/context.*`,
-  `work/vision.*`, `work/captions.*`).
+  `clips.yaml`, `edit.yaml`, `narration.yaml`, `brief.md`, `context.md`/`.json`,
+  `vision.*`, `captions.*`).
 - **`samples/rc-build-gist-demo/`** — a chaptered build-and-test cut with title
   cards, a firmware walkthrough using browser screen captures, Piper
   voice-over and soft captions. Published:
