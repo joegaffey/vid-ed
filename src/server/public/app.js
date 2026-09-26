@@ -158,7 +158,6 @@ class VidedApp extends LitElement {
     stale: { state: true },
     staleNodes: { state: true },
     proposal: { state: true },
-    help: { state: true },
   };
 
   constructor() {
@@ -187,7 +186,6 @@ class VidedApp extends LitElement {
     this.stale = null;
     this.staleNodes = [];
     this.proposal = null;
-    this.help = null;
     this._rail = Number(localStorage.getItem("vided.rail")) || 300;
     this._timeline = Number(localStorage.getItem("vided.timeline")) || 220;
     this._es = null;
@@ -199,8 +197,6 @@ class VidedApp extends LitElement {
     this.style.setProperty("--timeline", this._timeline + "px");
     this.refresh();
     this._timer = setInterval(() => this.loadJobs(), 5000);
-    this._onKey = (e) => { if (e.key === "Escape") this.help = null; };
-    window.addEventListener("keydown", this._onKey);
     this._events = new EventSource("/api/events");
     this._events.onmessage = (ev) => {
       let e;
@@ -215,7 +211,6 @@ class VidedApp extends LitElement {
   disconnectedCallback() {
     super.disconnectedCallback();
     clearInterval(this._timer);
-    window.removeEventListener("keydown", this._onKey);
     if (this._es) this._es.close();
     if (this._events) this._events.close();
   }
@@ -417,26 +412,18 @@ class VidedApp extends LitElement {
   }
 
   renderHelpButton(key, cls = "") {
-    if (!HELP[key]) return "";
-    return html`<button class="helpbtn ${cls}" title="What is this?"
-      aria-label=${"Help: " + HELP[key].title}
-      @click=${(e) => { e.stopPropagation(); this.help = this.help === key ? null : key; }}>?</button>`;
-  }
-  closeHelp() { this.help = null; }
-  renderHelpPopup() {
-    const h = HELP[this.help];
+    const h = HELP[key];
     if (!h) return "";
+    const id = "help-" + key.replace(/[^a-z0-9]+/gi, "-");
     return html`
-      <div class="help-backdrop" @click=${this.closeHelp}>
-        <div class="help-pop" role="dialog" aria-modal="true" aria-label=${h.title} @click=${(e) => e.stopPropagation()}>
-          <div class="help-head">
-            <span class="help-ico">?</span>
-            <strong>${h.title}</strong>
-            <span class="spacer"></span>
-            <button class="sm secondary" @click=${this.closeHelp}>close</button>
-          </div>
-          <p>${h.body}</p>
-        </div>
+      <button class="helpbtn ${cls}" title="What is this?"
+        aria-label=${"Help: " + h.title}
+        style=${"anchor-name:--" + id}
+        popovertarget=${id}
+        @click=${(e) => e.stopPropagation()}>?</button>
+      <div id=${id} class="help-pop" popover role="note" style=${"position-anchor:--" + id}>
+        <div class="help-head"><span class="help-ico">?</span><strong>${h.title}</strong></div>
+        <p>${h.body}</p>
       </div>`;
   }
 
@@ -1017,7 +1004,6 @@ class VidedApp extends LitElement {
             <button class="sm" @click=${() => { this.stale = null; this.refresh(); }}>reload</button>
           </div>`
         : ""}
-      ${this.help ? this.renderHelpPopup() : ""}
     `;
   }
 
@@ -1144,23 +1130,26 @@ class VidedApp extends LitElement {
     .tabs-help { margin: 8px 8px 6px 0; align-self: center; }
     .tl-help { margin-left: 2px; align-self: center; }
 
-    .help-backdrop {
-      position: fixed; inset: 0; z-index: 60; background: #00000073;
-      display: grid; place-items: center; padding: 20px;
-    }
     .help-pop {
+      width: max-content; max-width: min(340px, 72vw);
+      padding: 10px 12px; color: var(--text);
       background: var(--panel); border: 1px solid var(--line-strong);
-      border-radius: var(--radius); box-shadow: 0 12px 40px #0009;
-      max-width: 460px; width: 100%; padding: 14px 16px;
+      border-radius: var(--radius); box-shadow: 0 8px 24px #0007;
     }
-    .help-head { display: flex; align-items: center; gap: 8px; }
+    .help-head { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; }
     .help-ico {
       width: 18px; height: 18px; border-radius: 50%; background: var(--accent);
       color: #06101f; font: 700 11px/1 inherit;
       display: inline-flex; align-items: center; justify-content: center; flex: none;
     }
-    .help-pop p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
-    .help-head { margin-bottom: 9px; }
+    .help-pop p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    @supports (position-anchor: --x) {
+      .help-pop {
+        position: fixed; inset: auto; margin: 6px 0 0;
+        position-area: bottom span-right;
+        position-try-fallbacks: flip-inline, flip-block;
+      }
+    }
   `];
 }
 customElements.define("vided-app", VidedApp);
