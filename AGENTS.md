@@ -203,8 +203,9 @@ Derived video clips inherit `tags`/`note` from the selected frames inside their
 range, so each clip carries the context of the frames it was built from.
 
 Clip formats (canonical list in `src/schemas/clips.ts`; pick a `format` name
-from this set): `1080p30`, `1080p60`, `720p30`, `vertical1080p30`,
-`square1080p30`, `audio48k`. A clip whose format differs from the edit's
-`output.format` is reported by `compose --lint`. Audio is part of a video clip
+from this set): `1080p30`, `1080p60`, `720p30`, `540p30`, `480p30`, `360p30`,
+`vertical1080p30`, `square1080p30`, `audio48k`. Derived clips default to the
+source's format (never upscaling), so previews encode quickly. A clip whose
+format differs from the edit's `output.format` is reported by `compose --lint`. Audio is part of a video clip
 unless `muted`, or unless it is sampled out into its own `audio` clip (which
 becomes a new source to analyse).

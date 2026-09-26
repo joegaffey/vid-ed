@@ -208,12 +208,16 @@ that format, cached by clip hash. The set (canonical in `src/schemas/clips.ts`):
 | `1080p30` | 1920×1080, 30 fps, h264/aac, 48 kHz stereo |
 | `1080p60` | 1920×1080, 60 fps |
 | `720p30` | 1280×720, 30 fps |
+| `540p30` | 960×540, 30 fps |
+| `480p30` | 854×480, 30 fps |
+| `360p30` | 640×360, 30 fps |
 | `vertical1080p30` | 1080×1920, 30 fps |
 | `square1080p30` | 1080×1080, 30 fps |
 | `audio48k` | audio only, 48 kHz stereo aac |
 
-A clip whose `format` differs from the edit's `output.format` is flagged by
-`compose --lint`.
+Derived clips default to the **source's format** (the nearest name, never
+upscaling), so previews encode quickly. A clip whose `format` differs from the
+edit's `output.format` is flagged by `compose --lint`.
 
 Example EDL: [`examples/edit.yaml`](./examples/edit.yaml). Example narration:
 [`examples/narration.yaml`](./examples/narration.yaml).

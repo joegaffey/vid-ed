@@ -43,17 +43,27 @@ export function hasPlaceableMedia(manifest: Manifest): boolean {
   return manifest.assets.some((a) => a.kind === "video" || a.kind === "image" || a.kind === "audio");
 }
 
-/** Best matching known format for a media asset, else the default. */
+/**
+ * Best matching known format for a media asset. Prefers the source's exact
+ * resolution/fps; otherwise the largest known format that does not exceed the
+ * source width (so previews never upscale), else the smallest.
+ */
 export function nearestFormat(asset: AssetRecord): FormatName {
-  const v = asset.technical.video;
-  const fps = v?.fps;
-  for (const [name, f] of Object.entries(KNOWN_FORMATS) as Array<[FormatName, Record<string, unknown>]>) {
-    if (!("width" in f)) continue;
-    if (f.width === v?.width && f.height === v?.height && (!fps || f.fps === Math.round(fps))) {
-      return name;
-    }
-  }
   if (asset.kind === "audio") return "audio48k";
+  const v = asset.technical.video;
+  const w = v?.width;
+  const h = v?.height;
+  const fps = v?.fps;
+  const video = (Object.entries(KNOWN_FORMATS) as Array<[FormatName, Record<string, unknown>]>)
+    .filter(([, f]) => typeof f.width === "number");
+
+  if (w && h) {
+    const exact = video.find(([, f]) => f.width === w && f.height === h && (!fps || f.fps === Math.round(fps)));
+    if (exact) return exact[0];
+    const notLarger = video.filter(([, f]) => (f.width as number) <= w).sort((a, b) => (b[1].width as number) - (a[1].width as number));
+    if (notLarger.length) return notLarger[0]![0];
+    return video.slice().sort((a, b) => (a[1].width as number) - (b[1].width as number))[0]![0];
+  }
   return "1080p30";
 }
 
