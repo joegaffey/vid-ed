@@ -45,6 +45,7 @@ class VidedApp extends LitElement {
     logJob: { state: true },
     search: { state: true },
     runhint: { state: true },
+    fileNames: { state: true },
   };
 
   constructor() {
@@ -61,6 +62,7 @@ class VidedApp extends LitElement {
     this.logJob = null;
     this.search = "";
     this.runhint = "";
+    this.fileNames = "";
     this._rail = Number(localStorage.getItem("vided.rail")) || 300;
     this._timeline = Number(localStorage.getItem("vided.timeline")) || 220;
     this._es = null;
@@ -224,13 +226,18 @@ class VidedApp extends LitElement {
     const shown = assets.filter((a) => !q || a.path.toLowerCase().includes(q));
     return html`
       <div class="uploader">
-        <input type="file" multiple @change=${this.onUpload} />
+        <div class="row">
+          <label class="filebtn">
+            <input type="file" multiple @change=${this.onUpload} />
+            Choose files
+          </label>
+          <span class="muted ellip">${this.fileNames || "no file chosen"}</span>
+        </div>
         <div class="urlrow">
           <input placeholder="YouTube / URL" .value=${this._url || ""}
             @input=${(e) => (this._url = e.target.value)} />
-          <button @click=${this.downloadUrl}>get</button>
+          <button class="sm" @click=${this.downloadUrl}>get</button>
         </div>
-        <span class="muted">${this.runhint}</span>
       </div>
       <input placeholder="search…" .value=${this.search} @input=${(e) => (this.search = e.target.value)} />
       ${assets.length === 0
@@ -252,6 +259,7 @@ class VidedApp extends LitElement {
   async onUpload(e) {
     const files = e.target.files;
     if (!files || !files.length) return;
+    this.fileNames = files.length === 1 ? files[0].name : files.length + " files";
     let i = 0;
     for (const f of files) {
       i++;
@@ -439,6 +447,16 @@ class VidedApp extends LitElement {
     .actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 
     .uploader { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+    .row { display: flex; gap: 8px; align-items: center; }
+    .ellip { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; }
+    .filebtn {
+      display: inline-flex; align-items: center; cursor: pointer; white-space: nowrap;
+      background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius-sm);
+      padding: 6px 12px; color: var(--text); margin: 0;
+      transition: background .12s, border-color .12s;
+    }
+    .filebtn:hover { background: var(--panel-3); border-color: var(--line-strong); }
+    .filebtn input { display: none; }
     .urlrow { display: flex; gap: 6px; }
     .urlrow input { flex: 1; }
     table.media { table-layout: fixed; }
