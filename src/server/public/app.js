@@ -143,6 +143,7 @@ class VidedApp extends LitElement {
     manifest: { state: true },
     clips: { state: true },
     clipFormats: { state: true },
+    clipsError: { state: true },
     context: { state: true },
     contextPack: { state: true },
     outputs: { state: true },
@@ -174,6 +175,7 @@ class VidedApp extends LitElement {
     this.manifest = null;
     this.clips = [];
     this.clipFormats = [];
+    this.clipsError = null;
     this.context = null;
     this.contextPack = null;
     this.outputs = [];
@@ -250,7 +252,11 @@ class VidedApp extends LitElement {
       const r = await api.get("/api/clips");
       this.clips = r.clips || [];
       this.clipFormats = r.formats || [];
-    } catch { this.clips = []; }
+      this.clipsError = null;
+    } catch (err) {
+      this.clips = [];
+      this.clipsError = String((err && err.message) || err);
+    }
   }
   async loadContext() {
     try { this.context = await api.get("/api/context"); } catch { this.context = null; }
@@ -510,7 +516,11 @@ class VidedApp extends LitElement {
 
   renderClips() {
     const clips = this.clips || [];
-    if (!clips.length) return html`<p class="muted">No clips yet — run the clips stage (Changes → run, or \`vided clips\`).</p>`;
+    if (!clips.length) {
+      return this.clipsError
+        ? html`<p class="muted">Failed to load clips: ${this.clipsError}</p>`
+        : html`<p class="muted">No clips yet — run the clips stage (Changes → run, or \`vided clips\`).</p>`;
+    }
     const kinds = ["video", "image", "audio", "title", "slide"];
     return html`
       ${kinds.map((k) => {
