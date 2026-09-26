@@ -258,10 +258,13 @@ export function buildRenderPlan(edl: ResolvedEdl, opts: BuildOptions): RenderPla
       );
       mixed = "amix";
     }
-    // loudnorm divides by silence (NaN) — only apply it when the edit adds
-    // produced audio (audio-track clips), not for attached source audio alone.
-    if (edl.audio.length) filters.push(`[${mixed}]loudnorm=I=${edl.output.loudness_lufs}[aout]`);
-    else filters.push(`[${mixed}]anull[aout]`);
+    // loudnorm alone undershoots in single-pass dynamic mode and can emit
+    // non-finite samples on digital silence (which aac rejects). dynaudnorm
+    // evens out the level; alimiter clamps the non-finite peaks, so the chain
+    // is target-anchored, audible and safe for silent sources.
+    filters.push(
+      `[${mixed}]loudnorm=I=${edl.output.loudness_lufs},dynaudnorm=f=150:g=15:p=0.95,aresample=${sampleRate},alimiter=limit=0.95[aout]`,
+    );
   }
 
   const args: string[] = ["-y"];
