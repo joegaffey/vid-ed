@@ -90,7 +90,7 @@ const HELP = {
   },
   output: {
     title: "Output",
-    body: "Files produced by vided render. Click a name to open or download it.",
+    body: "Files produced by vided render. Click a render to open it in Details: play it there and scrub it with the timeline playhead. If the latest output is missing or stale, Details offers Render to preview (use ↗ to open the file in a new tab).",
   },
   changes: {
     title: "Changes",
@@ -118,7 +118,7 @@ const HELP = {
   },
   timeline: {
     title: "Timeline",
-    body: "The composed EDL (edit.yaml). Click the track to move the playhead, or a clip to trim, reorder or remove it. Changes appear as a diff and are only written when you Apply. Use −/+ to zoom, or fit to fill the width.",
+    body: "The composed EDL (edit.yaml). Click or drag the track to move the playhead (it snaps to clip edges); ←/→ step, Shift for 5s, Home/End jump, Space plays. Moving the playhead opens the latest render in Output and scrubs it; play it there and the playhead follows. Click a clip to trim, reorder or remove it. Changes appear as a diff and are only written when you Apply. Use −/+ to zoom, or fit to fill the width.",
   },
 };
 
@@ -189,6 +189,7 @@ class VidedApp extends LitElement {
     stale: { state: true },
     staleNodes: { state: true },
     proposal: { state: true },
+    renderMeta: { state: true },
   };
 
   constructor() {
@@ -221,6 +222,7 @@ class VidedApp extends LitElement {
     this.stale = null;
     this.staleNodes = [];
     this.proposal = null;
+    this.renderMeta = null;
     this._rail = Number(localStorage.getItem("vided.rail")) || 300;
     this._timeline = Number(localStorage.getItem("vided.timeline")) || 220;
     this._es = null;
@@ -233,6 +235,8 @@ class VidedApp extends LitElement {
     this.style.setProperty("--timeline", this._timeline + "px");
     this.refresh();
     this._timer = setInterval(() => this.loadJobs(), 5000);
+    this._kd = (e) => this.onKeyDown(e);
+    window.addEventListener("keydown", this._kd);
     if (DEMO) return;
     this._events = new EventSource("api/events");
     this._events.onmessage = (ev) => {
@@ -248,6 +252,7 @@ class VidedApp extends LitElement {
   disconnectedCallback() {
     super.disconnectedCallback();
     clearInterval(this._timer);
+    if (this._kd) window.removeEventListener("keydown", this._kd);
     if (this._es) this._es.close();
     if (this._events) this._events.close();
   }
@@ -354,12 +359,81 @@ class VidedApp extends LitElement {
     const base = this.pps || Math.max(4, 900 / dur);
     this.pps = Math.max(2, Math.min(400, dir > 0 ? base * 1.6 : base / 1.6));
   }
-  onTimelineClick(e) {
-    const track = e.currentTarget;
+  setPlayhead(t) {
+    const dur = this.edl?.duration || 0;
+    this.playhead = Math.max(0, Math.min(dur, Number(t.toFixed(2))));
+    this.seekMaster(this.playhead);
+    if (this.selection.kind !== "output") {
+      const m = this.masterOutput();
+      if (m) this.selectOutput(m);
+    }
+  }
+  masterOutput() {
+    if ((this.staleNodes || []).some((s) => s.op === "render")) return null;
+    if (!this.outputs.length) return null;
+    const base = (this.edl?.edl?.output?.path || "").split("/").pop();
+    return (
+      this.outputs.find((o) => o.name === base) ||
+      this.outputs.slice().sort((a, b) => String(a.mtime).localeCompare(String(b.mtime))).at(-1)
+    );
+  }
+  timeFromEvent(e, track) {
     const rect = track.getBoundingClientRect();
     const dur = this.edl?.duration || 1;
     const frac = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    this.playhead = Number((frac * dur).toFixed(2));
+    return frac * dur;
+  }
+  snapTime(t) {
+    const dur = this.edl?.duration || 1;
+    const thr = this.pps ? 6 / this.pps : dur * 0.01;
+    let best = t;
+    for (const it of this.edl?.clips || []) {
+      for (const b of [it.start, it.end]) if (Math.abs(b - t) <= thr) best = b;
+    }
+    return best;
+  }
+  onTimelineDown(e) {
+    if (e.button) return;
+    const track = e.currentTarget;
+    this.setPlayhead(this.snapTime(this.timeFromEvent(e, track)));
+    const move = (ev) => this.setPlayhead(this.snapTime(this.timeFromEvent(ev, track)));
+    const up = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+  }
+  seekMaster(t) {
+    const v = this.renderRoot?.querySelector("video.master");
+    if (!v) return;
+    const d = Number.isFinite(v.duration) ? v.duration : Infinity;
+    const ct = Math.min(t, d);
+    if (Math.abs((v.currentTime || 0) - ct) > 0.15) {
+      try { v.currentTime = ct; } catch { /* ignore */ }
+    }
+  }
+  onMasterTime(e) {
+    const t = Number((e.target.currentTime || 0).toFixed(2));
+    if (t !== this.playhead) this.playhead = t;
+  }
+  onMasterMeta() {
+    this.seekMaster(this.playhead);
+  }
+  onKeyDown(e) {
+    const tag = e.target?.tagName || "";
+    if (/INPUT|TEXTAREA|SELECT|BUTTON/.test(tag)) return;
+    const dur = this.edl?.duration || 0;
+    if (!dur) return;
+    const step = e.shiftKey ? 5 : 1;
+    if (e.key === "ArrowLeft") { this.setPlayhead(this.playhead - step); e.preventDefault(); }
+    else if (e.key === "ArrowRight") { this.setPlayhead(this.playhead + step); e.preventDefault(); }
+    else if (e.key === "Home") { this.setPlayhead(0); e.preventDefault(); }
+    else if (e.key === "End") { this.setPlayhead(dur); e.preventDefault(); }
+    else if (e.key === " ") {
+      const v = this.renderRoot?.querySelector("video.master");
+      if (v) { if (v.paused) v.play(); else v.pause(); e.preventDefault(); }
+    }
   }
 
   selectAsset(a) {
@@ -1004,13 +1078,79 @@ class VidedApp extends LitElement {
   }
 
   renderOutput() {
-    if (!this.outputs.length) return html`<p class="muted">No renders yet.</p>`;
+    if (!this.outputs.length) {
+      return html`<p class="muted">No renders yet.
+        <button class="sm" @click=${() => this.runStage("render", ["edit.yaml"])}>Render to preview</button>
+      </p>`;
+    }
     return html`<table><tbody>
-      ${this.outputs.map((f) => html`<tr>
-        <td><a href=${"api/outputs/" + encodeURIComponent(f.name)} target="_blank">${f.name}</a></td>
-        <td class="muted">${fmtBytes(f.bytes)}</td>
-      </tr>`)}
+      ${this.outputs.map((f) => {
+        const active = this.selection.kind === "output" && this.selection.id === f.name;
+        return html`<tr class="clickable ${active ? "active" : ""}" @click=${() => this.selectOutput(f)}>
+          <td class="path" title=${f.name}>${f.name}</td>
+          <td class="muted">${fmtBytes(f.bytes)}</td>
+          <td><a href=${"api/outputs/" + encodeURIComponent(f.name)} target="_blank" title="open in new tab"
+            @click=${(e) => e.stopPropagation()}>↗</a></td>
+        </tr>`;
+      })}
     </tbody></table>`;
+  }
+  selectOutput(f) {
+    this.selection = { kind: "output", id: f.name, output: f };
+    this.renderMeta = null;
+    api.get("api/render-info/" + encodeURIComponent(f.name))
+      .then((r) => { if (this.selection.kind === "output" && this.selection.id === f.name) this.renderMeta = r; })
+      .catch(() => { this.renderMeta = {}; });
+    this.updateComplete?.then(() => this.seekMaster(this.playhead));
+  }
+
+  renderOutputDetail(o) {
+    const info = this.renderMeta || {};
+    const v = info.video || {};
+    const a = info.audio || {};
+    const src = "api/outputs/" + encodeURIComponent(o.name);
+    const stale = (this.staleNodes || []).some((s) => s.op === "render");
+    const rows = [
+      ["Name", o.name],
+      ["Size", fmtBytes(o.bytes)],
+      ["Modified", new Date(o.mtime).toLocaleString()],
+      ...(Number.isFinite(info.duration_s) ? [["Duration", fmtDur(info.duration_s)]] : []),
+      ...(v.width ? [["Video", [v.width + "×" + v.height, v.fps ? Math.round(v.fps) + " fps" : null, v.codec].filter(Boolean).join(" · ")]] : []),
+      ...(a.codec ? [["Audio", [a.codec, a.sample_rate ? a.sample_rate + " Hz" : null, a.channels ? a.channels + " ch" : null].filter(Boolean).join(" · ")]] : []),
+    ];
+    const kv = html`<div class="kv">
+      ${rows.map(([k, val]) => html`<div class="k">${k}</div><div class="v">${val}</div>`)}
+    </div>`;
+    if (!this.renderMeta) {
+      return html`<div class="detail-head"><div><span class="pill">output</span> <strong>${o.name}</strong></div></div>
+        <div class="detail-body"><p class="muted">Loading…</p></div>`;
+    }
+    if (stale) {
+      return html`
+        <div class="detail-head">
+          <div><span class="pill">output</span> <strong>${o.name}</strong></div>
+          <div class="row">
+            <button class="primary" @click=${() => this.runStage("render", ["edit.yaml"])}>Render to preview</button>
+            <a href=${src} target="_blank">open ↗</a>
+          </div>
+        </div>
+        <div class="detail-body">
+          <p class="muted">This output is stale — re-render to preview and scrub it.</p>
+          ${kv}
+        </div>`;
+    }
+    return html`
+      <div class="detail-head">
+        <div><span class="pill">output</span> <strong>${o.name}</strong></div>
+        <div class="row"><a href=${src} target="_blank">open ↗</a></div>
+      </div>
+      <div class="detail-body">
+        <div class="info-grid">
+          <div class="preview"><video class="master" controls preload="metadata" src=${src} @loadedmetadata=${this.onMasterMeta} @timeupdate=${this.onMasterTime}></video></div>
+          <div class="clip-side">${kv}</div>
+        </div>
+        <p class="muted">Move the red playhead on the timeline to scrub this render; play it and the playhead follows.</p>
+      </div>`;
   }
 
   renderActivity() {
@@ -1041,6 +1181,7 @@ class VidedApp extends LitElement {
     const sel = this.selection;
     if (this.proposal) return this.renderProposal();
     if (sel.kind === "history") return this.renderHistory();
+    if (sel.kind === "output") return this.renderOutputDetail(sel.output);
     if (sel.kind === "clip") return this.renderClipDetail(sel.clip, sel.timelineItem);
     if (sel.kind === "timelineItem") return this.renderTimelineItem(sel.item);
     if (sel.kind !== "asset") {
@@ -1296,7 +1437,7 @@ class VidedApp extends LitElement {
         ${this.renderHelpButton("timeline", "tl-help")}
       </div>
       <div class="tl-scroll">
-        <div class="tl-track" style=${"width:" + trackWidth} @click=${this.onTimelineClick}>
+        <div class="tl-track" style=${"width:" + trackWidth} @pointerdown=${this.onTimelineDown}>
           <div class="tl-ruler">
             ${ticks.map((t) => html`<div class="tl-tick" style=${"left:" + (t / dur) * 100 + "%"}><span>${fmtDur(t)}</span></div>`)}
           </div>
@@ -1305,6 +1446,7 @@ class VidedApp extends LitElement {
               <div class="tl-item ${it.kind} ${(this.selection.kind === "timelineItem" && this.selection.id === it.id) || (this.selection.timelineItem && this.selection.timelineItem.id === it.id) ? "active" : ""}"
                 style=${"left:" + (it.start / dur) * 100 + "%;width:" + (it.duration / dur) * 100 + "%"}
                 title=${it.id + " · " + it.kind + " · " + fmtSec(it.start) + "–" + fmtSec(it.end) + (it.source ? " · " + it.source : "")}
+                @pointerdown=${(e) => e.stopPropagation()}
                 @click=${(e) => { e.stopPropagation(); this.selectTimelineItem(it); }}>
                 ${it.id}
               </div>`)}
@@ -1315,6 +1457,7 @@ class VidedApp extends LitElement {
                   <div class="tl-item audio ${(this.selection.kind === "timelineItem" && this.selection.id === it.id) || (this.selection.timelineItem && this.selection.timelineItem.id === it.id) ? "active" : ""}"
                     style=${"left:" + (it.start / dur) * 100 + "%;width:" + (it.duration / dur) * 100 + "%"}
                     title=${it.id + " · audio · " + fmtSec(it.start) + "–" + fmtSec(it.end) + " · " + it.source}
+                    @pointerdown=${(e) => e.stopPropagation()}
                     @click=${(e) => { e.stopPropagation(); this.selectTimelineItem({ id: it.id }); }}>
                     ${it.id}
                   </div>`)}
@@ -1394,7 +1537,7 @@ class VidedApp extends LitElement {
     .tl-bar { display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-bottom: 1px solid var(--line); flex: none; }
     .tl-bar .spacer { flex: 1; }
     .tl-scroll { flex: 1; overflow: auto; scrollbar-width: thin; scrollbar-color: #3a4553 #0f141b; }
-    .tl-track { position: relative; min-width: 100%; height: 100%; min-height: 92px; }
+    .tl-track { position: relative; min-width: 100%; height: 100%; min-height: 92px; cursor: crosshair; }
     .tl-ruler { position: relative; height: 22px; border-bottom: 1px solid var(--line-soft); }
     .tl-tick { position: absolute; top: 0; height: 22px; border-left: 1px solid var(--line-soft); padding-left: 4px; font: 10px/22px var(--mono); color: var(--muted); white-space: nowrap; }
     .tl-lane { position: relative; height: 52px; margin: 10px 0; background: var(--bg); border-top: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); }

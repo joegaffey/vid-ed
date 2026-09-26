@@ -62,6 +62,12 @@ for (const name of outFiles) {
   outputs.push({ name, bytes: st.size, mtime: st.mtime.toISOString() });
 }
 await writeJSON("renders", outputs);
+// per-output technical metadata (baked so the static build needs no ffprobe)
+const infoDir = join(SAMPLE, "media/render-info");
+for (const o of outputs) {
+  const p = join(infoDir, o.name + ".json");
+  if (existsSync(p)) await writeJSON(`render-info/${o.name}`, JSON.parse(await readFile(p, "utf8")));
+}
 // history: one agent version per tracked artifact present in the sample
 const tracked = ["clips.yaml", "edit.yaml", "narration.yaml", "brief.md"];
 const history = [];

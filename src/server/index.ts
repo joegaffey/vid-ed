@@ -19,6 +19,7 @@ import { explainEdl, loadEdlFile, resolveEdl } from "../edl.js";
 import { applyEdlOps, type EdlOp } from "../edl-edit.js";
 import { applyClipOps, type ClipOp } from "../clips-edit.js";
 import { renderClipPreview } from "../preview.js";
+import { ffprobe } from "../probe.js";
 import { requireTool } from "../tools/resolve.js";
 import { JobQueue, resolveCliEntry } from "./jobs.js";
 import {
@@ -431,6 +432,20 @@ export async function createStudioServer(opts: StudioServerOptions): Promise<Stu
       const abs = join(outDir, sanitizeName(decodeURIComponent(outputFile[1]!)));
       if (!withinRoot(paths.root, abs)) return sendJSON(res, 400, { error: "bad path" });
       return serveFile(req, res, abs);
+    }
+    const renderInfo = /^\/api\/render-info\/([^/]+)$/.exec(path);
+    if (renderInfo && req.method === "GET") {
+      const name = sanitizeName(decodeURIComponent(renderInfo[1]!));
+      const abs = join(outDir, name);
+      if (!withinRoot(paths.root, abs) || !existsSync(abs)) return sendJSON(res, 404, { error: "no such render" });
+      const st = await stat(abs);
+      let technical: Record<string, unknown> = {};
+      try {
+        technical = await ffprobe(await loadConfig(paths), abs);
+      } catch {
+        // ffprobe may be unavailable; metadata is optional
+      }
+      return sendJSON(res, 200, { name, bytes: st.size, mtime: st.mtime.toISOString(), ...technical });
     }
 
     // --- history / proposals --------------------------------------------

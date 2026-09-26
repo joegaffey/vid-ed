@@ -92,6 +92,14 @@ test("studio API: history, apply, diff, revert, edl edit, staleness", async () =
     const bad = await post(base, "/api/edl/edit", { ops: [{ op: "set", id: "a", patch: { speed: -1 } }] });
     assert.equal(bad.status, 400);
 
+    // per-render metadata: 404 for unknown names, file facts otherwise (ffprobe optional)
+    assert.equal((await fetch(base + "/api/render-info/nope.mp4")).status, 404);
+    await mkdir(join(root, "out"), { recursive: true });
+    await writeFile(join(root, "out", "final.mp4"), "not really a video");
+    const info = (await getJSON(base + "/api/render-info/final.mp4")) as { name: string; bytes: number };
+    assert.equal(info.name, "final.mp4");
+    assert.ok(info.bytes > 0);
+
     // staleness responds
     assert.ok(Array.isArray(await getJSON(base + "/api/staleness")));
   } finally {
