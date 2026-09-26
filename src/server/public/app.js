@@ -564,20 +564,24 @@ class VidedApp extends LitElement {
         </div>
       </div>
       <div class="detail-body">
-        ${c.source === "generated" ? "" : html`<div class="preview">${preview}</div>`}
-        ${c.kind === "video"
-          ? html`<div class="form">
-              <div class="row">
-                <div><label>in (s)</label><input id="cl_in" type="number" step="0.1" value=${c.in} /></div>
-                <div><label>out (s)</label><input id="cl_out" type="number" step="0.1" value=${c.out} /></div>
-              </div>
-              <div class="actions"><button class="primary" @click=${() => {
-                const q = (id) => Number(this.renderRoot.getElementById(id).value);
-                this.proposeClipEdit([{ op: "set", id: c.id, patch: { in: q("cl_in"), out: q("cl_out") } }]);
-              }}>Update clip</button><span class="muted">shared by every use of this clip</span></div>
-            </div>`
-          : ""}
-        <div class="kv">${rows.map(([k, v]) => html`<div class="k">${k}</div><div class="v">${v}</div>`)}</div>
+        <div class="info-grid">
+          ${c.source === "generated" ? "" : html`<div class="preview">${preview}</div>`}
+          <div class="clip-side">
+            ${c.kind === "video"
+              ? html`<div class="form">
+                  <div class="row">
+                    <div><label>in (s)</label><input id="cl_in" type="number" step="0.1" value=${c.in} /></div>
+                    <div><label>out (s)</label><input id="cl_out" type="number" step="0.1" value=${c.out} /></div>
+                  </div>
+                  <div class="actions"><button class="primary" @click=${() => {
+                    const q = (id) => Number(this.renderRoot.getElementById(id).value);
+                    this.proposeClipEdit([{ op: "set", id: c.id, patch: { in: q("cl_in"), out: q("cl_out") } }]);
+                  }}>Update clip</button><span class="muted">shared by every use of this clip</span></div>
+                </div>`
+              : ""}
+            <div class="kv">${rows.map(([k, v]) => html`<div class="k">${k}</div><div class="v">${v}</div>`)}</div>
+          </div>
+        </div>
       </div>`;
   }
 
@@ -1206,6 +1210,7 @@ class VidedApp extends LitElement {
     .detail-body { padding: 16px; display: grid; gap: 16px; align-content: start; container-type: inline-size; }
     .info-grid { display: grid; gap: 18px; grid-template-columns: 1fr; align-items: start; }
     .info-grid .preview { max-width: none; }
+    .clip-side { display: grid; gap: 12px; align-content: start; }
     @container (min-width: 720px) {
       .info-grid { grid-template-columns: minmax(0, 1.6fr) minmax(220px, 1fr); }
     }
