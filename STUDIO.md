@@ -292,3 +292,40 @@ plan for closing that.
   separate from `npm test`; `npm run test:e2e` (Playwright) optional.
 - A tiny checked-in fixture project (2 clips + 1 image) for API/E2E tests.
 - FFmpeg-dependent assertions skip when `vided doctor` reports it missing.
+
+## 16. UX backlog
+
+Known gaps/improvements, roughly prioritised. Not committed to a phase yet.
+
+**Timeline (highest impact)**
+- Program monitor: scrub the playhead to preview (source clip or a preview render).
+- Drag-to-reorder items; trim handles on clip edges; snap to neighbours/grid.
+- Drag an asset from the Media bin onto the timeline.
+- Wheel zoom + horizontal pan; persist zoom per project; keyboard transport
+  (space, ←/→, Home/End).
+- Show gaps/overlaps and a per-item tooltip; clearer clip labels (basename, not
+  id).
+
+**Media bin**
+- Thumbnails (a selected frame) instead of text-only rows; multi-select.
+- Drag-and-drop upload with per-file progress (current upload is fire-and-forget).
+- Provenance/availability badges (agent vs studio, missing source file).
+
+**Details inspector**
+- Frame lightbox + select/deselect + "use as poster".
+- Inline save/dirty state and per-field undo.
+- Editable transcript segments (read-only today).
+
+**Feedback & states**
+- Toasts for job start / apply / revert outcomes (replace the `runhint` string).
+- Job progress bars (parse ffmpeg/whisper progress).
+- Confirm destructive actions (remove item, revert); "re-run all stale".
+
+**Global**
+- Dark/light theme + density option; persist selection and open section.
+- Keyboard shortcut map / command palette (jump to asset or section).
+- Split the Changes view into Stale · History with clearer badges.
+
+**Accessibility**
+- AA contrast audit; `:focus-visible` everywhere; ARIA for the accordion and
+  timeline; fully keyboard-operable editing.
