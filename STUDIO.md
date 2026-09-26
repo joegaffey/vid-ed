@@ -127,6 +127,11 @@ Single source of stage metadata, used by both CLI flags and UI controls:
 
 Vanilla JS + Web Components (Lit optional), no framework build.
 
+**UI principle: never show raw JSON/YAML.** Artifacts are presented as
+purpose-built views (cards, tables, forms, editors). Raw file contents are
+available only behind an explicit, collapsed "technical" disclosure, never as
+the primary presentation.
+
 - **Project** — status, `doctor`, config.
 - **Media** — upload, list, probe/transcript/OCR, frames, contact sheets.
 - **Context** — global brief/structured fields + per-input metadata.
