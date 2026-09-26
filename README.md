@@ -267,35 +267,39 @@ Run `vided <command> --help` for flags.
 
 ## Samples
 
-Working demos produced by the toolchain:
+### Current (`vided.edl/3`, clip model — 0.2)
 
-> The `rc-build-*` samples (and the rest below) were produced under **v0.1** (EDL
-> `vided.edl/1`, no clips stage). The clip model landed in **0.2**; see the
-> `v0.1` tag for the old contract.
-
-- **`samples/rc-build-agent-demo/`** — the **0.2** clip-model build: a
-  fresh agent was given only the two source videos + the gist screenshot and a
-  one-paragraph prompt, and drove the whole pipeline itself (`annotate` on 50
-  frames → `clips` → `script`/`tts`/`captions` → `compose` → `render`).
+- **`samples/rc-build-agent-demo/`** — a fresh agent was given only the two
+  source videos + the gist screenshot and a one-paragraph prompt, and drove the
+  whole pipeline itself (`annotate` on 50 frames → `clips` →
+  `script`/`tts`/`captions` → `compose` → `render`).
   Published: **https://www.youtube.com/watch?v=6v21-kAtpUo** (artifacts:
   `clips.yaml`, `edit.yaml`, `narration.yaml`, `brief.md`, `context.md`/`.json`,
   `vision.*`, `captions.*`).
-- **`samples/rc-build-gist-demo/`** — a chaptered build-and-test cut with title
-  cards, a firmware walkthrough using browser screen captures, Piper
-  voice-over and soft captions. Published:
-  https://youtu.be/YWU-AIhnUwo (artifacts: `edit.yaml`, `narration.yaml`,
-  `brief.md`, `captions.srt`, `gist-code.png`).
+
+### Legacy (v0.1 — EDL `vided.edl/1`, no clips stage)
+
+These predate the clip model and won't parse under 0.2; the `v0.1` git tag is
+their contract. Published where noted.
+
+- **`samples/rc-build-gist-demo/`** — chaptered build-and-test cut with title
+  cards, browser-captured firmware walkthrough, Piper voice-over, soft captions.
+  **Published (v0.1):** https://youtu.be/YWU-AIhnUwo — superseded by the 0.2
+  demo above. (artifacts: `edit.yaml`, `narration.yaml`, `brief.md`,
+  `captions.srt`, `gist-code.png`)
 - `samples/rc-build-firmware-demo/` — the same cut with tool-rendered code
-  slides instead of screen captures.
+  slides instead of screen captures. *(not published)*
 - `samples/rc-build-demo/` — the chaptered cut before the firmware chapter.
+  *(not published)*
 - `samples/voice-demo/` — narrated, captioned 9s edit (Piper) with SRT/VTT,
-  context pack, and vision round-trip artifacts.
+  context pack, and vision round-trip artifacts. *(not published)*
 - `samples/vision-demo/` — synthetic scenes described by the vision pass, then
-  narrated and captioned.
+  narrated and captioned. *(not published)*
 - `samples/yt-case-design/` — a real 7.8-min YouTube video analysed to 47
-  described frames; `contact.png`, `context.md`, `vision.*`.
+  described frames; analysis artifacts only. *(not published)*
 - `samples/yt-controller-test/` — a 33s cockpit clip analysed to 8 described
-  frames.
+  frames; analysis artifacts only. *(not published)*
+
 
 ## Development
 
