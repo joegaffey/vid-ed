@@ -28,6 +28,12 @@ open section persist in `localStorage`.
 `annotate` runs with parameters). Raw CLI output stays behind a collapsed
 "technical log".
 
+**Sections — Phase D done** — **Analysis** (project-wide parameterized stage
+runs: scan/extract-text/sample/dedupe/manifest/script/tts/captions/render),
+**Context** (full `context.yaml`: brief, audience, tone, target duration,
+must-include, avoid, voice, language, pronunciation; save + build context pack),
+**Vision** (selected/annotated counts; build packet / ingest results).
+
 `vided Studio` is an optional local server + web UI for smart editing and
 fine-tuning where the agent is insufficient. The agent remains master; the CLI
 stays the source of truth. The studio is a **thin adapter**: it drives the same

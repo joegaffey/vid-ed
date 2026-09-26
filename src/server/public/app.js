@@ -31,6 +31,43 @@ const SECTIONS = [
   ["activity", "Activity"],
 ];
 
+// Project-wide stage parameters exposed in the Analysis panel.
+const STAGE_PARAMS = {
+  scan: [{ n: "fast-hash", label: "fast hash", type: "bool" }],
+  "extract-text": [
+    { n: "language", type: "text", def: "auto" },
+    { n: "ocr", label: "OCR images", type: "bool" },
+    { n: "model", label: "whisper model", type: "text" },
+  ],
+  sample: [
+    { n: "threshold", type: "number", def: 0.25, step: 0.05 },
+    { n: "rate", label: "rate/min", type: "number", def: 30 },
+    { n: "max-width", label: "max width", type: "number", def: 512 },
+  ],
+  dedupe: [
+    { n: "phash-distance", label: "phash distance", type: "number", def: 6 },
+    { n: "budget", label: "budget/asset", type: "number" },
+    { n: "total-budget", label: "total budget", type: "number" },
+  ],
+  manifest: [
+    { n: "context-pack", label: "context pack", type: "text", def: "work/context.md" },
+    { n: "max-chars", label: "max chars", type: "number" },
+  ],
+  script: [{ n: "out", label: "out file", type: "text", def: "narration.yaml" }],
+  tts: [
+    { n: "script", type: "text", def: "narration.yaml" },
+    { n: "voice", type: "text" },
+  ],
+  captions: [
+    { n: "from", type: "select", opts: ["narration", "transcript"], def: "narration" },
+    { n: "formats", type: "text", def: "srt,vtt" },
+  ],
+  render: [
+    { n: "file", label: "edit file", type: "text", def: "edit.yaml" },
+    { n: "preview", type: "bool" },
+  ],
+};
+
 class VidedApp extends LitElement {
   static properties = {
     status: { state: true },
@@ -47,6 +84,7 @@ class VidedApp extends LitElement {
     runhint: { state: true },
     fileNames: { state: true },
     detailTab: { state: true },
+    analysisOp: { state: true },
   };
 
   constructor() {
@@ -65,6 +103,7 @@ class VidedApp extends LitElement {
     this.runhint = "";
     this.fileNames = "";
     this.detailTab = "info";
+    this.analysisOp = "sample";
     this._rail = Number(localStorage.getItem("vided.rail")) || 300;
     this._timeline = Number(localStorage.getItem("vided.timeline")) || 220;
     this._es = null;
@@ -188,9 +227,9 @@ class VidedApp extends LitElement {
     switch (id) {
       case "project": return this.renderProject();
       case "media": return this.renderMedia();
-      case "analysis": return html`<p class="muted">Stage controls with parameters — next phase.</p>`;
+      case "analysis": return this.renderAnalysis();
       case "context": return this.renderContext();
-      case "vision": return html`<p class="muted">Annotation review — next phase.</p>`;
+      case "vision": return this.renderVision();
       case "output": return this.renderOutput();
       case "activity": return this.renderActivity();
       default: return "";
@@ -284,26 +323,103 @@ class VidedApp extends LitElement {
     this.streamJob(job.id);
   }
 
+  renderAnalysis() {
+    const ops = Object.keys(STAGE_PARAMS);
+    const params = STAGE_PARAMS[this.analysisOp] || [];
+    return html`
+      <label>Stage</label>
+      <select @change=${(e) => (this.analysisOp = e.target.value)}>
+        ${ops.map((o) => html`<option value=${o} ?selected=${o === this.analysisOp}>${o}</option>`)}
+      </select>
+      <div class="params">
+        ${params.map((p) => this.renderParam(this.analysisOp, p))}
+      </div>
+      <div class="actions">
+        <button class="primary" @click=${() => this.runAnalysis()}>Run</button>
+        <span class="muted">${this.runhint}</span>
+      </div>
+    `;
+  }
+  renderParam(op, p) {
+    const id = "s_" + op + "_" + p.n;
+    if (p.type === "bool") {
+      return html`<label class="inline"><input id=${id} type="checkbox" ?checked=${p.def === true} /> ${p.label || p.n}</label>`;
+    }
+    if (p.type === "select") {
+      return html`<label>${p.label || p.n}</label><select id=${id}>
+        ${p.opts.map((o) => html`<option ?selected=${o === p.def}>${o}</option>`)}</select>`;
+    }
+    return html`<label>${p.label || p.n}</label>
+      <input id=${id} type=${p.type === "number" ? "number" : "text"} step=${p.step ?? "any"} value=${p.def ?? ""} />`;
+  }
+  runAnalysis() {
+    const op = this.analysisOp;
+    const args = [];
+    for (const p of STAGE_PARAMS[op] || []) {
+      const el = this.renderRoot.getElementById("s_" + op + "_" + p.n);
+      if (!el) continue;
+      if (p.type === "bool") { if (el.checked) args.push("--" + p.n); }
+      else if (el.value !== "" && el.value != null) args.push("--" + p.n, el.value);
+    }
+    this.runStage(op, args);
+  }
+
+  renderVision() {
+    const s = this.status?.cost;
+    return html`
+      <div class="stats">
+        <div class="stat"><div class="v">${s ? s.selected_frames : 0}</div><div class="k">selected frames</div></div>
+        <div class="stat"><div class="v">${s ? s.annotated_frames : 0}</div><div class="k">annotated</div></div>
+      </div>
+      <div class="actions">
+        <button @click=${() => this.runStage("annotate", ["--packet-out", "work/vision.packet.json"])}>Build packet</button>
+        <button @click=${() => this.runStage("annotate", ["--ingest", "work/vision.results.json"])}>Ingest results</button>
+      </div>
+      <p class="muted">Describe the selected frames (agent), then ingest the results to merge descriptions into the manifest. Frames are per-asset in the Details → Frames tab.</p>
+    `;
+  }
+
   renderContext() {
     const c = this.context;
     if (!c) return html`<p class="muted">No context.</p>`;
+    const pron = Object.entries(c.pronunciation || {}).map(([k, v]) => k + ": " + v).join("\n");
     return html`
-      <label>Brief</label>
-      <textarea rows="4" .value=${c.brief || ""} @input=${(e) => (this._brief = e.target.value)}></textarea>
-      <label>Audience</label><input .value=${c.audience || ""} @input=${(e) => (this._audience = e.target.value)} />
-      <label>Tone</label><input .value=${c.tone || ""} @input=${(e) => (this._tone = e.target.value)} />
-      <label>Target duration (s)</label><input type="number" .value=${c.target_duration_s || ""} @input=${(e) => (this._target = e.target.value)} />
-      <div class="actions"><button class="primary" @click=${this.saveContext}>Save</button></div>
+      <label>Brief</label><textarea id="cx_brief" rows="4">${c.brief || ""}</textarea>
+      <label>Audience</label><input id="cx_audience" .value=${c.audience || ""} />
+      <label>Tone</label><input id="cx_tone" .value=${c.tone || ""} />
+      <label>Target duration (s)</label><input id="cx_target" type="number" .value=${c.target_duration_s || ""} />
+      <label>Must include (comma)</label><input id="cx_must" .value=${(c.must_include || []).join(", ")} />
+      <label>Avoid (comma)</label><input id="cx_avoid" .value=${(c.avoid || []).join(", ")} />
+      <div class="row">
+        <div style="flex:1"><label>Voice</label><input id="cx_voice" .value=${c.voice || ""} /></div>
+        <div style="flex:1"><label>Language</label><input id="cx_lang" .value=${c.language || ""} /></div>
+      </div>
+      <label>Pronunciation (word: say, one per line)</label>
+      <textarea id="cx_pron" rows="3">${pron}</textarea>
+      <div class="actions">
+        <button class="primary" @click=${this.saveContext}>Save</button>
+        <button @click=${() => this.runStage("manifest", ["--context-pack", "work/context.md"])}>Build context pack</button>
+        <span class="muted">${this.runhint}</span>
+      </div>
     `;
   }
   async saveContext() {
+    const q = (id) => this.renderRoot.getElementById(id);
+    const pronunciation = {};
+    for (const line of q("cx_pron").value.split("\n")) {
+      const i = line.indexOf(":");
+      if (i > 0) pronunciation[line.slice(0, i).trim()] = line.slice(i + 1).trim();
+    }
     const body = {
-      brief: this._brief ?? this.context.brief,
-      audience: this._audience ?? this.context.audience,
-      tone: this._tone ?? this.context.tone,
-      target_duration_s: this._target ? Number(this._target) : this.context.target_duration_s,
-      must_include: this.context.must_include || [],
-      avoid: this.context.avoid || [],
+      brief: q("cx_brief").value || undefined,
+      audience: q("cx_audience").value || undefined,
+      tone: q("cx_tone").value || undefined,
+      target_duration_s: q("cx_target").value ? Number(q("cx_target").value) : undefined,
+      must_include: q("cx_must").value.split(",").map((s) => s.trim()).filter(Boolean),
+      avoid: q("cx_avoid").value.split(",").map((s) => s.trim()).filter(Boolean),
+      voice: q("cx_voice").value || undefined,
+      language: q("cx_lang").value || undefined,
+      pronunciation,
     };
     const r = await api.put("/api/context", body);
     this.runhint = r.ok ? "context saved" : "context save failed";
