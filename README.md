@@ -8,15 +8,9 @@ The agent does the creative reasoning; vid-ed does the deterministic media
 work. Every command is non-interactive and returns JSON on stdout, so an agent
 can chain commands reliably.
 
-Typical ask: **"Make a narrated video from these clips."** A concrete example —
-two clips to fetch and edit together:
-
-- <https://www.youtube.com/watch?v=11TeA7der1Q> — RC Sim Racing Controller Case Design
-- <https://www.youtube.com/watch?v=lPexd2mvKew> — RC Sim Racing Controller - Test 1 (Assetto Corsa)
-
-Prompt: **"Download these two videos and make a narrated ~90s demo of the RC
-controller build."** See [`AGENTS.md`](./AGENTS.md) for the ordered workflow,
-starter prompts and the vision (frame description) step.
+Typical ask: **"Make a narrated video from these clips."** See
+[`AGENTS.md`](./AGENTS.md) for the ordered workflow, starter prompts and the
+vision (frame description) step, and the worked example below for a full prompt.
 
 ```
 ANALYZE (cached) -> MANIFEST -> CLIPS -> COMPOSE (agent) -> RENDER (ffmpeg)
@@ -171,9 +165,11 @@ overlays:
 Everything above is driven by talking to the agent. For the chaptered demo in
 `samples/rc-build-gist-demo/`, the prompt was roughly:
 
-> Combine my two YouTube videos — the 3D case design and the controller test —
-> into one friendly build-and-test demo. Add an intro title and a chapter card
-> between the two clips, plus a code walkthrough of the firmware gist
+> Combine my two YouTube videos — the 3D case design
+> (<https://www.youtube.com/watch?v=11TeA7der1Q>) and the controller test
+> (<https://www.youtube.com/watch?v=lPexd2mvKew>) — into one friendly
+> build-and-test demo. Add an intro title and a chapter card between the two
+> clips, plus a code walkthrough of the firmware gist
 > (`http://gist.github.com/joegaffey/15bc76fa8b89fa941570b381fa884ad4`).
 > I built the 3D editor myself, it's called "3table". The track test was hard
 > to drive because I was recording the video with one hand and steering with
