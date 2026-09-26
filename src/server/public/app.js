@@ -554,23 +554,54 @@ class VidedApp extends LitElement {
   renderClipDetail(c, item = null) {
     const asset = (this.manifest?.assets || []).find((a) => a.path === c.source);
     const meta = (this.context?.assets && (this.context.assets[c.source] || (asset && this.context.assets[asset.id]))) || {};
-    const rows = [
-      ["Kind", c.kind],
-      ["Source", c.source],
-      ["Format", c.format],
-      ["Origin", c.origin],
-      ...(c.kind === "audio" ? [["In", c.in], ["Out", c.out ?? "–"], ["Gain", (c.gain_db ?? 0) + " dB"]] : []),
-      ...(c.kind === "video" ? [["In", c.in], ["Out", c.out], ["Speed", c.speed], ["Muted", c.muted ? "yes" : "no"]] : []),
-      ...(c.kind === "image" ? [["Duration", c.duration + "s"], ["Fit", c.fit]] : []),
-      ...(c.kind === "title" ? [["Title", c.title], ["Duration", c.duration + "s"]] : []),
-      ...(c.kind === "slide" ? [["Heading", c.heading], ["Duration", c.duration + "s"]] : []),
-      ...(c.tags && c.tags.length ? [["Tags", c.tags.join(", ")]] : []),
-      ...(c.note ? [["Note", c.note]] : []),
-      ...((meta.title || asset?.title) ? [["Asset title", meta.title || asset?.title]] : []),
-      ...((meta.role || asset?.role) ? [["Asset role", meta.role || asset?.role]] : []),
-      ...((meta.notes || asset?.notes) ? [["Asset notes", meta.notes || asset?.notes]] : []),
-      ["Id", c.id],
-    ];
+    const fields = [];
+    const f = (k, v) => fields.push({ k, v });
+    const edit = (k, id, type, value, step) => fields.push({ k, edit: { id, type, value, step } });
+
+    f("Kind", c.kind);
+    f("Source", c.source);
+    f("Format", c.format);
+    f("Origin", c.origin);
+    if (c.kind === "video") {
+      edit("In (s)", "f_in", "number", c.in, 0.1);
+      edit("Out (s)", "f_out", "number", c.out, 0.1);
+      edit("Muted", "f_muted", "checkbox", c.muted);
+    } else if (c.kind === "audio") {
+      edit("In (s)", "f_in", "number", c.in, 0.1);
+      edit("Out (s)", "f_out", "number", c.out ?? "", 0.1);
+      edit("Gain (dB)", "f_gain", "number", c.gain_db ?? 0, 1);
+    } else if (c.kind === "image") {
+      edit("Duration (s)", "f_duration", "number", c.duration, 0.1);
+      f("Fit", c.fit);
+      if (c.zoom) f("Zoom", `${c.zoom.w}×${c.zoom.h} @ ${c.zoom.x},${c.zoom.y}`);
+    } else if (c.kind === "title") {
+      f("Title", c.title);
+      if (c.subtitle) f("Subtitle", c.subtitle);
+      edit("Duration (s)", "f_duration", "number", c.duration, 0.1);
+    } else if (c.kind === "slide") {
+      f("Heading", c.heading);
+      if (c.body) f("Body", c.body);
+      edit("Duration (s)", "f_duration", "number", c.duration, 0.1);
+    }
+    if (c.tags && c.tags.length) f("Tags", c.tags.join(", "));
+    if (c.note) f("Note", c.note);
+    if (meta.title || asset?.title) f("Asset title", meta.title || asset?.title);
+    if (meta.role || asset?.role) f("Asset role", meta.role || asset?.role);
+    if (meta.notes || asset?.notes) f("Asset notes", meta.notes || asset?.notes);
+    f("Id", c.id);
+
+    const readClipPatch = () => {
+      const g = (id) => this.renderRoot.getElementById(id);
+      if (c.kind === "video") {
+        return { in: Number(g("f_in").value), out: Number(g("f_out").value), muted: g("f_muted").checked };
+      }
+      if (c.kind === "audio") {
+        const o = g("f_out").value;
+        return { in: Number(g("f_in").value), out: o === "" ? undefined : Number(o), gain_db: Number(g("f_gain").value) };
+      }
+      return { duration: Number(g("f_duration").value) };
+    };
+
     const src = "/api/clips/preview?id=" + encodeURIComponent(c.id);
     const preview = c.kind === "audio"
       ? html`<audio controls preload="metadata" src=${src}></audio>`
@@ -609,19 +640,19 @@ class VidedApp extends LitElement {
                   </div>
                 </div>`
               : ""}
-            ${c.kind === "video"
-              ? html`<div class="form">
-                  <div class="row">
-                    <div><label>in (s)</label><input id="cl_in" type="number" step="0.1" value=${c.in} /></div>
-                    <div><label>out (s)</label><input id="cl_out" type="number" step="0.1" value=${c.out} /></div>
-                  </div>
-                  <div class="actions"><button class="primary" @click=${() => {
-                    const q = (id) => Number(this.renderRoot.getElementById(id).value);
-                    this.proposeClipEdit([{ op: "set", id: c.id, patch: { in: q("cl_in"), out: q("cl_out") } }]);
-                  }}>Update clip</button><span class="muted">shared by every use of this clip</span></div>
-                </div>`
-              : ""}
-            <div class="kv">${rows.map(([k, v]) => html`<div class="k">${k}</div><div class="v">${v}</div>`)}</div>
+            <div class="fields">
+              ${fields.map((x) => html`
+                <div class="fk">${x.k}</div>
+                <div class="fv">${x.edit
+                  ? x.edit.type === "checkbox"
+                    ? html`<input id=${x.edit.id} type="checkbox" ?checked=${x.edit.value} />`
+                    : html`<input id=${x.edit.id} type=${x.edit.type} step=${x.edit.step ?? "any"} value=${x.edit.value} />`
+                  : x.v}</div>`)}
+            </div>
+            <div class="actions">
+              <button class="primary" @click=${() => this.proposeClipEdit([{ op: "set", id: c.id, patch: readClipPatch() }])}>Update clip</button>
+              <span class="muted">applies to every use of this clip</span>
+            </div>
           </div>
         </div>
       </div>`;
@@ -1265,6 +1296,11 @@ class VidedApp extends LitElement {
       .info-grid { grid-template-columns: minmax(0, 1.6fr) minmax(220px, 1fr); }
     }
     .kv { display: grid; grid-template-columns: 130px 1fr; gap: 5px 12px; font-size: 12px; align-content: start; }
+    .fields { display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 6px 12px; align-items: center; font-size: 12px; align-content: start; }
+    .fields .fk { color: var(--muted); }
+    .fields .fv { word-break: break-word; }
+    .fields input[type="number"], .fields input[type="text"] { width: 130px; }
+    .fields input[type="checkbox"] { width: auto; }
     .kv .k { color: var(--muted); }
     .kv .v { word-break: break-word; }
     .segments { display: flex; flex-direction: column; }
