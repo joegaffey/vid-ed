@@ -19,7 +19,7 @@ const fmtDur = (s) => {
   const r = Math.round(s % 60);
   return m + ":" + String(r).padStart(2, "0");
 };
-const fmtBytes = (b) => (b > 1048576 ? (b / 1048576).toFixed(1) + " MB" : Math.round(b / 1024) + " KB");
+const fmtBytes = (b) => (b < 1024 ? b + " B" : b > 1048576 ? (b / 1048576).toFixed(1) + " MB" : Math.round(b / 1024) + " KB");
 
 const SECTIONS = [
   ["project", "Project"],
@@ -85,6 +85,7 @@ class VidedApp extends LitElement {
     fileNames: { state: true },
     detailTab: { state: true },
     analysisOp: { state: true },
+    textContent: { state: true },
   };
 
   constructor() {
@@ -104,6 +105,7 @@ class VidedApp extends LitElement {
     this.fileNames = "";
     this.detailTab = "overview";
     this.analysisOp = "sample";
+    this.textContent = null;
     this._rail = Number(localStorage.getItem("vided.rail")) || 300;
     this._timeline = Number(localStorage.getItem("vided.timeline")) || 220;
     this._es = null;
@@ -150,10 +152,15 @@ class VidedApp extends LitElement {
     this.selection = { kind: "asset", id: a.id, asset: a };
     this.detailTab = "overview";
     this.frames = null;
-    this.loadFrames(a.id);
+    this.textContent = null;
+    if (a.kind === "video") this.loadFrames(a.id);
+    if (a.kind === "text") this.loadText(a.id);
   }
   async loadFrames(id) {
     try { this.frames = await api.get("/api/assets/" + id + "/frames"); } catch { this.frames = { frames: [] }; }
+  }
+  async loadText(id) {
+    try { this.textContent = await (await fetch("/api/media/" + id)).text(); } catch { this.textContent = "(unavailable)"; }
   }
 
   async runStage(op, args = []) {
@@ -514,7 +521,7 @@ class VidedApp extends LitElement {
     if (t.creation_time) rows.push(["Created", t.creation_time]);
     rows.push(["Hash", a.content_hash ? a.content_hash.slice(0, 19) + "…" : "–"]);
     const preview = a.kind === "text"
-      ? html`<pre class="textbox">${a.extracted?.sidecar || "(empty)"}</pre>`
+      ? html`<pre class="textbox">${this.textContent ?? "(loading…)"}</pre>`
       : html`<div class="preview">${this.renderPreview(a)}</div>`;
     return html`
       <div class="info-grid">
