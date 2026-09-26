@@ -19,6 +19,7 @@ export const PacketFrameSchema = z.object({
 export const VisionPacketSchema = z.object({
   schema: z.literal(PACKET_VERSION),
   created_at: z.string(),
+  instructions: z.string().optional(),
   frames: z.array(PacketFrameSchema),
 });
 

@@ -118,6 +118,24 @@ tracks:
 `compose --lint` (not an error). Derived clips are stamped from the source's
 resolution where it maps to a known format, else `1080p30`.
 
+### Vision (frame descriptions)
+
+`sample` + `dedupe` pick the frames; `annotate` gets them described. The packet
+lists each frame's image path, and a vision-capable model reads those JPEGs
+directly:
+
+```sh
+vided annotate --packet-out work/vision.packet.json   # packet + results template
+# open each frame image (e.g. .vided/frames/<assetId>/u_00001.jpg); fill
+# `description`/`tags` in work/vision.results.json; optionally set in/out
+vided annotate --ingest work/vision.results.json
+```
+
+Descriptions land on `visual.frames[].description`, flow into the context pack,
+and their `tags` are merged onto the asset. Re-run
+`vided manifest --context-pack` afterwards. Without this step the composer sees
+only timestamps — no idea what the footage shows.
+
 Install the optional native tools into a project with:
 
 ```sh

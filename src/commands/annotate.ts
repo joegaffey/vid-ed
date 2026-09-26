@@ -85,17 +85,39 @@ async function emitPacket(
   const filter = opts.assets?.length ? new Set(opts.assets) : undefined;
   const frames = buildPacket(manifest.assets, { window, filter });
 
+  const instructions =
+    "Describe each frame in `frames`. For each, open its `frame` image (path " +
+    "relative to the project root) — a vision-capable model can read the JPEG " +
+    "directly — and write a one-sentence `description` plus short `tags` into " +
+    "the companion results template, then run: vided annotate --ingest <results>. " +
+    "Optionally set `in`/`out` to suggest a clip range.";
+
   const packet: VisionPacket = {
     schema: PACKET_VERSION,
     created_at: new Date().toISOString(),
+    instructions,
     frames,
   };
   const out = resolvePath(root, packetOut);
   await mkdir(dirname(out), { recursive: true });
   await writeFile(out, JSON.stringify(packet, null, 2) + "\n", "utf8");
+
+  // A ready-to-fill results file: an agent edits descriptions/tags in place,
+  // then ingests it. Avoids having to rediscover the results schema.
+  const templatePath = /\.packet\.json$/.test(out)
+    ? out.replace(/\.packet\.json$/, ".results.json")
+    : out.replace(/\.json$/, "") + ".results.json";
+  const template = {
+    schema: RESULTS_VERSION,
+    frames: frames.map((f) => ({ frame: f.frame, description: "", tags: [] as string[] })),
+  };
+  await writeFile(templatePath, JSON.stringify(template, null, 2) + "\n", "utf8");
+
   emit(
-    { ok: true, packet: out, frames: frames.length },
-    () => `Wrote vision packet with ${frames.length} frames -> ${out}`,
+    { ok: true, packet: out, template: templatePath, frames: frames.length },
+    () =>
+      `Wrote vision packet with ${frames.length} frames -> ${out}\n` +
+      `Fill descriptions in ${templatePath}, then: vided annotate --ingest ${templatePath}`,
     opts,
   );
 }
