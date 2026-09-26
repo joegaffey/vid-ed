@@ -92,8 +92,9 @@ don't appear in it until you re-run `vided manifest --context-pack …`.
 
 Minimal `clips.yaml` + `edit.yaml`. A clip is defined **only** in `clips.yaml`;
 `edit.yaml` references it by `use:` (every `tracks.visual[]` item needs `id`).
-`clips --add` takes a **single** clip object (JSON), not an array. Generated
-kinds (`title`/`slide`) use `source: generated` and a `title` (or `heading`).
+`clips --add` takes one or more clip objects (JSON) — each object is a clip, not
+an array. Generated kinds (`title`/`slide`) use `source: generated` and a
+`title` (or `heading`).
 
 ```yaml
 # clips.yaml

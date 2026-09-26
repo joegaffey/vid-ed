@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { deriveClips, hasPlaceableMedia } from "../clips.js";
+import { deriveClips, hasPlaceableMedia, nearestFormat } from "../clips.js";
 import { loadEdlFromString, resolveEdl } from "../edl.js";
 import { clipId, ClipsSchema, KNOWN_FORMATS } from "../schemas/clips.js";
 import type { Manifest } from "../schemas/manifest.js";
@@ -82,6 +82,16 @@ test("deriveClips: video beats/clusters/scenes plus image and audio clips", () =
 test("hasPlaceableMedia: video/image/audio yes, text-only no", () => {
   assert.equal(hasPlaceableMedia(MANIFEST), true);
   assert.equal(hasPlaceableMedia({ assets: [{ kind: "text" }] } as unknown as Manifest), false);
+});
+
+test("nearestFormat matches orientation and never upscales", () => {
+  const fmt = (kind: string, width: number, height: number, fps?: number) =>
+    nearestFormat({ kind, technical: { video: { width, height, fps } } } as unknown as Parameters<typeof nearestFormat>[0]);
+  assert.equal(fmt("image", 1224, 651), "540p30"); // landscape PNG must not become vertical
+  assert.equal(fmt("video", 1920, 1080, 30), "1080p30");
+  assert.equal(fmt("video", 1080, 1920, 30), "vertical1080p30");
+  assert.equal(fmt("video", 1080, 1080, 30), "square1080p30");
+  assert.equal(fmt("audio", 0, 0), "audio48k");
 });
 
 const POOL = ClipsSchema.parse({

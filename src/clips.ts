@@ -54,17 +54,25 @@ export function nearestFormat(asset: AssetRecord): FormatName {
   const w = v?.width;
   const h = v?.height;
   const fps = v?.fps;
-  const video = (Object.entries(KNOWN_FORMATS) as Array<[FormatName, Record<string, unknown>]>)
-    .filter(([, f]) => typeof f.width === "number");
+  const all = (Object.entries(KNOWN_FORMATS) as Array<[FormatName, Record<string, unknown>]>).filter(
+    ([, f]) => typeof f.width === "number",
+  );
+  if (!w || !h) return "1080p30";
 
-  if (w && h) {
-    const exact = video.find(([, f]) => f.width === w && f.height === h && (!fps || f.fps === Math.round(fps)));
-    if (exact) return exact[0];
-    const notLarger = video.filter(([, f]) => (f.width as number) <= w).sort((a, b) => (b[1].width as number) - (a[1].width as number));
-    if (notLarger.length) return notLarger[0]![0];
-    return video.slice().sort((a, b) => (a[1].width as number) - (b[1].width as number))[0]![0];
-  }
-  return "1080p30";
+  // Match orientation first, so a landscape source never maps to a portrait
+  // format just because the portrait width is smaller.
+  const orient = (a: number, b: number): string => (a > b ? "landscape" : a < b ? "portrait" : "square");
+  const want = orient(w, h);
+  const pool = all.filter(([, f]) => orient(f.width as number, f.height as number) === want);
+  const candidates = pool.length ? pool : all;
+
+  const exact = candidates.find(([, f]) => f.width === w && f.height === h && (!fps || f.fps === Math.round(fps)));
+  if (exact) return exact[0];
+  const notLarger = candidates
+    .filter(([, f]) => (f.width as number) <= w)
+    .sort((a, b) => (b[1].width as number) - (a[1].width as number));
+  if (notLarger.length) return notLarger[0]![0];
+  return candidates.slice().sort((a, b) => (a[1].width as number) - (b[1].width as number))[0]![0];
 }
 
 interface Candidate {
