@@ -281,8 +281,8 @@ reads/writes the project files.
   it; a change history and staleness tracking show what is out of date.
 - Build the client once (`npm run build:studio`), then `vided studio` and open
   the printed URL.
-- **Static demo (read-only):** https://joegaffey.github.io/vid-ed/ — a snapshot
-  of the sample project with editing, jobs and uploads disabled.
+- **Static demo (read-only):** https://joegaffey.com/vid-ed/ — a snapshot of the
+  sample project with editing, jobs and uploads disabled.
 
 Expect rough edges — the UI and its on-disk behavior may change.
 
