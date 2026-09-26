@@ -1,5 +1,5 @@
 import { mkdir, writeFile } from "node:fs/promises";
-import { dirname, isAbsolute, resolve } from "node:path";
+import { dirname, isAbsolute, join, resolve } from "node:path";
 import { execa } from "execa";
 import { loadConfig, projectPaths } from "../config.js";
 import { makeSourceResolver, readManifest } from "../manifest.js";
@@ -42,7 +42,8 @@ export async function cmdRender(opts: RenderOptions): Promise<void> {
 
   if (!opts.file) fail("Provide an edit file, or --clip <id> to preview a clip.");
   const pool = await loadClips(paths);
-  const loaded = await loadEdlFile(opts.file);
+  const file = isAbsolute(opts.file) ? opts.file : join(paths.root, opts.file);
+  const loaded = await loadEdlFile(file);
   if (!loaded.ok || !loaded.edl) fail(`Invalid edit file:\n  ${loaded.errors.join("\n  ")}`);
   const resolved = resolveEdl(loaded.edl, clipsById(pool?.clips));
   if (!resolved.ok || !resolved.resolved) fail(`Unresolved edit:\n  ${resolved.errors.join("\n  ")}`);

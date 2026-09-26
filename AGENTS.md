@@ -1,8 +1,9 @@
 # AGENTS.md — working in this repo
 
 `vided` is an agentic video editor toolset. This file is for AI coding agents
-(opencode, Kiro, Claude Code) working **on** the project. A generated
-`.vided/AGENTS.md` (per project) documents how to use the CLI.
+(opencode, Kiro, Claude Code) working **on** the project. `vided init` also
+writes a per-project `AGENTS.md` at the project root documenting how to use the
+CLI.
 
 ## Architecture (read SPEC.md for the full spec)
 
@@ -65,6 +66,53 @@ npm run typecheck
 npm test
 npm run dev -- <args>   # tsx src/cli.ts
 ```
+
+### Working a project (order matters)
+
+Run commands with `--dir <project>` (or from the project root). Positional file
+arguments (`edit.yaml`) resolve relative to the project when `--dir` is set.
+
+```sh
+vided init
+vided scan
+vided extract-text              # optional; transcription needs whisper
+vided sample
+vided dedupe
+vided clips                     # REQUIRED before the context pack (if media present)
+vided manifest --context-pack work/context.md   # also writes work/context.json
+#   ... read work/context.md, then write edit.yaml ...
+vided compose edit.yaml --check --lint
+vided render edit.yaml
+vided render --clip <id>        # preview one clip at its own format (cached)
+```
+
+Minimal `clips.yaml` + `edit.yaml`. A clip is defined **only** in `clips.yaml`;
+`edit.yaml` references it by `use:` (every `tracks.visual[]` item needs `id`).
+`clips --add` takes a **single** clip object (JSON), not an array. Generated
+kinds (`title`/`slide`) use `source: generated` and a `title` (or `heading`).
+
+```yaml
+# clips.yaml
+schema: vided.clips/1
+clips:
+  - { id: sel-a, kind: video, source: input/a.mp4, format: 1080p30, in: 0, out: 4 }
+  - { id: title-open, kind: title, source: generated, format: 1080p30, title: "Demo", duration: 3 }
+```
+
+```yaml
+# edit.yaml
+schema: vided.edl/3
+output: { format: 1080p30, path: out/final.mp4 }
+tracks:
+  visual:
+    - { id: intro, use: title-open }
+    - { id: a, use: sel-a }
+  audio: []
+```
+
+`output.format` should match the clips' `format`; a mismatch is reported by
+`compose --lint` (not an error). Derived clips are stamped from the source's
+resolution where it maps to a known format, else `1080p30`.
 
 Install the optional native tools into a project with:
 

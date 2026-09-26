@@ -1,3 +1,4 @@
+import { isAbsolute, join } from "node:path";
 import { projectPaths } from "../config.js";
 import { readManifest, makeSourceResolver } from "../manifest.js";
 import { loadClips, clipsById } from "../clips.js";
@@ -19,7 +20,8 @@ export async function cmdCompose(opts: ComposeOptions): Promise<void> {
   const resolver = makeSourceResolver(paths, manifest);
   const clips = clipsById((await loadClips(paths))?.clips);
 
-  const result = await loadEdlFile(opts.file);
+  const file = isAbsolute(opts.file) ? opts.file : join(paths.root, opts.file);
+  const result = await loadEdlFile(file);
   const doCheck = opts.check || (!opts.explain && !opts.lint);
   const doExplain = opts.explain || (!opts.check && !opts.lint);
   const doLint = opts.lint || (!opts.check && !opts.explain);
