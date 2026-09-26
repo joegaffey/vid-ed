@@ -464,7 +464,6 @@ class VidedApp extends LitElement {
     if (kind === "video" || kind === "audio") tabs.push(["transcript", "Transcript"]);
     if (kind === "video") tabs.push(["frames", "Frames"]);
     tabs.push(["notes", "Notes"]);
-    if (kind !== "text" && kind !== "unknown") tabs.push(["process", "Process"]);
     return tabs;
   }
 
@@ -491,9 +490,8 @@ class VidedApp extends LitElement {
       <div class="detail-body">
         ${active === "overview" ? this.renderInfo(a)
           : active === "transcript" ? this.renderTranscript(a)
-          : active === "frames" ? this.renderFrames()
-          : active === "notes" ? this.renderNotes(a)
-          : this.renderProcess(a)}
+          : active === "frames" ? this.renderFrames(a)
+          : this.renderNotes(a)}
       </div>
     `;
   }
@@ -523,38 +521,73 @@ class VidedApp extends LitElement {
     const preview = a.kind === "text"
       ? html`<pre class="textbox">${this.textContent ?? "(loading…)"}</pre>`
       : html`<div class="preview">${this.renderPreview(a)}</div>`;
+    const ocr = a.kind === "image" ? html`
+      <div class="block">
+        <div class="row"><strong>Extracted text</strong>
+          <button class="secondary" @click=${() => this.runAssetStage(a, "extract-text", ["--ocr"])}>Run OCR</button>
+          <span class="muted">${this.runhint}</span>
+        </div>
+        ${a.extracted?.ocr ? html`<pre class="textbox">${a.extracted.ocr}</pre>` : html`<p class="muted">No OCR text yet.</p>`}
+      </div>` : "";
     return html`
       <div class="info-grid">
         ${preview}
         <div class="kv">${rows.map(([k, val]) => html`<div class="k">${k}</div><div class="v">${val}</div>`)}</div>
       </div>
+      ${ocr}
     `;
   }
 
   renderTranscript(a) {
     const tr = a.extracted?.transcript;
     const segs = tr?.segments || [];
-    if (!segs.length) return html`<p class="muted">No transcript — run <em>extract-text</em> from the Process tab.</p>`;
     return html`
-      <div class="muted" style="margin-bottom:8px">
-        ${tr.tool}${a.extracted.language ? " · " + a.extracted.language : ""} · ${segs.length} segments
+      <div class="actions">
+        <input id="t_lang" placeholder="language (auto)" style="width: 140px" />
+        <button class="primary" @click=${() => {
+          const lang = this.renderRoot.getElementById("t_lang").value;
+          this.runAssetStage(a, "extract-text", lang ? ["--language", lang] : []);
+        }}>${segs.length ? "Re-transcribe" : "Transcribe"}</button>
+        <span class="muted">${this.runhint}</span>
       </div>
-      <div class="segments">
-        ${segs.map((s) => html`<div class="seg"><span class="t">${fmtDur(s.start)}</span><span>${s.text}</span></div>`)}
-      </div>
+      ${segs.length ? html`
+        <div class="muted" style="margin: 10px 0 8px">
+          ${tr.tool}${a.extracted.language ? " · " + a.extracted.language : ""} · ${segs.length} segments
+        </div>
+        <div class="segments">
+          ${segs.map((s) => html`<div class="seg"><span class="t">${fmtDur(s.start)}</span><span>${s.text}</span></div>`)}
+        </div>
+      ` : html`<p class="muted">No transcript yet.</p>`}
     `;
   }
 
-  renderFrames() {
-    if (!this.frames) return html`<p class="muted">loading…</p>`;
-    if (!this.frames.frames.length) return html`<p class="muted">No frames — run <em>sample</em> from the Process tab.</p>`;
-    return html`<div class="gallery">
-      ${this.frames.frames.map((f) => html`<div class="frame">
-        <img loading="lazy" src=${f.url} alt=${"t=" + f.t} />
-        <div class="cap"><span>t=${f.t}${f.selected ? " ✓" : ""}</span>
-          ${f.description ? html`<span class="muted">${f.description}</span>` : ""}</div>
-      </div>`)}
-    </div>`;
+  renderFrames(a) {
+    const gallery = !this.frames
+      ? html`<p class="muted">loading…</p>`
+      : !this.frames.frames.length
+        ? html`<p class="muted">No frames yet — run Sample.</p>`
+        : html`<div class="gallery">
+            ${this.frames.frames.map((f) => html`<div class="frame">
+              <img loading="lazy" src=${f.url} alt=${"t=" + f.t} />
+              <div class="cap"><span>t=${f.t}${f.selected ? " ✓" : ""}</span>
+                ${f.description ? html`<span class="muted">${f.description}</span>` : ""}</div>
+            </div>`)}
+          </div>`;
+    return html`
+      <div class="actions">
+        <label class="inline">threshold <input id="f_thr" type="number" step="0.05" value="0.25" style="width: 70px" /></label>
+        <label class="inline">rate/min <input id="f_rate" type="number" value="30" style="width: 70px" /></label>
+        <button @click=${() => this.runAssetStage(a, "sample", ["--threshold", this.renderRoot.getElementById("f_thr").value, "--rate", this.renderRoot.getElementById("f_rate").value])}>Sample</button>
+        <label class="inline">phash <input id="f_dist" type="number" value="6" style="width: 60px" /></label>
+        <label class="inline">budget <input id="f_budget" type="number" style="width: 60px" /></label>
+        <button @click=${() => this.runAssetStage(a, "dedupe", [
+          "--phash-distance", this.renderRoot.getElementById("f_dist").value,
+          ...(this.renderRoot.getElementById("f_budget").value ? ["--budget", this.renderRoot.getElementById("f_budget").value] : []),
+        ])}>Dedupe</button>
+        <button class="secondary" @click=${() => this.runAssetStage(a, "annotate", ["--packet-out", "work/" + a.id + ".packet.json"])}>Build packet</button>
+      </div>
+      ${gallery}
+    `;
   }
 
   assetMeta(a) {
@@ -586,62 +619,6 @@ class VidedApp extends LitElement {
     await this.loadContext();
   }
 
-  renderProcess(a) {
-    const isVideo = a.kind === "video";
-    const isAudio = a.kind === "audio";
-    const isImage = a.kind === "image";
-    return html`
-      <div class="params">
-        ${isVideo || isAudio ? html`
-          <fieldset>
-            <legend>Transcribe</legend>
-            <div class="row">
-              <input id="p_lang" placeholder="language (auto)" style="width: 140px" />
-              <button @click=${() => {
-                const lang = this.renderRoot.getElementById("p_lang").value;
-                this.runAssetStage(a, "extract-text", lang ? ["--language", lang] : []);
-              }}>Run</button>
-            </div>
-          </fieldset>` : ""}
-
-        ${isImage ? html`
-          <fieldset>
-            <legend>Text (OCR)</legend>
-            <div class="row">
-              <button @click=${() => this.runAssetStage(a, "extract-text", ["--ocr"])}>Run OCR</button>
-            </div>
-          </fieldset>` : ""}
-
-        ${isVideo ? html`
-          <fieldset>
-            <legend>Sample</legend>
-            <div class="row">
-              <label class="inline">threshold <input id="p_thr" type="number" step="0.05" value="0.25" style="width: 70px" /></label>
-              <label class="inline">rate/min <input id="p_rate" type="number" value="30" style="width: 70px" /></label>
-              <button @click=${() => this.runAssetStage(a, "sample", ["--threshold", this.renderRoot.getElementById("p_thr").value, "--rate", this.renderRoot.getElementById("p_rate").value])}>Run</button>
-            </div>
-          </fieldset>
-          <fieldset>
-            <legend>Dedupe</legend>
-            <div class="row">
-              <label class="inline">phash distance <input id="p_dist" type="number" value="6" style="width: 70px" /></label>
-              <label class="inline">budget <input id="p_budget" type="number" style="width: 70px" /></label>
-              <button @click=${() => this.runAssetStage(a, "dedupe", [
-                "--phash-distance", this.renderRoot.getElementById("p_dist").value,
-                ...(this.renderRoot.getElementById("p_budget").value ? ["--budget", this.renderRoot.getElementById("p_budget").value] : []),
-              ])}>Run</button>
-            </div>
-          </fieldset>
-          <fieldset>
-            <legend>Vision</legend>
-            <div class="row">
-              <button @click=${() => this.runAssetStage(a, "annotate", ["--packet-out", "work/" + a.id + ".packet.json"])}>Build packet</button>
-              <span class="muted">describe frames, then ingest results</span>
-            </div>
-          </fieldset>` : ""}
-      </div>
-    `;
-  }
   async runAssetStage(a, op, extraArgs) {
     await this.runStage(op, ["--assets", a.id, ...extraArgs]);
     this.loadJobs();
@@ -763,6 +740,8 @@ class VidedApp extends LitElement {
     .form { display: flex; flex-direction: column; }
     .preview { background: #000; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; max-width: 720px; }
     .textbox { background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; max-height: 420px; overflow: auto; }
+    .block { margin-top: 16px; display: grid; gap: 8px; }
+    .block .row strong { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
     .preview video, .preview img { width: 100%; display: block; max-height: 420px; object-fit: contain; }
     .frames h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 10px; }
     .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }

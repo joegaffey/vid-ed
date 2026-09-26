@@ -22,11 +22,12 @@ resizable bottom **Timeline** placeholder. Built with **Lit** (client bundled by
 Selection model `{ kind: 'none'|'asset'|'timelineItem', id }`; pane sizes and the
 open section persist in `localStorage`.
 
-**Details — Phase C done** — asset tabs are kind-aware: **Overview** (preview /
-text content + metadata), **Transcript** (video/audio), **Frames** (video),
-**Notes** (all), **Process** (per-kind stages: transcribe/sample/dedupe/vision
-for video, transcribe for audio, OCR for image). Raw CLI output stays behind a
-collapsed "technical log".
+**Details — Phase C done** — asset tabs are kind-aware, and actions live with
+the output they produce: **Overview** (preview / text content + metadata; OCR
+for images), **Transcript** (video/audio; transcribe/re-transcribe + segments),
+**Frames** (video; sample/dedupe/build-packet + gallery), **Notes** (all; title/
+role/tags/notes → `context.yaml`). Raw CLI output stays behind a collapsed
+"technical log".
 
 **Sections — Phase D done** — **Analysis** (project-wide parameterized stage
 runs: scan/extract-text/sample/dedupe/manifest/script/tts/captions/render),
@@ -175,8 +176,9 @@ persist in `localStorage`.
 - **Script** — narration segments (text/timing/voice), per-segment TTS preview.
 - **Output** — rendered files, sidecars, publish metadata.
 - **Activity** — jobs list + live log (SSE).
-- **Details** — asset tabs (kind-aware: Overview · Transcript · Frames · Notes ·
-  Process) or timeline-item editor (clip/title/slide/still).
+- **Details** — asset tabs (kind-aware: Overview · Transcript · Frames · Notes;
+  actions colocated with their output) or timeline-item editor
+  (clip/title/slide/still).
 - **Timeline** — read-only from `edit.yaml` first, editable later (P4).
 - **Review** — diff/apply/revert, integrated into every editor (P2).
 
