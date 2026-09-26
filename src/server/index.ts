@@ -326,6 +326,16 @@ export async function createStudioServer(opts: StudioServerOptions): Promise<Stu
     }
 
     // --- context ---------------------------------------------------------
+    if (req.method === "GET" && path === "/api/context-pack") {
+      for (const rel of ["work/context.md", join(".vided", "context.md")]) {
+        const abs = join(paths.root, rel);
+        if (existsSync(abs)) {
+          const markdown = await readFile(abs, "utf8");
+          return sendJSON(res, 200, { exists: true, file: rel, markdown, chars: markdown.length });
+        }
+      }
+      return sendJSON(res, 200, { exists: false, markdown: "", chars: 0 });
+    }
     if (req.method === "GET" && path === "/api/context") {
       const context = (await loadContextInput(paths)) ?? ContextInputSchema.parse({});
       return sendJSON(res, 200, context);

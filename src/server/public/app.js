@@ -143,6 +143,7 @@ class VidedApp extends LitElement {
     manifest: { state: true },
     clips: { state: true },
     context: { state: true },
+    contextPack: { state: true },
     outputs: { state: true },
     jobs: { state: true },
     selection: { state: true },
@@ -172,6 +173,7 @@ class VidedApp extends LitElement {
     this.manifest = null;
     this.clips = [];
     this.context = null;
+    this.contextPack = null;
     this.outputs = [];
     this.jobs = [];
     this.selection = { kind: "none" };
@@ -227,6 +229,7 @@ class VidedApp extends LitElement {
     this.loadManifest();
     this.loadClips();
     this.loadContext();
+    this.loadContextPack();
     this.loadOutputs();
     this.loadJobs();
     this.loadEdl();
@@ -245,6 +248,9 @@ class VidedApp extends LitElement {
   }
   async loadContext() {
     try { this.context = await api.get("/api/context"); } catch { this.context = null; }
+  }
+  async loadContextPack() {
+    try { this.contextPack = await api.get("/api/context-pack"); } catch { this.contextPack = null; }
   }
   async loadOutputs() {
     try { this.outputs = await api.get("/api/outputs"); } catch { this.outputs = []; }
@@ -538,6 +544,8 @@ class VidedApp extends LitElement {
     this.proposal = { artifact: "clips.yaml", yaml: j.yaml, diff: j.diff };
   }
   renderClipDetail(c) {
+    const asset = (this.manifest?.assets || []).find((a) => a.path === c.source);
+    const meta = (this.context?.assets && (this.context.assets[c.source] || (asset && this.context.assets[asset.id]))) || {};
     const rows = [
       ["Kind", c.kind],
       ["Source", c.source],
@@ -549,6 +557,10 @@ class VidedApp extends LitElement {
       ...(c.kind === "title" ? [["Title", c.title], ["Duration", c.duration + "s"]] : []),
       ...(c.kind === "slide" ? [["Heading", c.heading], ["Duration", c.duration + "s"]] : []),
       ...(c.tags && c.tags.length ? [["Tags", c.tags.join(", ")]] : []),
+      ...(c.note ? [["Note", c.note]] : []),
+      ...((meta.title || asset?.title) ? [["Asset title", meta.title || asset?.title]] : []),
+      ...((meta.role || asset?.role) ? [["Asset role", meta.role || asset?.role]] : []),
+      ...((meta.notes || asset?.notes) ? [["Asset notes", meta.notes || asset?.notes]] : []),
       ["Id", c.id],
     ];
     const src = "/api/clips/preview?id=" + encodeURIComponent(c.id);
@@ -703,6 +715,13 @@ class VidedApp extends LitElement {
         <button @click=${() => this.runStage("manifest", ["--context-pack", "work/context.md"])}>Build context pack</button>
         <span class="muted">${this.runhint}</span>
       </div>
+      <div class="grouphead">Generated context pack</div>
+      ${this.contextPack?.exists
+        ? html`<details class="logbox" open>
+            <summary>${this.contextPack.file} · ${this.contextPack.chars} chars (what the agent reads)</summary>
+            <pre class="textbox">${this.contextPack.markdown}</pre>
+          </details>`
+        : html`<p class="muted">Not built yet — click <b>Build context pack</b>.</p>`}
     `;
   }
   async saveContext() {
