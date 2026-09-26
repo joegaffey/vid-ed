@@ -14,6 +14,13 @@ import { loadContextInput, saveContextInput } from "../context.js";
 import { readManifest, makeSourceResolver } from "../manifest.js";
 import { explainEdl, loadEdlFile } from "../edl.js";
 import { JobQueue, resolveCliEntry } from "./jobs.js";
+import {
+  HistoryStore,
+  TRACKED_ARTIFACTS,
+  contentHash,
+  diffLines,
+  writeStudioChanges,
+} from "./history.js";
 
 /** Stages the studio may run through the CLI (plus the yt-dlp `download`). */
 export const ALLOWED_OPS = new Set([
@@ -150,6 +157,44 @@ export async function createStudioServer(opts: StudioServerOptions): Promise<Stu
   const inputDir = join(paths.root, config.input_roots[0] ?? "input");
   const outDir = join(paths.root, "out");
   const studioDir = resolveStudioDir();
+
+  // --- history / change tracking --------------------------------------
+  const history = new HistoryStore(paths.root);
+  const lastSeen = new Map<string, string>(); // artifact -> last observed content hash
+  const eventClients = new Set<ServerResponse>();
+  const emitEvent = (data: unknown): void => {
+    const frame = `data: ${JSON.stringify(data)}\n\n`;
+    for (const client of eventClients) client.write(frame);
+  };
+  const artifactPath = (artifact: string): string => join(paths.root, artifact);
+  const readArtifact = async (artifact: string): Promise<string | undefined> => {
+    const p = artifactPath(artifact);
+    return existsSync(p) ? readFile(p, "utf8") : undefined;
+  };
+
+  for (const artifact of TRACKED_ARTIFACTS) {
+    const content = await readArtifact(artifact);
+    if (content !== undefined) {
+      lastSeen.set(artifact, contentHash(content));
+      await history.append(artifact, { content, writer: "agent" });
+    }
+  }
+  await writeStudioChanges(paths.root, history);
+
+  const watcher = setInterval(() => {
+    void (async () => {
+      for (const artifact of TRACKED_ARTIFACTS) {
+        const content = await readArtifact(artifact);
+        if (content === undefined) continue;
+        const hash = contentHash(content);
+        if (lastSeen.get(artifact) === hash) continue;
+        lastSeen.set(artifact, hash);
+        await history.append(artifact, { content, writer: "agent" });
+        await writeStudioChanges(paths.root, history);
+        emitEvent({ type: "changed", artifact, writer: "agent", ts: new Date().toISOString() });
+      }
+    })();
+  }, 2000);
 
   const buildCommand = (op: string, args: string[]): { bin: string; argv: string[] } => {
     if (op === "download") {
@@ -312,6 +357,96 @@ export async function createStudioServer(opts: StudioServerOptions): Promise<Stu
       return serveFile(req, res, abs);
     }
 
+    // --- history / proposals --------------------------------------------
+    if (req.method === "GET" && path === "/api/events") {
+      res.writeHead(200, {
+        "content-type": "text/event-stream",
+        "cache-control": "no-cache",
+        connection: "keep-alive",
+      });
+      res.write(": connected\n\n");
+      eventClients.add(res);
+      const ka = setInterval(() => res.write(": keep-alive\n\n"), 15000);
+      req.on("close", () => {
+        clearInterval(ka);
+        eventClients.delete(res);
+      });
+      return;
+    }
+
+    if (req.method === "GET" && path === "/api/history") {
+      const out = [];
+      for (const artifact of TRACKED_ARTIFACTS) {
+        const latest = await history.latest(artifact);
+        if (latest) out.push({ artifact, ts: latest.ts, writer: latest.writer, hash: latest.hash, label: latest.label });
+      }
+      return sendJSON(res, 200, out);
+    }
+
+    const historyMatch = /^\/api\/history\/([^/]+)$/.exec(path);
+    if (req.method === "GET" && historyMatch) {
+      const artifact = decodeURIComponent(historyMatch[1]!);
+      const h = await history.read(artifact);
+      return sendJSON(res, 200, {
+        artifact,
+        versions: h.versions.map((v) => ({ ts: v.ts, writer: v.writer, hash: v.hash, label: v.label })),
+      });
+    }
+
+    if (req.method === "POST" && path === "/api/apply") {
+      const body = (await readBody(req)) as { artifact?: unknown; content?: unknown; label?: unknown };
+      if (typeof body.artifact !== "string" || typeof body.content !== "string") {
+        return sendJSON(res, 400, { error: "artifact and content are required" });
+      }
+      if (!TRACKED_ARTIFACTS.includes(body.artifact)) {
+        return sendJSON(res, 400, { error: `unknown artifact "${body.artifact}"` });
+      }
+      await writeFile(artifactPath(body.artifact), body.content, "utf8");
+      lastSeen.set(body.artifact, contentHash(body.content));
+      const v = await history.append(body.artifact, {
+        content: body.content,
+        writer: "studio",
+        ...(typeof body.label === "string" ? { label: body.label } : {}),
+      });
+      await writeStudioChanges(paths.root, history);
+      emitEvent({ type: "changed", artifact: body.artifact, writer: "studio", ts: v.ts });
+      return sendJSON(res, 200, { ok: true, artifact: body.artifact, ts: v.ts, hash: v.hash });
+    }
+
+    if (req.method === "POST" && path === "/api/revert") {
+      const body = (await readBody(req)) as { artifact?: unknown; hash?: unknown };
+      if (typeof body.artifact !== "string" || typeof body.hash !== "string") {
+        return sendJSON(res, 400, { error: "artifact and hash are required" });
+      }
+      const h = await history.read(body.artifact);
+      const v = h.versions.find((x) => x.hash === body.hash);
+      if (!v) return sendJSON(res, 404, { error: "no such version" });
+      await writeFile(artifactPath(body.artifact), v.content, "utf8");
+      lastSeen.set(body.artifact, contentHash(v.content));
+      const nv = await history.append(body.artifact, {
+        content: v.content,
+        writer: "studio",
+        label: `revert to ${body.hash}`,
+      });
+      await writeStudioChanges(paths.root, history);
+      emitEvent({ type: "changed", artifact: body.artifact, writer: "studio", ts: nv.ts });
+      return sendJSON(res, 200, { ok: true, artifact: body.artifact, ts: nv.ts, hash: nv.hash });
+    }
+
+    if (req.method === "POST" && path === "/api/diff") {
+      const body = (await readBody(req)) as { artifact?: unknown; content?: unknown; hash?: unknown };
+      if (typeof body.artifact !== "string") return sendJSON(res, 400, { error: "artifact is required" });
+      const current = (await readArtifact(body.artifact)) ?? "";
+      let proposed: string | undefined;
+      if (typeof body.content === "string") proposed = body.content;
+      else if (typeof body.hash === "string") {
+        const h = await history.read(body.artifact);
+        proposed = h.versions.find((v) => v.hash === body.hash)?.content;
+      }
+      if (typeof proposed !== "string") return sendJSON(res, 400, { error: "content or hash is required" });
+      return sendJSON(res, 200, { changed: current !== proposed, diff: diffLines(current, proposed) });
+    }
+
     // --- jobs ------------------------------------------------------------
     if (req.method === "GET" && path === "/api/jobs") {
       return sendJSON(res, 200, queue.list());
@@ -381,6 +516,12 @@ export async function createStudioServer(opts: StudioServerOptions): Promise<Stu
   return {
     url,
     queue,
-    close: () => new Promise<void>((resolve) => server.close(() => resolve())),
+    close: () =>
+      new Promise<void>((resolve) => {
+        clearInterval(watcher);
+        for (const client of eventClients) client.end();
+        eventClients.clear();
+        server.close(() => resolve());
+      }),
   };
 }

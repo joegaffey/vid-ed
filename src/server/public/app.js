@@ -35,6 +35,7 @@ const SECTIONS = [
   ["context", "Context"],
   ["vision", "Vision"],
   ["output", "Output"],
+  ["changes", "Changes"],
   ["activity", "Activity"],
 ];
 
@@ -96,6 +97,9 @@ class VidedApp extends LitElement {
     edl: { state: true },
     pps: { state: true },
     playhead: { state: true },
+    changes: { state: true },
+    diffText: { state: true },
+    stale: { state: true },
   };
 
   constructor() {
@@ -119,6 +123,9 @@ class VidedApp extends LitElement {
     this.edl = null;
     this.pps = null;
     this.playhead = 0;
+    this.changes = [];
+    this.diffText = null;
+    this.stale = null;
     this._rail = Number(localStorage.getItem("vided.rail")) || 300;
     this._timeline = Number(localStorage.getItem("vided.timeline")) || 220;
     this._es = null;
@@ -130,11 +137,22 @@ class VidedApp extends LitElement {
     this.style.setProperty("--timeline", this._timeline + "px");
     this.refresh();
     this._timer = setInterval(() => this.loadJobs(), 5000);
+    this._events = new EventSource("/api/events");
+    this._events.onmessage = (ev) => {
+      let e;
+      try { e = JSON.parse(ev.data); } catch { return; }
+      if (e.type === "changed") {
+        this.loadHistory();
+        if (e.writer === "agent") this.stale = e.artifact;
+        else this.refresh();
+      }
+    };
   }
   disconnectedCallback() {
     super.disconnectedCallback();
     clearInterval(this._timer);
     if (this._es) this._es.close();
+    if (this._events) this._events.close();
   }
 
   async refresh() {
@@ -144,6 +162,7 @@ class VidedApp extends LitElement {
     this.loadOutputs();
     this.loadJobs();
     this.loadEdl();
+    this.loadHistory();
   }
 
   async loadStatus() {
@@ -163,6 +182,26 @@ class VidedApp extends LitElement {
   }
   async loadEdl() {
     try { this.edl = await api.get("/api/edl"); } catch { this.edl = { empty: true }; }
+  }
+
+  async loadHistory() {
+    try { this.changes = await api.get("/api/history"); } catch { this.changes = []; }
+  }
+  async openHistory(artifact) {
+    try {
+      const h = await api.get("/api/history/" + encodeURIComponent(artifact));
+      this.selection = { kind: "history", id: artifact, artifact, versions: h.versions };
+      this.diffText = null;
+    } catch { /* ignore */ }
+  }
+  async diffVersion(artifact, hash) {
+    const r = await api.post("/api/diff", { artifact, hash });
+    if (r.ok) { const j = await r.json(); this.diffText = j.diff; }
+  }
+  async revertVersion(artifact, hash) {
+    await api.post("/api/revert", { artifact, hash });
+    await this.openHistory(artifact);
+    this.refresh();
   }
 
   selectTimelineItem(it) {
@@ -271,6 +310,7 @@ class VidedApp extends LitElement {
       case "context": return this.renderContext();
       case "vision": return this.renderVision();
       case "output": return this.renderOutput();
+      case "changes": return this.renderChanges();
       case "activity": return this.renderActivity();
       default: return "";
     }
@@ -466,6 +506,41 @@ class VidedApp extends LitElement {
     await this.loadContext();
   }
 
+  renderChanges() {
+    if (!this.changes.length) return html`<p class="muted">No tracked artifacts yet.</p>`;
+    return html`<table><tbody>
+      ${this.changes.map((c) => html`<tr class="clickable" @click=${() => this.openHistory(c.artifact)}>
+        <td>${c.artifact}</td>
+        <td><span class="pill ${c.writer === "studio" ? "done" : "cancelled"}">${c.writer}</span></td>
+        <td class="muted">${new Date(c.ts).toLocaleTimeString()}</td>
+      </tr>`)}
+    </tbody></table>`;
+  }
+
+  renderHistory() {
+    const sel = this.selection;
+    return html`
+      <div class="detail-head">
+        <div><span class="pill">history</span> <strong>${sel.artifact}</strong></div>
+        <div class="muted">${sel.versions.length} versions</div>
+      </div>
+      <div class="detail-body">
+        <table><tbody>
+          ${sel.versions.slice().reverse().map((v) => html`<tr>
+            <td><span class="pill ${v.writer === "studio" ? "done" : "cancelled"}">${v.writer}</span></td>
+            <td class="muted">${new Date(v.ts).toLocaleString()}</td>
+            <td>${v.label || ""}</td>
+            <td class="muted mono">${v.hash}</td>
+            <td class="row" style="justify-content: flex-end">
+              <button class="sm secondary" @click=${() => this.diffVersion(sel.artifact, v.hash)}>diff</button>
+              <button class="sm" @click=${() => this.revertVersion(sel.artifact, v.hash)}>revert</button>
+            </td>
+          </tr>`)}
+        </tbody></table>
+        ${this.diffText ? html`<pre class="textbox">${this.diffText}</pre>` : ""}
+      </div>`;
+  }
+
   renderOutput() {
     if (!this.outputs.length) return html`<p class="muted">No renders yet.</p>`;
     return html`<table><tbody>
@@ -502,6 +577,7 @@ class VidedApp extends LitElement {
 
   renderDetails() {
     const sel = this.selection;
+    if (sel.kind === "history") return this.renderHistory();
     if (sel.kind === "timelineItem") return this.renderTimelineItem(sel.item);
     if (sel.kind !== "asset") {
       return html`<div class="empty">
@@ -753,6 +829,12 @@ class VidedApp extends LitElement {
 
       <div class="timeline-resize" @pointerdown=${this.startTimelineDrag}></div>
       <footer class="timeline">${this.renderTimeline()}</footer>
+      ${this.stale
+        ? html`<div class="banner">
+            ⚠️ <b>${this.stale}</b> changed on disk (agent) ·
+            <button class="sm" @click=${() => { this.stale = null; this.refresh(); }}>reload</button>
+          </div>`
+        : ""}
     `;
   }
 
@@ -859,6 +941,7 @@ class VidedApp extends LitElement {
 
     .empty { height: 100%; display: grid; place-content: center; text-align: center; gap: 6px; color: var(--text); }
     .empty > div:first-child { font-size: 15px; }
+    .banner { position: fixed; top: 54px; left: 50%; transform: translateX(-50%); z-index: 30; display: flex; align-items: center; gap: 8px; background: var(--panel-3); border: 1px solid var(--warn); border-radius: 8px; padding: 8px 12px; box-shadow: 0 6px 18px #0008; }
     .logbox { margin-top: 10px; }
     .logbox summary { cursor: pointer; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
     .logbox pre { max-height: 260px; overflow: auto; margin-top: 8px; scrollbar-width: thin; scrollbar-color: #2c3542 transparent; }
