@@ -2,7 +2,7 @@ import { writeFile } from "node:fs/promises";
 import { isAbsolute, join } from "node:path";
 import { loadConfig, projectPaths } from "../config.js";
 import { readAllAssets, refreshManifest } from "../manifest.js";
-import { loadBrief, loadAssetNotes, buildContextPack } from "../context.js";
+import { loadBrief, loadAssetNotes, loadContextInput, buildContextPack } from "../context.js";
 import type { OutputOptions } from "../ui.js";
 import { emit, fail } from "../ui.js";
 
@@ -26,9 +26,10 @@ export async function cmdManifest(opts: ManifestOptions): Promise<void> {
   };
 
   if (opts.contextPack) {
+    const context = await loadContextInput(paths);
     const brief = await loadBrief(paths);
-    const notes = await loadAssetNotes(paths, manifest);
-    const pack = buildContextPack(manifest, { maxChars: opts.maxChars, brief, notes });
+    const notes = await loadAssetNotes(paths, manifest, context);
+    const pack = buildContextPack(manifest, { maxChars: opts.maxChars, brief, notes, context });
     const mdPath = isAbsolute(opts.contextPack)
       ? opts.contextPack
       : join(paths.root, opts.contextPack);

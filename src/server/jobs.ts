@@ -39,6 +39,7 @@ export function resolveCliEntry(): { bin: string; prefix: string[] } {
 export interface JobQueueOptions {
   projectDir: string;
   allowedOps: Set<string>;
+  buildCommand: (op: string, args: string[]) => { bin: string; argv: string[] };
 }
 
 type Subprocess = ReturnType<typeof execa>;
@@ -123,14 +124,7 @@ export class JobQueue {
     job.startedAt = new Date().toISOString();
     this.emit({ type: "status", job });
 
-    const { bin, prefix } = resolveCliEntry();
-    const argv = [
-      ...prefix,
-      "--dir", this.opts.projectDir,
-      "--json",
-      job.op,
-      ...job.args,
-    ];
+    const { bin, argv } = this.opts.buildCommand(job.op, job.args);
     const sub = execa(bin, argv, { reject: false });
     this.running = { id, sub };
     sub.stdout?.on("data", (d) => this.appendLog(job, d));

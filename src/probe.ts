@@ -11,7 +11,7 @@ export const MEDIA_EXTENSIONS = new Set([
   ".mp4", ".mov", ".mkv", ".webm", ".avi", ".m4v", ".mpg", ".mpeg", ".wmv", ".flv",
   ".mp3", ".wav", ".m4a", ".aac", ".flac", ".ogg", ".opus", ".wma",
   ".jpg", ".jpeg", ".png", ".webp", ".tif", ".tiff", ".bmp", ".heic", ".gif",
-  ".srt", ".vtt", ".txt", ".md", ".json",
+  ".srt", ".vtt", ".txt",
 ]);
 
 export function kindFromExt(ext: string): AssetKind {

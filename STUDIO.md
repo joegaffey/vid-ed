@@ -6,6 +6,13 @@ Implementation status: **P0 done** — `vided studio` starts a local server
 (Node built-ins + existing `execa`, no new deps) that serves a static UI shell
 and exposes `/api/status`, `/api/manifest`, `/api/jobs` (+ SSE) and `/api/jobs/:id`.
 
+**P1 done** — uploads (files via raw body + URLs via `yt-dlp`), scan wiring,
+context editing (`context.yaml` + per-input metadata), parameterized stage runs,
+frame gallery (`/api/assets/:id/frames`, `/api/frames/...`), media serving with
+HTTP Range, and outputs listing/download. Context is now read by
+`manifest --context-pack` and `script` (brief, directives, per-input
+title/role/tags/notes).
+
 `vided Studio` is an optional local server + web UI for smart editing and
 fine-tuning where the agent is insufficient. The agent remains master; the CLI
 stays the source of truth. The studio is a **thin adapter**: it drives the same

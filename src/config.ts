@@ -17,6 +17,7 @@ export const ConfigSchema = z.object({
       ffprobe: z.string().optional(),
       whisper: z.string().optional(),
       piper: z.string().optional(),
+      ytdlp: z.string().optional(),
     })
     .default({}),
   sampling: z

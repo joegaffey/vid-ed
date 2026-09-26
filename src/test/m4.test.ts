@@ -3,6 +3,7 @@ import { test } from "node:test";
 import { buildPacket } from "../commands/annotate.js";
 import { buildScaffold } from "../commands/script.js";
 import { buildContextJson, buildContextPack } from "../context.js";
+import { ContextInputSchema } from "../schemas/context-input.js";
 import { buildManifest } from "../manifest.js";
 import { AssetRecordSchema, SCHEMA_VERSION, type AssetRecord } from "../schemas/asset.js";
 import { VisionResultsSchema } from "../schemas/vision.js";
@@ -111,6 +112,29 @@ test("buildContextPack folds in brief and per-asset notes", () => {
   assert.ok(pack.markdown.includes("notes: Use the first six seconds."));
   assert.equal(pack.json.brief, "Explainer for developers.");
   assert.equal(pack.json.assets[0]!.notes, "Use the first six seconds.");
+});
+
+test("buildContextPack folds in structured context and per-asset metadata", () => {
+  const manifest = buildManifest([asset()], {
+    project: "p",
+    input_roots: ["input"],
+    config_hash: "sha256:x",
+  });
+  const context = ContextInputSchema.parse({
+    brief: "Friendly demo.",
+    audience: "sim racers",
+    tone: "warm",
+    target_duration_s: 90,
+    must_include: ["3table"],
+    assets: { a1: { title: "Intro", role: "b-roll", tags: ["cad"] } },
+  });
+  const pack = buildContextPack(manifest, { maxChars: 4000, context });
+  assert.ok(pack.markdown.includes("## Directives"));
+  assert.ok(pack.markdown.includes("audience: sim racers"));
+  assert.ok(pack.markdown.includes("must_include: 3table"));
+  assert.ok(pack.markdown.includes("## Intro — input/a.mp4"));
+  assert.equal(pack.json.assets[0]!.title, "Intro");
+  assert.ok(pack.json.assets[0]!.tags.includes("cad"));
 });
 
 test("buildScaffold carries per-asset notes into segments", () => {

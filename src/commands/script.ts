@@ -3,7 +3,7 @@ import { dirname, isAbsolute, join } from "node:path";
 import { stringify as toYaml } from "yaml";
 import { loadConfig, projectPaths } from "../config.js";
 import { readManifest } from "../manifest.js";
-import { loadBrief, loadAssetNotes } from "../context.js";
+import { loadBrief, loadAssetNotes, loadContextInput } from "../context.js";
 import { NarrationScriptSchema, type NarrationScript } from "../schemas/narration.js";
 import type { Manifest } from "../schemas/manifest.js";
 import type { OutputOptions } from "../ui.js";
@@ -69,8 +69,9 @@ export async function cmdScript(opts: ScriptOptions): Promise<void> {
   const manifest = await readManifest(paths);
   if (!manifest) fail("No manifest found. Run `vided scan` first.");
 
+  const context = await loadContextInput(paths);
   const brief = await loadBrief(paths);
-  const notes = await loadAssetNotes(paths, manifest);
+  const notes = await loadAssetNotes(paths, manifest, context);
   const script = buildScaffold(manifest, {
     assets: opts.assets,
     gap: opts.gap,
