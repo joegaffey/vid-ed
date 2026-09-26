@@ -14,6 +14,7 @@ import { cmdCaptions } from "./commands/captions.js";
 import { cmdModels, cmdVoicesSearch } from "./commands/models.js";
 import { cmdAnnotate } from "./commands/annotate.js";
 import { cmdManifest } from "./commands/manifest.js";
+import { cmdClips } from "./commands/clips.js";
 import { cmdScript } from "./commands/script.js";
 import type { OutputOptions } from "./ui.js";
 import { fail } from "./ui.js";
@@ -163,8 +164,9 @@ program
   });
 
 program
-  .command("render <file>")
-  .description("render an edit script to the output video")
+  .command("render [file]")
+  .description("render an edit to video, or preview a single clip (--clip <id>)")
+  .option("--clip <id>", "render one clip from clips.yaml to its own format (cached)")
   .option("--dry-run", "print the ffmpeg command without running", false)
   .option("--preview", "render a low-res fast preview", false)
   .option("--output <path>", "override the output path")
@@ -173,6 +175,7 @@ program
       ...outputOptions(),
       dir: projectDir(),
       file,
+      clip: opts.clip,
       dryRun: opts.dryRun,
       preview: opts.preview,
       output: opts.output,
@@ -276,6 +279,36 @@ program
       dir: projectDir(),
       contextPack: opts.contextPack,
       maxChars: opts.maxChars,
+    });
+  });
+
+program
+  .command("clips")
+  .description("derive, validate or edit the clips pool (clips.yaml)")
+  .option("--out <file>", "output clips yaml", "clips.yaml")
+  .option("--assets <id...>", "limit to asset ids")
+  .option("--force", "regenerate derived clips (preserves authored)", false)
+  .option("--check", "validate clips.yaml", false)
+  .option("--add <json>", "add a clip (JSON)")
+  .option("--set <id=json...>", "patch a clip's fields")
+  .option("--rm <id...>", "remove clips by id")
+  .option("--merge-gap <s>", "merge transcript beats across pauses", parseFloat)
+  .option("--frame-gap <s>", "group frames within this gap", parseFloat)
+  .option("--pad <s>", "pad frame clusters", parseFloat)
+  .action(async (opts) => {
+    await cmdClips({
+      ...outputOptions(),
+      dir: projectDir(),
+      out: opts.out,
+      assets: opts.assets,
+      force: opts.force,
+      check: opts.check,
+      add: opts.add,
+      set: opts.set,
+      remove: opts.rm,
+      mergeGap: opts.mergeGap,
+      frameGap: opts.frameGap,
+      pad: opts.pad,
     });
   });
 

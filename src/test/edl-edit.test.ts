@@ -2,27 +2,23 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { applyEdlOps } from "../edl-edit.js";
 
-const EDL = `schema: vided.edl/1
+const EDL = `schema: vided.edl/3
 # a comment that should survive
-output:
-  resolution: 1280x720
-timeline:
-  - id: a
-    source: clipA
-    in: 0
-    out: 4
-  - id: b
-    source: clipB
-    in: 2
-    out: 6
+tracks:
+  visual:
+    - id: a
+      use: c1
+    - id: b
+      use: c2
+      speed: 2
+  audio: []
 `;
 
-test("trim updates the clip in/out and preserves comments", () => {
-  const r = applyEdlOps(EDL, [{ op: "trim", id: "a", out: 2.5 }]);
+test("set updates a placement and preserves comments", () => {
+  const r = applyEdlOps(EDL, [{ op: "set", id: "a", patch: { speed: 3 } }]);
   assert.equal(r.ok, true);
-  assert.ok(r.yaml!.includes("out: 2.5"));
+  assert.ok(r.yaml!.includes("speed: 3"));
   assert.ok(r.yaml!.includes("# a comment that should survive"));
-  // unaffected item untouched
   assert.ok(r.yaml!.includes("id: b"));
 });
 
@@ -30,15 +26,15 @@ test("reorder moves an item and remove deletes it", () => {
   const moved = applyEdlOps(EDL, [{ op: "reorder", id: "b", delta: -1 }]);
   assert.equal(moved.ok, true);
   assert.ok(moved.yaml!.indexOf("id: b") < moved.yaml!.indexOf("id: a"));
-  const removed = applyEdlOps(EDL, [{ op: "remove", id: "a" }]);
+  const removed = applyEdlOps(EDL, [{ op: "remove", id: "b" }]);
   assert.equal(removed.ok, true);
-  assert.ok(!removed.yaml!.includes("id: a"));
+  assert.ok(!removed.yaml!.includes("id: b"));
 });
 
-test("add-clip appends a new timeline item", () => {
-  const r = applyEdlOps(EDL, [{ op: "add-clip", source: "clipC", in: 0, out: 3 }]);
+test("add appends a placement referencing a clip", () => {
+  const r = applyEdlOps(EDL, [{ op: "add", use: "c3", id: "c" }]);
   assert.equal(r.ok, true);
-  assert.ok(r.yaml!.includes("source: clipC"));
+  assert.ok(r.yaml!.includes("use: c3"));
 });
 
 test("schema-invalid edits are rejected", () => {

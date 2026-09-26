@@ -109,7 +109,7 @@ export function diffLines(oldText: string, newText: string): string {
 }
 
 /** Artifacts the studio versions and watches. */
-export const TRACKED_ARTIFACTS = ["context.yaml", "narration.yaml", "edit.yaml", "brief.md"];
+export const TRACKED_ARTIFACTS = ["clips.yaml", "context.yaml", "narration.yaml", "edit.yaml", "brief.md"];
 
 /**
  * Regenerate `.vided/STUDIO_CHANGES.md`: the artifacts whose latest version was

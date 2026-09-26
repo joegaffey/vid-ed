@@ -9,11 +9,12 @@ work. Every command is non-interactive and returns JSON on stdout, so an agent
 can chain commands reliably.
 
 ```
-ANALYZE (expensive, cached) -> MANIFEST -> COMPOSE (agent) -> RENDER (ffmpeg)
+ANALYZE (cached) -> MANIFEST -> CLIPS -> COMPOSE (agent) -> RENDER (ffmpeg)
 scan / extract-text / sample / dedupe / annotate
-                               agent reads the manifest + context pack and
-                               writes edit.yaml (EDL)
-                                               edit.yaml -> ffmpeg -> video
+                                clips.yaml pool of source clips
+                                           agent reads manifest + context pack
+                                           and writes edit.yaml referencing clips
+                                                          edit.yaml -> ffmpeg -> video
 ```
 
 See [`SPEC.md`](./SPEC.md) for the full design and [`AGENTS.md`](./AGENTS.md)
@@ -184,9 +185,31 @@ Three versioned schemas are the source of truth (zod, in `src/schemas/`):
 
 - **`vided.asset/1`** / **`vided.manifest/1`** — probe + extracted text + frames
   + annotations. Written by the analyze stages; read by the agent.
-- **`vided.edl/1`** — the edit script (`edit.yaml`): timeline, audio, captions,
-  overlays. Written by the agent; validated by `compose`, executed by `render`.
+- **`vided.clips/1`** — the clip pool (`clips.yaml`): every clip the edit can use.
+  Each clip has a `kind` (`video`/`image`/`audio`/`title`/`slide`), a `source`
+  (or `"generated"`), and an output **`format`** (below). Derive a seed pool with
+  `vided clips`; curate it (agent or studio) with `--add/--set/--rm`.
+- **`vided.edl/3`** — the edit script (`edit.yaml`): `tracks.visual` and
+  `tracks.audio` reference clips by `use:`, plus captions and overlays. Written
+  by the agent; validated by `compose`, executed by `render`.
 - **`vided.narration/1`** — narration script + timing.
+
+### Clip formats
+
+A clip's `format` names a canonical output format; its preview is a render at
+that format, cached by clip hash. The set (canonical in `src/schemas/clips.ts`):
+
+| name | output |
+|---|---|
+| `1080p30` | 1920×1080, 30 fps, h264/aac, 48 kHz stereo |
+| `1080p60` | 1920×1080, 60 fps |
+| `720p30` | 1280×720, 30 fps |
+| `vertical1080p30` | 1080×1920, 30 fps |
+| `square1080p30` | 1080×1080, 30 fps |
+| `audio48k` | audio only, 48 kHz stereo aac |
+
+A clip whose `format` differs from the edit's `output.format` is flagged by
+`compose --lint`.
 
 Example EDL: [`examples/edit.yaml`](./examples/edit.yaml). Example narration:
 [`examples/narration.yaml`](./examples/narration.yaml).

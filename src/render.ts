@@ -1,12 +1,11 @@
 import { join } from "node:path";
 import { buildAss, buildSlideAss, buildTitleAss, type AssEvent } from "./captions.js";
-import { isSlide, isStill, isTitleCard, type Edl } from "./schemas/edl.js";
+import { visualDuration, type ResolvedEdl, type ResolvedVisual } from "./edl.js";
+import { KNOWN_FORMATS, type AudioClip, type VideoClip } from "./schemas/clips.js";
+import { clipDuration, parseResolution, positionExpr, type ResolvedSource } from "./av.js";
 
-export interface ResolvedSource {
-  path: string;
-  kind?: string;
-  duration?: number;
-}
+export { clipDuration, parseResolution, positionExpr };
+export type { ResolvedSource };
 
 export interface RenderInput {
   path: string;
@@ -23,39 +22,6 @@ export interface RenderPlan {
   artifacts: Array<{ path: string; content: string }>;
 }
 
-export function parseResolution(res: string): [number, number] {
-  const m = /^(\d+)x(\d+)$/.exec(res);
-  if (!m) throw new Error(`Invalid resolution "${res}" (expected WxH).`);
-  return [Number(m[1]), Number(m[2])];
-}
-
-export function clipDuration(clip: { in: number; out: number; speed: number }): number {
-  return Math.max(0, (clip.out - clip.in) / clip.speed);
-}
-
-type Vars = { w: string; h: string };
-
-export function positionExpr(position: string, v: Vars): { x: string; y: string } {
-  const { w, h } = v;
-  switch (position) {
-    case "top-left":
-      return { x: "20", y: "20" };
-    case "top-right":
-      return { x: `main_w-${w}-20`, y: "20" };
-    case "bottom-left":
-      return { x: "20", y: `main_h-${h}-20` };
-    case "bottom-right":
-      return { x: `main_w-${w}-20`, y: `main_h-${h}-20` };
-    case "center":
-      return { x: `(main_w-${w})/2`, y: `(main_h-${h})/2` };
-    case "top":
-      return { x: `(main_w-${w})/2`, y: "20" };
-    case "bottom":
-    default:
-      return { x: `(main_w-${w})/2`, y: `main_h-${h}-20` };
-  }
-}
-
 export interface BuildOptions {
   root: string;
   resolveSource: (source: string) => ResolvedSource | undefined;
@@ -65,171 +31,133 @@ export interface BuildOptions {
   outputOverride?: string;
 }
 
-export function buildRenderPlan(edl: Edl, opts: BuildOptions): RenderPlan {
+export function buildRenderPlan(edl: ResolvedEdl, opts: BuildOptions): RenderPlan {
   const warnings: string[] = [];
   const preview = Boolean(opts.preview);
-  const output = {
-    ...edl.output,
-    resolution: preview ? "640x360" : edl.output.resolution,
-    fps: preview ? 15 : edl.output.fps,
-    preset: preview ? "ultrafast" : edl.output.preset,
-    crf: preview ? 28 : edl.output.crf,
-    path: opts.outputOverride ?? edl.output.path,
+  const fmt = KNOWN_FORMATS[edl.output.format] as {
+    width?: number;
+    height?: number;
+    fps?: number;
+    video_codec?: string;
+    audio_codec?: string;
+    audio_sample_rate?: number;
+    audio_channels?: number;
   };
-  const [W, H] = parseResolution(output.resolution);
+  const W = preview ? 640 : (fmt.width ?? 1920);
+  const H = preview ? 360 : (fmt.height ?? 1080);
+  const fps = preview ? 15 : (fmt.fps ?? 30);
+  const preset = preview ? "ultrafast" : edl.output.preset;
+  const crf = preview ? 28 : edl.output.crf;
+  const sampleRate = fmt.audio_sample_rate ?? 48000;
+  const outputPath = opts.outputOverride ?? edl.output.path;
 
   const inputs: RenderInput[] = [];
   const filters: string[] = [];
   const artifacts: RenderPlan["artifacts"] = [];
   const textEvents: AssEvent[] = [];
   const workDir = opts.workDir ?? join(opts.root, ".vided", "work");
-  const duration = edl.timeline.reduce(
-    (n, item) =>
-      n + (isTitleCard(item) || isSlide(item) || isStill(item) ? item.duration : clipDuration(item)),
-    0,
-  );
 
-  edl.timeline.forEach((item, i) => {
-    if (isStill(item)) {
-      const src = opts.resolveSource(item.image);
-      if (!src) throw new Error(`Still "${item.id}" references unknown image "${item.image}".`);
-      inputs.push({
-        path: src.path,
-        options: ["-loop", "1", "-t", String(item.duration)],
-      });
+  interface Placed {
+    item: ResolvedVisual;
+    label: string;
+    start: number;
+    duration: number;
+    audioIdx?: number;
+  }
+  const placed: Placed[] = [];
+  let cursor = 0;
+
+  edl.visual.forEach((item, i) => {
+    const clip = item.clip;
+    const label = `v${i}`;
+    const duration = visualDuration(item);
+    const start = cursor;
+    cursor += duration;
+
+    if (clip.kind === "video") {
+      const src = opts.resolveSource(clip.source);
+      if (!src) throw new Error(`Clip "${item.id}" references unknown source "${clip.source}".`);
+      if (clip.out <= clip.in) warnings.push(`Clip "${item.id}" has out <= in.`);
+      inputs.push({ path: src.path, options: [] });
       const idx = inputs.length - 1;
+      const tin = item.transition_in ?? clip.transition_in;
+      const tout = item.transition_out ?? clip.transition_out;
+      const parts = [`trim=start=${clip.in}:end=${clip.out}`, `setpts=(PTS-STARTPTS)/${item.speed}`];
+      if (tin?.type === "fade") parts.push(`fade=t=in:st=0:d=${tin.duration}`);
+      if (tout?.type === "fade") {
+        parts.push(`fade=t=out:st=${Math.max(0, clipDuration({ in: clip.in, out: clip.out, speed: item.speed }) - tout.duration)}:d=${tout.duration}`);
+      }
+      const scale = item.transform?.scale ?? `${W}x${H}`;
+      parts.push(`scale=${scale}:force_original_aspect_ratio=decrease`);
+      if (item.transform?.pad ?? true) parts.push(`pad=${W}:${H}:(ow-iw)/2:(oh-ih)/2`);
+      parts.push(`fps=${fps}`, "setsar=1");
+      filters.push(`[${idx}:v]${parts.join(",")}[${label}]`);
+      placed.push({ item, label, start, duration, ...(clip.muted || src.audio === false ? {} : { audioIdx: idx }) });
+      return;
+    }
+
+    if (clip.kind === "image") {
+      const src = opts.resolveSource(clip.source);
+      if (!src) throw new Error(`Image clip "${item.id}" references unknown image "${clip.source}".`);
+      inputs.push({ path: src.path, options: ["-loop", "1", "-t", String(clip.duration)] });
+      const idx = inputs.length - 1;
+      const tin = item.transition_in ?? clip.transition_in;
+      const tout = item.transition_out ?? clip.transition_out;
       const parts: string[] = [];
-      if (item.zoom) {
-        const z = item.zoom;
+      if (clip.zoom) {
+        const z = clip.zoom;
         parts.push(`crop=iw*${z.w}:ih*${z.h}:iw*${z.x}:ih*${z.y}`);
       }
-      if (item.fit === "cover") {
+      if (clip.fit === "cover") {
         parts.push(`scale=${W}:${H}:force_original_aspect_ratio=increase`, `crop=${W}:${H}`);
       } else {
-        parts.push(
-          `scale=${W}:${H}:force_original_aspect_ratio=decrease`,
-          `pad=${W}:${H}:(ow-iw)/2:(oh-ih)/2`,
-        );
+        parts.push(`scale=${W}:${H}:force_original_aspect_ratio=decrease`, `pad=${W}:${H}:(ow-iw)/2:(oh-ih)/2`);
       }
-      if (item.transition_in?.type === "fade") {
-        parts.push(`fade=t=in:st=0:d=${item.transition_in.duration}`);
-      }
-      if (item.transition_out?.type === "fade") {
-        const d = item.transition_out.duration;
-        parts.push(`fade=t=out:st=${Math.max(0, item.duration - d)}:d=${d}`);
-      }
-      parts.push(`fps=${output.fps}`, "setsar=1");
-      filters.push(`[${idx}:v]${parts.join(",")}[v${i}]`);
+      if (tin?.type === "fade") parts.push(`fade=t=in:st=0:d=${tin.duration}`);
+      if (tout?.type === "fade") parts.push(`fade=t=out:st=${Math.max(0, clip.duration - tout.duration)}:d=${tout.duration}`);
+      parts.push(`fps=${fps}`, "setsar=1");
+      filters.push(`[${idx}:v]${parts.join(",")}[${label}]`);
+      placed.push({ item, label, start, duration });
       return;
     }
 
-    if (isSlide(item)) {
-      const bg = item.background.startsWith("#")
-        ? `0x${item.background.slice(1)}`
-        : item.background;
-      const assPath = join(workDir, `slide_${i}.ass`);
-      artifacts.push({
-        path: assPath,
-        content: buildSlideAss({
-          width: W,
-          height: H,
-          heading: item.slide,
-          body: item.body,
-          kind: item.kind,
-          duration: item.duration,
-          headingSize: item.style.heading_size,
-          bodySize: item.style.body_size,
-          color: item.style.color,
-          accent: item.style.accent,
-          font: item.style.font,
-          mono: item.style.mono,
-        }),
-      });
-      const safe = assPath.replace(/\\/g, "/").replace(/:/g, "\\:");
-      const parts = [
-        `color=c=${bg}:s=${W}x${H}:r=${output.fps}:d=${item.duration}`,
-        `ass=${safe}`,
-      ];
-      if (item.transition_in?.type === "fade") {
-        parts.push(`fade=t=in:st=0:d=${item.transition_in.duration}`);
-      }
-      if (item.transition_out?.type === "fade") {
-        const d = item.transition_out.duration;
-        parts.push(`fade=t=out:st=${Math.max(0, item.duration - d)}:d=${d}`);
-      }
-      parts.push("setsar=1");
-      filters.push(`${parts.join(",")}[v${i}]`);
-      return;
+    if (clip.kind === "audio") {
+      throw new Error(`Visual item "${item.id}" references an audio clip.`);
     }
-
-    if (isTitleCard(item)) {
-      const bg = item.background.startsWith("#")
-        ? `0x${item.background.slice(1)}`
-        : item.background;
-      const assPath = join(workDir, `title_${i}.ass`);
+    const tin = item.transition_in ?? clip.transition_in;
+    const tout = item.transition_out ?? clip.transition_out;
+    const bg = clip.background.startsWith("#") ? `0x${clip.background.slice(1)}` : clip.background;
+    const assPath = join(workDir, `${clip.kind}_${i}.ass`);
+    if (clip.kind === "title") {
       artifacts.push({
         path: assPath,
         content: buildTitleAss({
-          width: W,
-          height: H,
-          title: item.title,
-          subtitle: item.subtitle,
-          duration: item.duration,
-          titleSize: item.style.title_size,
-          subtitleSize: item.style.subtitle_size,
-          color: item.style.color,
-          subtitleColor: item.style.subtitle_color,
-          font: item.style.font,
+          width: W, height: H, title: clip.title, subtitle: clip.subtitle, duration: clip.duration,
+          titleSize: clip.style.title_size, subtitleSize: clip.style.subtitle_size,
+          color: clip.style.color, subtitleColor: clip.style.subtitle_color, font: clip.style.font,
         }),
       });
-      const safe = assPath.replace(/\\/g, "/").replace(/:/g, "\\:");
-      const parts = [
-        `color=c=${bg}:s=${W}x${H}:r=${output.fps}:d=${item.duration}`,
-        `ass=${safe}`,
-      ];
-      if (item.transition_in?.type === "fade") {
-        parts.push(`fade=t=in:st=0:d=${item.transition_in.duration}`);
-      }
-      if (item.transition_out?.type === "fade") {
-        const d = item.transition_out.duration;
-        parts.push(`fade=t=out:st=${Math.max(0, item.duration - d)}:d=${d}`);
-      }
-      parts.push("setsar=1");
-      filters.push(`${parts.join(",")}[v${i}]`);
-      return;
+    } else {
+      artifacts.push({
+        path: assPath,
+        content: buildSlideAss({
+          width: W, height: H, heading: clip.heading, body: clip.body, kind: clip.variant, duration: clip.duration,
+          headingSize: clip.style.heading_size, bodySize: clip.style.body_size,
+          color: clip.style.color, accent: clip.style.accent, font: clip.style.font, mono: clip.style.mono,
+        }),
+      });
     }
-
-    const clip = item;
-    const src = opts.resolveSource(clip.source);
-    if (!src) throw new Error(`Timeline clip "${clip.id}" references unknown source "${clip.source}".`);
-    if (clip.out <= clip.in) warnings.push(`Clip "${clip.id}" has out <= in.`);
-    inputs.push({ path: src.path, options: [] });
-    const idx = inputs.length - 1;
-
-    const parts = [
-      `trim=start=${clip.in}:end=${clip.out}`,
-      `setpts=(PTS-STARTPTS)/${clip.speed}`,
-    ];
-    if (clip.transition_in?.type === "fade") {
-      parts.push(`fade=t=in:st=0:d=${clip.transition_in.duration}`);
-    }
-    if (clip.transition_out?.type === "fade") {
-      const d = clip.transition_out.duration;
-      parts.push(`fade=t=out:st=${Math.max(0, clipDuration(clip) - d)}:d=${d}`);
-    }
-    const scale = clip.transform?.scale ?? `${W}x${H}`;
-    parts.push(`scale=${scale}:force_original_aspect_ratio=decrease`);
-    if (clip.transform?.pad ?? true) {
-      parts.push(`pad=${W}:${H}:(ow-iw)/2:(oh-ih)/2`);
-    }
-    parts.push(`fps=${output.fps}`, "setsar=1");
-    filters.push(`[${idx}:v]${parts.join(",")}[v${i}]`);
+    const safe = assPath.replace(/\\/g, "/").replace(/:/g, "\\:");
+    const parts = [`color=c=${bg}:s=${W}x${H}:r=${fps}:d=${clip.duration}`, `ass=${safe}`];
+    if (tin?.type === "fade") parts.push(`fade=t=in:st=0:d=${tin.duration}`);
+    if (tout?.type === "fade") parts.push(`fade=t=out:st=${Math.max(0, clip.duration - tout.duration)}:d=${tout.duration}`);
+    parts.push("setsar=1");
+    filters.push(`${parts.join(",")}[${label}]`);
+    placed.push({ item, label, start, duration });
   });
 
-  const n = edl.timeline.length;
-  filters.push(
-    `${edl.timeline.map((_, i) => `[v${i}]`).join("")}concat=n=${n}:v=1:a=0[vcat]`,
-  );
+  const n = edl.visual.length;
+  filters.push(`${placed.map((p) => `[${p.label}]`).join("")}concat=n=${n}:v=1:a=0[vcat]`);
 
   let vcur = "vcat";
   let next = n;
@@ -247,34 +175,22 @@ export function buildRenderPlan(edl: Edl, opts: BuildOptions): RenderPlan {
       ];
       filters.push(`[${next}:v]${chain.join(",")}[ovl${next}]`);
       const { x, y } = positionExpr(overlay.position, { w: "overlay_w", h: "overlay_h" });
-      filters.push(
-        `[${vcur}][ovl${next}]overlay=${x}:${y}:enable='between(t,${overlay.start},${overlay.end})'[${label}]`,
-      );
+      filters.push(`[${vcur}][ovl${next}]overlay=${x}:${y}:enable='between(t,${overlay.start},${overlay.end})'[${label}]`);
       vcur = label;
       next++;
     } else {
       textEvents.push({
-        start: overlay.start,
-        end: overlay.end,
-        text: overlay.text,
-        position: overlay.position,
-        font: overlay.style.font,
-        size: overlay.style.size,
-        color: overlay.style.color,
-        box: overlay.style.box,
-        boxColor: overlay.style.box_color,
-        outline: overlay.style.outline,
-        shadow: overlay.style.shadow,
+        start: overlay.start, end: overlay.end, text: overlay.text, position: overlay.position,
+        font: overlay.style.font, size: overlay.style.size, color: overlay.style.color,
+        box: overlay.style.box, boxColor: overlay.style.box_color,
+        outline: overlay.style.outline, shadow: overlay.style.shadow,
       });
     }
   }
 
   if (textEvents.length) {
     const assPath = join(workDir, "overlays.ass");
-    artifacts.push({
-      path: assPath,
-      content: buildAss(textEvents, { width: W, height: H }),
-    });
+    artifacts.push({ path: assPath, content: buildAss(textEvents, { width: W, height: H }) });
     const label = `v${next}`;
     const safe = assPath.replace(/\\/g, "/").replace(/:/g, "\\:");
     filters.push(`[${vcur}]ass=${safe}[${label}]`);
@@ -300,87 +216,74 @@ export function buildRenderPlan(edl: Edl, opts: BuildOptions): RenderPlan {
 
   filters.push(`[${vcur}]format=yuv420p[vfinal]`);
 
-  const vo = edl.audio.voiceover;
-  const music = edl.audio.music;
-  let hasAudio = false;
-  if (vo || music) {
-    hasAudio = true;
-    let voIdx = -1;
-    let muIdx = -1;
-    if (vo) {
-      const src = opts.resolveSource(vo.source);
-      if (!src) throw new Error(`Voiceover references unknown source "${vo.source}".`);
-      inputs.push({ path: src.path, options: [] });
-      voIdx = inputs.length - 1;
-    }
-    if (music) {
-      const src = opts.resolveSource(music.source);
-      if (!src) throw new Error(`Music references unknown source "${music.source}".`);
-      inputs.push({ path: src.path, options: music.loop ? ["-stream_loop", "-1"] : [] });
-      muIdx = inputs.length - 1;
-    }
+  // --- audio: attached video audio + audio-track clips, mixed ---
+  const audioLabels: string[] = [];
+  let aN = 0;
+  for (const p of placed) {
+    if (p.audioIdx === undefined || p.item.clip.kind !== "video") continue;
+    const clip = p.item.clip as VideoClip;
+    const delay = Math.round(p.start * 1000);
+    const parts = [`atrim=start=${clip.in}:end=${clip.out}`, "asetpts=PTS-STARTPTS"];
+    if (p.item.speed !== 1) parts.push(`atempo=${p.item.speed}`);
+    parts.push(`aresample=${sampleRate}`);
+    if (delay > 0) parts.push(`adelay=${delay}|${delay}`);
+    const label = `va${aN++}`;
+    filters.push(`[${p.audioIdx}:a]${parts.join(",")}[${label}]`);
+    audioLabels.push(label);
+  }
+  for (const item of edl.audio) {
+    const clip = item.clip as AudioClip;
+    const src = opts.resolveSource(clip.source);
+    if (!src) throw new Error(`Audio clip "${item.id}" references unknown source "${clip.source}".`);
+    inputs.push({ path: src.path, options: [] });
+    const idx = inputs.length - 1;
+    const start = clip.in;
+    const end = clip.out ?? (clip.duration !== undefined ? start + clip.duration : undefined);
+    const parts = [`atrim=start=${start}${end !== undefined ? `:end=${end}` : ""}`, "asetpts=PTS-STARTPTS"];
+    if (item.gain_db) parts.push(`volume=${item.gain_db}dB`);
+    parts.push(`aresample=${sampleRate}`);
+    const delay = Math.round(item.offset * 1000);
+    if (delay > 0) parts.push(`adelay=${delay}|${delay}`);
+    const label = `ax${aN++}`;
+    filters.push(`[${idx}:a]${parts.join(",")}[${label}]`);
+    audioLabels.push(label);
+  }
 
-    const delay = vo && vo.start > 0 ? `,adelay=${Math.round(vo.start * 1000)}|${Math.round(vo.start * 1000)}` : "";
-    const resample = `,aresample=${output.audio_sample_rate}`;
-    if (vo && music) {
+  const hasAudio = audioLabels.length > 0;
+  if (hasAudio) {
+    let mixed = audioLabels[0]!;
+    if (audioLabels.length > 1) {
       filters.push(
-        `[${voIdx}:a]volume=${vo.gain_db}dB${delay},asplit=2[voa][vos]`,
+        `${audioLabels.map((l) => `[${l}]`).join("")}amix=inputs=${audioLabels.length}:duration=longest:normalize=0[amix]`,
       );
-      filters.push(
-        `[${muIdx}:a]volume=${music.gain_db}dB,atrim=0:${duration.toFixed(3)},asetpts=PTS-STARTPTS[mua]`,
-      );
-      if (music.duck_under_voiceover) {
-        filters.push(`[mua][vos]sidechaincompress=threshold=0.05:ratio=8[ducked]`);
-        filters.push(`[ducked][voa]amix=inputs=2:duration=longest:normalize=0[amixed]`);
-      } else {
-        filters.push(`[mua][voa]amix=inputs=2:duration=longest:normalize=0[amixed]`);
-      }
-      filters.push(`[amixed]loudnorm=I=${output.loudness_lufs}${resample}[aout]`);
-    } else if (vo) {
-      filters.push(`[${voIdx}:a]volume=${vo.gain_db}dB${delay},loudnorm=I=${output.loudness_lufs}${resample}[aout]`);
-    } else if (music) {
-      filters.push(
-        `[${muIdx}:a]volume=${music.gain_db}dB,atrim=0:${duration.toFixed(3)},loudnorm=I=${output.loudness_lufs}${resample}[aout]`,
-      );
+      mixed = "amix";
     }
+    // loudnorm divides by silence (NaN) — only apply it when the edit adds
+    // produced audio (audio-track clips), not for attached source audio alone.
+    if (edl.audio.length) filters.push(`[${mixed}]loudnorm=I=${edl.output.loudness_lufs}[aout]`);
+    else filters.push(`[${mixed}]anull[aout]`);
   }
 
   const args: string[] = ["-y"];
   for (const input of inputs) args.push(...input.options, "-i", input.path);
-  args.push(
-    "-filter_complex", filters.join(";"),
-    "-map", "[vfinal]",
-  );
+  args.push("-filter_complex", filters.join(";"), "-map", "[vfinal]");
   if (hasAudio) args.push("-map", "[aout]");
   else args.push("-an");
   if (softSubIdx >= 0) {
-    args.push(
-      "-map", `${softSubIdx}:s`,
-      "-c:s", "mov_text",
-      "-disposition:s:0", "default",
-    );
+    args.push("-map", `${softSubIdx}:s`, "-c:s", "mov_text", "-disposition:s:0", "default");
   }
-  args.push(
-    "-r", String(output.fps),
-    "-c:v", output.video_codec,
-    "-crf", String(output.crf),
-    "-preset", output.preset,
-  );
+  args.push("-r", String(fps), "-c:v", fmt.video_codec ?? "libx264", "-crf", String(crf), "-preset", preset);
   if (hasAudio) {
-    args.push(
-      "-c:a", output.audio_codec,
-      "-ar", String(output.audio_sample_rate),
-      "-b:a", output.audio_bitrate,
-    );
+    args.push("-c:a", fmt.audio_codec ?? "aac", "-ar", String(sampleRate), "-b:a", edl.output.audio_bitrate);
   }
-  args.push("-movflags", "+faststart", output.path);
+  args.push("-movflags", "+faststart", outputPath);
 
   return {
     args,
     filter: filters.join(";"),
-    duration: Number(duration.toFixed(3)),
+    duration: Number(cursor.toFixed(3)),
     inputs,
-    outputPath: output.path,
+    outputPath,
     warnings,
     artifacts,
   };

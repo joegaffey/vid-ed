@@ -7,8 +7,8 @@ import {
   toVtt,
   wrapText,
 } from "../captions.js";
-import { loadEdlFromString } from "../edl.js";
 import { buildRenderPlan } from "../render.js";
+import { resolved } from "./fixtures.js";
 
 test("wrapText wraps greedily at max chars", () => {
   const out = wrapText("one two three four five", 9);
@@ -16,7 +16,7 @@ test("wrapText wraps greedily at max chars", () => {
 });
 
 test("splitIntoCues divides time proportionally to text length", () => {
-  const text = "aaaa bbbb cccc dddd"; // 19 chars
+  const text = "aaaa bbbb cccc dddd";
   const cues = splitIntoCues(text, 0, 10, 10, 100);
   assert.equal(cues.length, 2);
   assert.equal(cues[0]!.start, 0);
@@ -39,36 +39,32 @@ test("toSrt and toVtt format cues", () => {
   assert.ok(vtt.startsWith("WEBVTT\n\n00:00:01.500 --> 00:00:03.250\nhi"));
 });
 
-const baseEdl = (captions: string) => `schema: vided.edl/1
-timeline:
-  - { id: a, source: clipA, out: 4 }
-${captions}
-`;
-
 const resolver = (s: string) =>
   ({
     clipA: { path: "/tmp/a.mp4", kind: "video", duration: 10 },
     "work/captions.ass": { path: "/tmp/work/captions.ass" },
   })[s];
 
+const baseEdl = (mode: string) =>
+  resolved({
+    format: "720p30",
+    clips: [{ id: "v1", kind: "video", source: "clipA", format: "720p30", out: 4 }],
+    visual: [{ id: "a", use: "v1" }],
+    captions: { mode, file: "work/captions.ass" },
+  });
+
 test("buildRenderPlan burns captions with the ass filter", () => {
-  const { edl } = loadEdlFromString(
-    baseEdl("captions:\n  mode: burn\n  file: work/captions.ass\n"),
-  );
-  const plan = buildRenderPlan(edl!, {
+  const plan = buildRenderPlan(baseEdl("burn"), {
     root: "/tmp",
     resolveSource: resolver,
     ffmpeg: "ffmpeg",
   });
   assert.ok(plan.filter.includes("ass=/tmp/work/captions.ass"));
-  assert.ok(plan.filter.endsWith("[vfinal]"));
+  assert.ok(plan.filter.includes("[vfinal]"));
 });
 
 test("buildRenderPlan muxes soft captions as mov_text", () => {
-  const { edl } = loadEdlFromString(
-    baseEdl("captions:\n  mode: soft\n  file: work/captions.ass\n"),
-  );
-  const plan = buildRenderPlan(edl!, {
+  const plan = buildRenderPlan(baseEdl("soft"), {
     root: "/tmp",
     resolveSource: resolver,
     ffmpeg: "ffmpeg",

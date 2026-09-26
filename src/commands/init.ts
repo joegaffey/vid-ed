@@ -19,7 +19,11 @@ agent workflow. Key artifacts:
 
 - \`.vided/config.json\`   project configuration
 - \`.vided/manifest.json\` the analysis contract (read this, not raw media)
-- \`edit.yaml\`            the edit script you compose (see \`vided compose\`)
+- \`clips.yaml\`           the pool of clips you select from (\`vided clips\`): each
+                         has a kind (video/image/audio/title/slide) and a format
+                         from the set in the repo AGENTS.md
+- \`edit.yaml\`            the edit you compose; tracks.visual/audio reference
+                         clips by \`use:\` (\`vided compose\`)
 - \`brief.md\`             project-level context: audience, tone, target length
 - \`<media>.md\`           per-input notes (next to the media file)
 

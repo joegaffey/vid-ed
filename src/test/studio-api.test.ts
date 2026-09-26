@@ -11,8 +11,12 @@ async function fixture(): Promise<string> {
   await writeFile(join(root, ".vided", "config.json"), "{}\n");
   await writeFile(join(root, "context.yaml"), "schema: vided.context.input/1\nbrief: hello\n");
   await writeFile(
+    join(root, "clips.yaml"),
+    'schema: vided.clips/1\nclips:\n  - { id: c1, kind: video, source: clipA, format: "720p30", in: 0, out: 4 }\n',
+  );
+  await writeFile(
     join(root, "edit.yaml"),
-    "schema: vided.edl/1\ntimeline:\n  - id: a\n    source: clipA\n    in: 0\n    out: 4\n",
+    'schema: vided.edl/3\ntracks:\n  visual:\n    - { id: a, use: c1 }\n  audio: []\n',
   );
   return root;
 }
@@ -78,11 +82,11 @@ test("studio API: history, apply, diff, revert, edl edit, staleness", async () =
     assert.equal(reverted.ok, true);
     assert.ok((await readFile(join(root, "context.yaml"), "utf8")).includes("hello"));
 
-    // EDL edit (trim) returns structure-preserving YAML
+    // EDL edit (set placement) returns structure-preserving YAML
     const edl = (await (
-      await post(base, "/api/edl/edit", { ops: [{ op: "trim", id: "a", out: 2 }] })
+      await post(base, "/api/edl/edit", { ops: [{ op: "set", id: "a", patch: { speed: 2 } }] })
     ).json()) as { yaml: string };
-    assert.equal(edl.yaml.includes("out: 2"), true);
+    assert.equal(edl.yaml.includes("speed: 2"), true);
 
     // invalid EDL edit is rejected
     const bad = await post(base, "/api/edl/edit", { ops: [{ op: "set", id: "a", patch: { speed: -1 } }] });

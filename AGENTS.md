@@ -91,3 +91,19 @@ M4 complete: `annotate` (vision packet `--packet-out` / `--ingest` round-trip),
 `brief.md` and per-input `<media>.md` sidecars), `script` (narration scaffold
 from annotated frames), and cost reporting in `status`. M5: Kokoro/alignment/
 preview. (MCP is a future/optional feature, not committed.)
+
+Clips stage: `vided clips` derives `clips.yaml` (`vided.clips/1`) — the pool
+every edit composes from — seeded from the manifest (transcript beats, frame
+clusters, scenes; images/audio yield one clip each). Clips are agent/studio
+editable (`--add/--set/--rm`). Every clip has a `kind` (`video`/`image`/`audio`/
+`title`/`slide`), a `source` (or `"generated"` for title/slide) and a `format`.
+The edit schema is `vided.edl/3`: `tracks.visual` and `tracks.audio` reference
+clips by `use:`, so trimming a clip in `clips.yaml` affects everywhere it is
+used. `vided render --clip <id>` previews one clip at its own format (cached).
+
+Clip formats (canonical list in `src/schemas/clips.ts`; pick a `format` name
+from this set): `1080p30`, `1080p60`, `720p30`, `vertical1080p30`,
+`square1080p30`, `audio48k`. A clip whose format differs from the edit's
+`output.format` is reported by `compose --lint`. Audio is part of a video clip
+unless `muted`, or unless it is sampled out into its own `audio` clip (which
+becomes a new source to analyse).

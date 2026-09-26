@@ -1,129 +1,42 @@
 import { z } from "zod";
+import { FormatSchema, TransformSchema, TransitionSchema } from "./clips.js";
 
-export const SCHEMA_VERSION = "vided.edl/1";
+export const SCHEMA_VERSION = "vided.edl/3";
+
+export { TransformSchema, TransitionSchema };
 
 export const OutputSchema = z.object({
+  format: FormatSchema.default("1080p30"),
   path: z.string().default("out/final.mp4"),
-  resolution: z.string().default("1920x1080"),
-  fps: z.number().default(30),
-  video_codec: z.string().default("libx264"),
-  audio_codec: z.string().default("aac"),
-  audio_sample_rate: z.number().int().default(48000),
-  audio_bitrate: z.string().default("192k"),
   loudness_lufs: z.number().default(-14),
   crf: z.number().default(23),
   preset: z.string().default("medium"),
+  audio_bitrate: z.string().default("192k"),
 });
 
-export const TransformSchema = z.object({
-  scale: z.string().optional(),
-  pad: z.boolean().default(true),
-});
-
-export const TransitionSchema = z.object({
-  type: z.enum(["fade"]).default("fade"),
-  duration: z.number().default(0.5),
-});
-
-export const ClipSchema = z.object({
+/** A visual-track placement referencing a clip in the pool. */
+export const VisualItemSchema = z.object({
   id: z.string(),
-  source: z.string(),
-  in: z.number().default(0),
-  out: z.number(),
-  speed: z.number().positive().default(1),
+  use: z.string(),
+  speed: z.number().positive().optional(),
   transform: TransformSchema.optional(),
   transition_in: TransitionSchema.optional(),
   transition_out: TransitionSchema.optional(),
 });
 
-export const TitleStyleSchema = z
-  .object({
-    title_size: z.number().default(96),
-    subtitle_size: z.number().default(48),
-    color: z.string().default("white"),
-    subtitle_color: z.string().default("#cccccc"),
-    font: z.string().optional(),
-  })
-  .default({});
-
-export const TitleCardSchema = z.object({
+/** A free-positioned audio-track placement referencing a clip in the pool. */
+export const AudioItemSchema = z.object({
   id: z.string(),
-  title: z.string(),
-  subtitle: z.string().optional(),
-  duration: z.number().positive().default(3),
-  background: z.string().default("#101820"),
-  style: TitleStyleSchema,
-  transition_in: TransitionSchema.optional(),
-  transition_out: TransitionSchema.optional(),
+  use: z.string(),
+  offset: z.number().default(0),
+  gain_db: z.number().optional(),
+  fade_in: z.number().optional(),
+  fade_out: z.number().optional(),
 });
 
-export const SlideStyleSchema = z
-  .object({
-    heading_size: z.number().default(52),
-    body_size: z.number().default(30),
-    color: z.string().default("white"),
-    accent: z.string().default("#4ec9b0"),
-    font: z.string().optional(),
-    mono: z.string().optional(),
-  })
-  .default({});
-
-export const SlideSchema = z.object({
-  id: z.string(),
-  slide: z.string(),
-  body: z.string().optional(),
-  // presentation preset: `mono` for monospace body. `code` is accepted as an alias.
-  kind: z
-    .enum(["text", "mono", "code"])
-    .default("text")
-    .transform((k) => (k === "code" ? ("mono" as const) : k)),
-  duration: z.number().positive().default(5),
-  background: z.string().default("#0d1117"),
-  style: SlideStyleSchema,
-  transition_in: TransitionSchema.optional(),
-  transition_out: TransitionSchema.optional(),
-});
-
-export const StillSchema = z.object({
-  id: z.string(),
-  image: z.string(),
-  duration: z.number().positive().default(5),
-  fit: z.enum(["contain", "cover"]).default("contain"),
-  zoom: z
-    .object({
-      x: z.number(),
-      y: z.number(),
-      w: z.number(),
-      h: z.number(),
-    })
-    .optional(),
-  transition_in: TransitionSchema.optional(),
-  transition_out: TransitionSchema.optional(),
-});
-
-export const TimelineItemSchema = z.union([
-  ClipSchema,
-  TitleCardSchema,
-  SlideSchema,
-  StillSchema,
-]);
-
-export const VoiceoverSchema = z.object({
-  source: z.string(),
-  start: z.number().default(0),
-  gain_db: z.number().default(0),
-});
-
-export const MusicSchema = z.object({
-  source: z.string(),
-  gain_db: z.number().default(-18),
-  duck_under_voiceover: z.boolean().default(false),
-  loop: z.boolean().default(true),
-});
-
-export const AudioSchema = z.object({
-  voiceover: VoiceoverSchema.optional(),
-  music: MusicSchema.optional(),
+export const TracksSchema = z.object({
+  visual: z.array(VisualItemSchema).min(1),
+  audio: z.array(AudioItemSchema).default([]),
 });
 
 export const CaptionStyleSchema = z.object({
@@ -179,29 +92,14 @@ export const OverlaySchema = z.discriminatedUnion("type", [
 export const EdlSchema = z.object({
   schema: z.literal(SCHEMA_VERSION),
   output: OutputSchema.default({}),
-  timeline: z.array(TimelineItemSchema).min(1),
-  audio: AudioSchema.default({}),
+  tracks: TracksSchema,
   captions: CaptionsSchema.default({}),
   overlays: z.array(OverlaySchema).default([]),
 });
 
 export type Edl = z.infer<typeof EdlSchema>;
-export type Clip = z.infer<typeof ClipSchema>;
-export type TitleCard = z.infer<typeof TitleCardSchema>;
-export type Slide = z.infer<typeof SlideSchema>;
-export type Still = z.infer<typeof StillSchema>;
-export type TimelineItem = z.infer<typeof TimelineItemSchema>;
+export type Output = z.infer<typeof OutputSchema>;
+export type VisualItem = z.infer<typeof VisualItemSchema>;
+export type AudioItem = z.infer<typeof AudioItemSchema>;
 export type ImageOverlay = z.infer<typeof ImageOverlaySchema>;
 export type TextOverlay = z.infer<typeof TextOverlaySchema>;
-
-export function isTitleCard(item: TimelineItem): item is TitleCard {
-  return "title" in item;
-}
-
-export function isSlide(item: TimelineItem): item is Slide {
-  return "slide" in item;
-}
-
-export function isStill(item: TimelineItem): item is Still {
-  return "image" in item;
-}

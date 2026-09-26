@@ -83,15 +83,17 @@ export async function refreshManifest(
 export function makeSourceResolver(
   paths: Paths,
   manifest?: Manifest,
-): (source: string) => { path: string; kind?: string; duration?: number } | undefined {
+): (source: string) => { path: string; kind?: string; duration?: number; audio?: boolean } | undefined {
   const byId = new Map((manifest?.assets ?? []).map((a) => [a.id, a]));
+  const byPath = new Map((manifest?.assets ?? []).map((a) => [a.path, a]));
   return (source: string) => {
-    const asset = byId.get(source);
+    const asset = byId.get(source) ?? byPath.get(source);
     if (asset) {
       return {
         path: join(paths.root, asset.path),
         kind: asset.kind,
         duration: asset.technical.duration_s,
+        audio: Boolean(asset.technical.audio),
       };
     }
     const p = isAbsolute(source) ? source : join(paths.root, source);

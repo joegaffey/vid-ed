@@ -1,7 +1,8 @@
 import { readFile } from "node:fs/promises";
 import { parse as parseYaml } from "yaml";
-import { EdlSchema, isSlide, isStill, isTitleCard, type Edl } from "./schemas/edl.js";
-import { clipDuration, parseResolution, type ResolvedSource } from "./render.js";
+import { EdlSchema, type Edl } from "./schemas/edl.js";
+import { KNOWN_FORMATS, type Clip, type FormatName, type Transform, type Transition } from "./schemas/clips.js";
+import { clipDuration, parseResolution, type ResolvedSource } from "./av.js";
 
 export type Resolve = (source: string) => ResolvedSource | undefined;
 
@@ -36,15 +37,108 @@ export async function loadEdlFile(path: string): Promise<EdlLoadResult> {
   }
 }
 
-export interface ExplainClip {
+export interface ResolvedVisual {
   id: string;
-  type: "clip" | "title" | "slide" | "still";
-  source?: string;
-  title?: string;
+  clip: Clip;
+  speed: number;
+  transform?: Transform;
+  transition_in?: Transition;
+  transition_out?: Transition;
+}
+
+export interface ResolvedAudio {
+  id: string;
+  clip: Clip;
+  offset: number;
+  gain_db: number;
+  fade_in?: number;
+  fade_out?: number;
+}
+
+export interface ResolvedEdl {
+  output: Edl["output"];
+  visual: ResolvedVisual[];
+  audio: ResolvedAudio[];
+  captions: Edl["captions"];
+  overlays: Edl["overlays"];
+}
+
+export interface ResolveResult {
+  ok: boolean;
+  errors: string[];
+  resolved?: ResolvedEdl;
+}
+
+const VISUAL_KINDS = new Set(["video", "image", "title", "slide"]);
+
+/**
+ * Look up every `use:` reference in the pool and validate kind↔track. Returns
+ * a fully-concrete composition the renderer/explainer/linter consume.
+ */
+export function resolveEdl(edl: Edl, clips: Map<string, Clip>): ResolveResult {
+  const errors: string[] = [];
+  const visual: ResolvedVisual[] = [];
+  const audio: ResolvedAudio[] = [];
+
+  for (const item of edl.tracks.visual) {
+    const clip = clips.get(item.use);
+    if (!clip) {
+      errors.push(`visual item "${item.id}" references unknown clip "${item.use}".`);
+      continue;
+    }
+    if (!VISUAL_KINDS.has(clip.kind)) {
+      errors.push(`visual item "${item.id}" uses a ${clip.kind} clip; visual track needs video/image/title/slide.`);
+      continue;
+    }
+    visual.push({
+      id: item.id,
+      clip,
+      speed: item.speed ?? (clip.kind === "video" ? clip.speed : 1),
+      ...(item.transform ? { transform: item.transform } : {}),
+      ...(item.transition_in ? { transition_in: item.transition_in } : {}),
+      ...(item.transition_out ? { transition_out: item.transition_out } : {}),
+    });
+  }
+
+  for (const item of edl.tracks.audio) {
+    const clip = clips.get(item.use);
+    if (!clip) {
+      errors.push(`audio item "${item.id}" references unknown clip "${item.use}".`);
+      continue;
+    }
+    if (clip.kind !== "audio") {
+      errors.push(`audio item "${item.id}" uses a ${clip.kind} clip; audio track needs audio clips.`);
+      continue;
+    }
+    audio.push({
+      id: item.id,
+      clip,
+      offset: item.offset,
+      gain_db: item.gain_db ?? (clip.kind === "audio" ? clip.gain_db : 0),
+      ...(item.fade_in !== undefined ? { fade_in: item.fade_in } : {}),
+      ...(item.fade_out !== undefined ? { fade_out: item.fade_out } : {}),
+    });
+  }
+
+  if (errors.length) return { ok: false, errors };
+  return { ok: true, errors: [], resolved: { output: edl.output, visual, audio, captions: edl.captions, overlays: edl.overlays } };
+}
+
+export function visualDuration(item: ResolvedVisual): number {
+  const c = item.clip;
+  if (c.kind === "video") return clipDuration({ in: c.in, out: c.out, speed: item.speed });
+  if (c.kind === "audio") return 0;
+  return c.duration;
+}
+
+export interface ExplainVisual {
+  id: string;
+  kind: string;
+  source: string;
   start: number;
   end: number;
   duration: number;
-  speed?: number;
+  format: string;
   path?: string;
 }
 
@@ -53,55 +147,39 @@ export interface ExplainResult {
   output: Edl["output"];
   duration: number;
   clip_count: number;
-  clips: ExplainClip[];
-  audio: { voiceover: boolean; music: boolean; ducking: boolean };
+  clips: ExplainVisual[];
+  audio: { clips: number; attached: number };
   captions: { mode: string; export: string[] };
   overlays: { total: number; images: number; text: number };
 }
 
-export function explainEdl(edl: Edl, resolve?: Resolve): ExplainResult {
+export function explainEdl(edl: ResolvedEdl, resolve?: Resolve): ExplainResult {
   let cursor = 0;
-  const clips: ExplainClip[] = edl.timeline.map((item) => {
-    const duration =
-      isTitleCard(item) || isSlide(item) || isStill(item) ? item.duration : clipDuration(item);
+  const clips: ExplainVisual[] = edl.visual.map((item) => {
+    const duration = visualDuration(item);
     const start = cursor;
     cursor += duration;
-    if (isTitleCard(item) || isSlide(item) || isStill(item)) {
-      const label = isSlide(item) ? item.slide : isTitleCard(item) ? item.title : item.image;
-      const type = isSlide(item) ? "slide" : isTitleCard(item) ? "title" : "still";
-      return {
-        id: item.id,
-        type,
-        title: label,
-        start: Number(start.toFixed(3)),
-        end: Number(cursor.toFixed(3)),
-        duration: Number(duration.toFixed(3)),
-      };
-    }
-    const src = resolve?.(item.source);
+    const src = item.clip.kind === "video" ? resolve?.(item.clip.source) : undefined;
     return {
       id: item.id,
-      type: "clip",
-      source: item.source,
+      kind: item.clip.kind,
+      source: item.clip.source,
       start: Number(start.toFixed(3)),
       end: Number(cursor.toFixed(3)),
       duration: Number(duration.toFixed(3)),
-      speed: item.speed,
+      format: item.clip.format,
       ...(src ? { path: src.path } : {}),
     };
   });
   const images = edl.overlays.filter((o) => o.type === "image").length;
+  const attached = edl.visual.filter((i) => i.clip.kind === "video" && !i.clip.muted).length;
   return {
-    schema: edl.schema,
+    schema: "vided.edl/3",
     output: edl.output,
     duration: Number(cursor.toFixed(3)),
     clip_count: clips.length,
     clips,
-    audio: {
-      voiceover: Boolean(edl.audio.voiceover),
-      music: Boolean(edl.audio.music),
-      ducking: Boolean(edl.audio.music?.duck_under_voiceover),
-    },
+    audio: { clips: edl.audio.length, attached },
     captions: { mode: edl.captions.mode, export: edl.captions.export },
     overlays: { total: edl.overlays.length, images, text: edl.overlays.length - images },
   };
@@ -113,91 +191,46 @@ export interface LintIssue {
   path?: string;
 }
 
-export function lintEdl(edl: Edl, resolve?: Resolve): LintIssue[] {
+export function lintEdl(edl: ResolvedEdl, resolve?: Resolve): LintIssue[] {
   const issues: LintIssue[] = [];
 
   try {
-    parseResolution(edl.output.resolution);
+    parseResolution(`${outputResolution(edl)}`);
   } catch (err) {
-    issues.push({ level: "error", message: (err as Error).message, path: "output.resolution" });
+    issues.push({ level: "error", message: (err as Error).message, path: "output.format" });
   }
 
   const ids = new Set<string>();
-  for (const item of edl.timeline) {
-    if (ids.has(item.id)) {
-      issues.push({ level: "error", message: `Duplicate timeline id "${item.id}".`, path: "timeline" });
-    }
+  for (const item of edl.visual) {
+    if (ids.has(item.id)) issues.push({ level: "error", message: `Duplicate item id "${item.id}".`, path: "tracks.visual" });
     ids.add(item.id);
 
-    if (isTitleCard(item)) {
-      if (!item.title.trim()) {
-        issues.push({ level: "error", message: `Title card "${item.id}" has empty title.`, path: "timeline" });
-      }
-      if (item.duration <= 0) {
-        issues.push({ level: "error", message: `Title card "${item.id}" has non-positive duration.`, path: "timeline" });
-      }
-      continue;
-    }
-
-    if (isSlide(item)) {
-      if (!item.slide.trim()) {
-        issues.push({ level: "error", message: `Slide "${item.id}" has empty heading.`, path: "timeline" });
-      }
-      if (item.duration <= 0) {
-        issues.push({ level: "error", message: `Slide "${item.id}" has non-positive duration.`, path: "timeline" });
-      }
-      continue;
-    }
-
-    if (isStill(item)) {
-      if (item.duration <= 0) {
-        issues.push({ level: "error", message: `Still "${item.id}" has non-positive duration.`, path: "timeline" });
-      }
-      if (resolve && !resolve(item.image)) {
-        issues.push({
-          level: "error",
-          message: `Still "${item.id}" image "${item.image}" not found.`,
-          path: "timeline",
-        });
-      }
-      continue;
-    }
-
-    const clip = item;
-    if (clip.out <= clip.in) {
-      issues.push({ level: "error", message: `Clip "${clip.id}" has out <= in.`, path: "timeline" });
-    }
-    const src = resolve?.(clip.source);
-    if (resolve && !src) {
+    const c = item.clip;
+    if (c.format !== edl.output.format) {
       issues.push({
-        level: "error",
-        message: `Clip "${clip.id}" source "${clip.source}" not found.`,
-        path: "timeline",
+        level: "warning",
+        message: `Clip "${item.id}" format ${c.format} differs from output ${edl.output.format}.`,
+        path: "tracks.visual",
       });
-    } else if (src) {
-      if (src.kind && src.kind !== "video" && src.kind !== "image") {
-        issues.push({
-          level: "warning",
-          message: `Clip "${clip.id}" source is ${src.kind}, not video.`,
-          path: "timeline",
-        });
+    }
+    if (c.kind === "video") {
+      if (c.out <= c.in) issues.push({ level: "error", message: `Clip "${item.id}" has out <= in.`, path: "tracks.visual" });
+      const src = resolve?.(c.source);
+      if (resolve && !src) {
+        issues.push({ level: "error", message: `Clip "${item.id}" source "${c.source}" not found.`, path: "tracks.visual" });
+      } else if (src?.duration && c.out > src.duration + 0.05) {
+        issues.push({ level: "warning", message: `Clip "${item.id}" out (${c.out}s) exceeds source duration (${src.duration.toFixed(2)}s).`, path: "tracks.visual" });
       }
-      if (src.duration && clip.out > src.duration + 0.05) {
-        issues.push({
-          level: "warning",
-          message: `Clip "${clip.id}" out (${clip.out}s) exceeds source duration (${src.duration.toFixed(2)}s).`,
-          path: "timeline",
-        });
-      }
+    } else if (c.kind === "image" && resolve && !resolve(c.source)) {
+      issues.push({ level: "error", message: `Clip "${item.id}" source "${c.source}" not found.`, path: "tracks.visual" });
     }
   }
 
-  for (const [name, ref] of [
-    ["voiceover", edl.audio.voiceover],
-    ["music", edl.audio.music],
-  ] as const) {
-    if (ref && resolve && !resolve(ref.source)) {
-      issues.push({ level: "error", message: `${name} source "${ref.source}" not found.`, path: "audio" });
+  for (const item of edl.audio) {
+    if (ids.has(item.id)) issues.push({ level: "error", message: `Duplicate item id "${item.id}".`, path: "tracks.audio" });
+    ids.add(item.id);
+    if (resolve && !resolve(item.clip.source)) {
+      issues.push({ level: "error", message: `Audio clip "${item.id}" source "${item.clip.source}" not found.`, path: "tracks.audio" });
     }
   }
 
@@ -206,27 +239,25 @@ export function lintEdl(edl: Edl, resolve?: Resolve): LintIssue[] {
       issues.push({ level: "warning", message: `Overlay ending at ${overlay.end}s starts after it ends.`, path: "overlays" });
     }
     if (overlay.type === "image" && resolve && !resolve(overlay.source)) {
-      issues.push({
-        level: "error",
-        message: `Overlay source "${overlay.source}" not found.`,
-        path: "overlays",
-      });
+      issues.push({ level: "error", message: `Overlay source "${overlay.source}" not found.`, path: "overlays" });
     }
   }
 
   if (edl.captions.mode !== "none" && !edl.captions.file) {
-    issues.push({
-      level: "warning",
-      message: `captions.mode is ${edl.captions.mode} but no captions.file is set.`,
-      path: "captions",
-    });
+    issues.push({ level: "warning", message: `captions.mode is ${edl.captions.mode} but no captions.file is set.`, path: "captions" });
   } else if (edl.captions.mode !== "none" && edl.captions.file && resolve && !resolve(edl.captions.file)) {
-    issues.push({
-      level: "error",
-      message: `Captions file "${edl.captions.file}" not found.`,
-      path: "captions",
-    });
+    issues.push({ level: "error", message: `Captions file "${edl.captions.file}" not found.`, path: "captions" });
   }
 
   return issues;
+}
+
+/** Resolution string from the output format (used for ASS PlayRes, etc.). */
+export function outputResolution(edl: ResolvedEdl): string {
+  return formatResolution(edl.output.format);
+}
+
+export function formatResolution(name: FormatName): string {
+  const f = KNOWN_FORMATS[name] as { width?: number; height?: number };
+  return f.width && f.height ? `${f.width}x${f.height}` : "1920x1080";
 }

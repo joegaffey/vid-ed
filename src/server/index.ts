@@ -12,7 +12,8 @@ import {
 } from "../schemas/context-input.js";
 import { loadContextInput, saveContextInput } from "../context.js";
 import { readManifest, makeSourceResolver } from "../manifest.js";
-import { explainEdl, loadEdlFile } from "../edl.js";
+import { clipsById, loadClips } from "../clips.js";
+import { explainEdl, loadEdlFile, resolveEdl } from "../edl.js";
 import { applyEdlOps, type EdlOp } from "../edl-edit.js";
 import { JobQueue, resolveCliEntry } from "./jobs.js";
 import {
@@ -267,7 +268,10 @@ export async function createStudioServer(opts: StudioServerOptions): Promise<Stu
       const loaded = await loadEdlFile(edlPath);
       if (!loaded.ok || !loaded.edl) return sendJSON(res, 200, { empty: true, errors: loaded.errors });
       const manifest = await readManifest(paths);
-      const explained = explainEdl(loaded.edl, makeSourceResolver(paths, manifest));
+      const clips = clipsById((await loadClips(paths))?.clips);
+      const resolved = resolveEdl(loaded.edl, clips);
+      if (!resolved.ok || !resolved.resolved) return sendJSON(res, 200, { empty: true, errors: resolved.errors });
+      const explained = explainEdl(resolved.resolved, makeSourceResolver(paths, manifest));
       return sendJSON(res, 200, { file: relative(paths.root, edlPath), edl: loaded.edl, ...explained });
     }
 

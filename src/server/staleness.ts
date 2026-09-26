@@ -18,11 +18,19 @@ interface StageNode {
 
 const GRAPH: StageNode[] = [
   {
+    id: "clips",
+    label: "Clips",
+    op: "clips",
+    args: ["--force"],
+    inputs: ["manifest.json"],
+    outputs: ["clips.yaml"],
+  },
+  {
     id: "context-pack",
     label: "Context pack",
     op: "manifest",
     args: ["--context-pack", "work/context.md"],
-    inputs: ["context.yaml", "brief.md", "manifest.json"],
+    inputs: ["clips.yaml", "context.yaml", "brief.md", "manifest.json"],
     outputs: ["work/context.md"],
   },
   {
@@ -54,7 +62,7 @@ const GRAPH: StageNode[] = [
     label: "Render",
     op: "render",
     args: ["edit.yaml"],
-    inputs: ["edit.yaml", "work/narration.wav", "work/captions.ass"],
+    inputs: ["edit.yaml", "clips.yaml", "work/narration.wav", "work/captions.ass"],
     outputs: ["out"],
   },
 ];

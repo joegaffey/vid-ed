@@ -3,6 +3,7 @@ import { isAbsolute, join } from "node:path";
 import { loadConfig, projectPaths } from "../config.js";
 import { readAllAssets, refreshManifest } from "../manifest.js";
 import { loadBrief, loadAssetNotes, loadContextInput, buildContextPack } from "../context.js";
+import { CLIPS_FILE, hasPlaceableMedia, loadClips } from "../clips.js";
 import type { OutputOptions } from "../ui.js";
 import { emit, fail } from "../ui.js";
 
@@ -29,7 +30,17 @@ export async function cmdManifest(opts: ManifestOptions): Promise<void> {
     const context = await loadContextInput(paths);
     const brief = await loadBrief(paths);
     const notes = await loadAssetNotes(paths, manifest, context);
-    const pack = buildContextPack(manifest, { maxChars: opts.maxChars, brief, notes, context });
+    const clips = await loadClips(paths);
+    if (hasPlaceableMedia(manifest) && !clips) {
+      fail(`No ${CLIPS_FILE} found (project has placeable media). Run \`vided clips\` first.`);
+    }
+    const pack = buildContextPack(manifest, {
+      maxChars: opts.maxChars,
+      brief,
+      notes,
+      context,
+      clips: clips?.clips,
+    });
     const mdPath = isAbsolute(opts.contextPack)
       ? opts.contextPack
       : join(paths.root, opts.contextPack);
@@ -43,6 +54,7 @@ export async function cmdManifest(opts: ManifestOptions): Promise<void> {
       truncated: pack.truncated,
       brief: Boolean(brief),
       noted_assets: Object.keys(notes).length,
+      clips: clips?.clips.length ?? 0,
     };
   }
 

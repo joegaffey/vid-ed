@@ -21,12 +21,17 @@ The central idea is a three-phase pipeline with a hard contract between each
 phase:
 
 ```
-  ANALYZE (expensive, cached)      COMPOSE (cheap, agent-driven)     RENDER (deterministic)
-  ----------------------------     ----------------------------      ----------------------
-  probe -> extract text ->         agent reads manifest,             EDL -> ffmpeg graph ->
-  sample frames -> dedupe ->       writes edit script (EDL)          audio + video + captions
-  annotate -> MANIFEST             edit.yaml                         output + .srt/.vtt
+  ANALYZE (expensive, cached)      CLIPS (pool)          COMPOSE (agent)                  RENDER (deterministic)
+  ----------------------------     ------------          ----------------------------     ----------------------
+  probe -> extract text ->         derive a seed         agent reads manifest +           EDL -> ffmpeg graph ->
+  sample frames -> dedupe ->       pool of clips ->      clips.yaml, writes edit          audio + video + captions
+  annotate -> MANIFEST             clips.yaml            script (EDL) edit.yaml           output + .srt/.vtt
 ```
+
+`clips.yaml` is the pool every edit composes from: each **clip** is an atomic,
+individually renderable unit with a `kind` (video/image/audio/title/slide) and
+an output `format`. `edit.yaml` (`vided.edl/3`) references clips by `use:` on a
+`tracks.visual` / `tracks.audio` pair. See §5.8.
 
 Expensive steps (transcription, vision annotation, TTS) are cached by content
 hash, so re-running the pipeline never pays twice for unchanged inputs.
@@ -158,15 +163,38 @@ path so it is stable across re-runs.
   and annotated frames first). The agent composes from the pack, never from the
   originals.
 
-### 5.8 `compose` — agent writes the edit script
-- The agent reads the manifest/context pack and writes `edit.yaml` (EDL).
-- `vided compose --check` validates against the EDL schema.
-- `vided compose --explain` renders a human/agent-readable timeline summary
-  (durations, overlaps, caption counts, VO length) without touching media.
-- `vided compose --lint` warns about gaps, overruns, missing sources, captions
-  exceeding reading speed, etc.
+### 5.8 `clips` — the clip pool
+- A **clip** is an atomic, individually renderable unit with a `kind`
+  (`video`/`image`/`audio`/`title`/`slide`) and an output **`format`** (a name
+  from the canonical set in `src/schemas/clips.ts`, documented in AGENTS.md /
+  README). Generated kinds (`title`/`slide`) use `source: "generated"`.
+- `vided clips` derives a deterministic **seed** pool (`clips.yaml`,
+  `vided.clips/1`) from the manifest — transcript beats (merged on pauses),
+  frame clusters, scene ranges (overlap-collapsed in that priority); images and
+  audio yield one clip each. Transcript/scene ranges are not length-capped.
+  `origin: derived` marks seeds; `agent`/`studio` clips survive `--force`.
+- The pool is agent/studio editable (`--add`, `--set`, `--rm`) and is folded
+  into the context pack as a per-asset `clips:` list.
+- `vided clips --check` validates: sources resolve, kinds/fields valid, unique
+  ids. The pool is expected whenever the project has placeable media.
+- Audio is part of a video clip unless `muted`, or unless it is explicitly
+  sampled out into its own `audio` clip (which becomes a new source to analyse).
 
-### 5.9 `tts` — narration voice-over
+### 5.9 `compose` — agent writes the edit script
+- The agent reads the manifest/context pack (incl. `clips.yaml`) and writes
+  `edit.yaml` (`vided.edl/3`): `tracks.visual` and `tracks.audio` reference
+  clips by `use:` (definitions live only in `clips.yaml`). The visual track is
+  sequential; the audio track is free-positioned (`offset`) and mixed. Reusing a
+  clip is just referencing it again; placement modifiers (`speed`, `transform`,
+  transitions, `gain_db`) stay on the track item. `resolveEdl` binds references
+  and validates kind↔track.
+- `vided compose --check` validates and resolves against the pool.
+- `vided compose --explain` renders a human/agent-readable timeline summary
+  (durations, overruns, audio counts) without touching media.
+- `vided compose --lint` warns about gaps, overruns, missing sources, format
+  mismatches and captions exceeding reading speed.
+
+### 5.10 `tts` — narration voice-over
 - `vided script --out narration.yaml` scaffolds a narration script from the
   manifest: one segment per annotated frame, `start` at the frame timestamp,
   description as placeholder text. This makes the frame→segment mapping a
@@ -177,7 +205,7 @@ path so it is stable across re-runs.
 - Produce `narration.wav` + `narration.timing.json` (segment -> start/duration)
   used to drive caption timing.
 
-### 5.10 `render` — execute the EDL
+### 5.11 `render` — execute the EDL
 - Translate the EDL into an ffmpeg `filter_complex` graph (single pass where
   possible; intermediate files when the graph is too large).
 - Operations: trim, concat, scale/pad, crop, overlay image, `drawtext`,
@@ -199,7 +227,7 @@ path so it is stable across re-runs.
 - Burn styled captions via the `subtitles`/`ass` filter when requested.
 - Export CC sidecar alongside the video.
 
-### 5.11 `captions` — subtitle generation
+### 5.12 `captions` — subtitle generation
 - Build cues from narration timing and/or source transcripts.
 - Apply line-wrapping and reading-speed constraints (chars/sec, max lines).
 - Emit `SRT`, `VTT`, and styled `ASS` (ASS is the render source of truth;

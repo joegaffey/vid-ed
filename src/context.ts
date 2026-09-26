@@ -10,6 +10,7 @@ import {
   type ContextAssetInput,
   type ContextInput,
 } from "./schemas/context-input.js";
+import type { Clip } from "./schemas/clips.js";
 
 export const CONTEXT_VERSION = "vided.context/1";
 export const CONTEXT_INPUT_FILE = "context.yaml";
@@ -47,6 +48,14 @@ export interface ContextFrame {
   quality?: number;
 }
 
+export interface ContextClip {
+  id: string;
+  kind: string;
+  in?: number;
+  out?: number;
+  duration?: number;
+}
+
 export interface ContextAsset {
   id: string;
   path: string;
@@ -61,6 +70,7 @@ export interface ContextAsset {
   scenes: Array<{ id: string; start: number; end: number }>;
   transcript: Array<{ start: number; end: number; text: string }>;
   frames: ContextFrame[];
+  clips?: ContextClip[];
 }
 
 export interface ContextJson {
@@ -118,6 +128,7 @@ function contextAsset(
   asset: AssetRecord,
   notes?: string,
   meta?: ContextAssetInput,
+  clips?: ContextClip[],
 ): ContextAsset {
   const transcript = (asset.extracted.transcript?.segments ?? []).map((s) => ({
     start: Number(s.start.toFixed(2)),
@@ -148,17 +159,34 @@ function contextAsset(
     scenes: asset.visual.scenes,
     transcript,
     frames,
+    ...(clips?.length ? { clips } : {}),
   };
 }
 
 export function buildContextJson(
   manifest: Manifest,
-  opts: { brief?: string; notes?: Record<string, string>; context?: ContextInput } = {},
+  opts: {
+    brief?: string;
+    notes?: Record<string, string>;
+    context?: ContextInput;
+    clips?: Clip[];
+  } = {},
 ): ContextJson {
   let contextRest: Omit<ContextInput, "assets"> | undefined;
   if (opts.context) {
     const { assets: _assets, ...rest } = opts.context;
     contextRest = rest;
+  }
+  const clipsBySource = new Map<string, ContextClip[]>();
+  for (const c of opts.clips ?? []) {
+    const list = clipsBySource.get(c.source) ?? [];
+    list.push({
+      id: c.id,
+      kind: c.kind,
+      ...(c.kind === "video" || c.kind === "audio" ? { in: c.in, out: c.out } : {}),
+      ...(c.kind === "image" || c.kind === "title" || c.kind === "slide" ? { duration: c.duration } : {}),
+    });
+    clipsBySource.set(c.source, list);
   }
   return {
     schema: CONTEXT_VERSION,
@@ -168,7 +196,12 @@ export function buildContextJson(
     ...(contextRest ? { context: contextRest } : {}),
     totals: manifest.totals,
     assets: manifest.assets.map((a) =>
-      contextAsset(a, opts.notes?.[a.id], contextAssetMeta(opts.context, a)),
+      contextAsset(
+        a,
+        opts.notes?.[a.id],
+        contextAssetMeta(opts.context, a),
+        clipsBySource.get(a.id) ?? clipsBySource.get(a.path),
+      ),
     ),
   };
 }
@@ -184,6 +217,13 @@ function renderAssetBlock(a: ContextAsset, share: number): string {
   if (a.notes) lines.push(`notes: ${a.notes.replace(/\n/g, " ")}`);
   if (a.scenes.length) {
     lines.push(`scenes: ${a.scenes.map((s) => `${s.start}-${s.end}`).join(", ")}`);
+  }
+  if (a.clips?.length) {
+    lines.push("clips:");
+    for (const c of a.clips) {
+      const range = c.out !== undefined ? `${c.in ?? 0}-${c.out}` : c.duration !== undefined ? `${c.duration}s` : "";
+      lines.push(`  - ${c.id} [${c.kind}${range ? " " + range : ""}]`);
+    }
   }
 
   const transcript = [...a.transcript];
@@ -232,13 +272,20 @@ export interface ContextPack {
 
 export function buildContextPack(
   manifest: Manifest,
-  opts: { maxChars?: number; brief?: string; notes?: Record<string, string>; context?: ContextInput } = {},
+  opts: {
+    maxChars?: number;
+    brief?: string;
+    notes?: Record<string, string>;
+    context?: ContextInput;
+    clips?: Clip[];
+  } = {},
 ): ContextPack {
   const maxChars = opts.maxChars ?? 12000;
   const json = buildContextJson(manifest, {
     brief: opts.brief,
     notes: opts.notes,
     context: opts.context,
+    clips: opts.clips,
   });
 
   const headerParts = [
