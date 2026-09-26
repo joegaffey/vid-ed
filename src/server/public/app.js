@@ -1,4 +1,5 @@
 import { LitElement, html, css } from "lit";
+import { base } from "./styles.js";
 
 const api = {
   get: async (url) => {
@@ -403,7 +404,7 @@ class VidedApp extends LitElement {
     `;
   }
 
-  static styles = css`
+  static styles = [base, css`
     :host { display: grid; grid-template-rows: 44px 1fr 4px var(--timeline); height: 100vh; }
     header { display: flex; align-items: center; gap: 12px; padding: 0 14px; border-bottom: 1px solid var(--line); background: var(--panel); }
     .brand { font-weight: 700; }
@@ -412,13 +413,14 @@ class VidedApp extends LitElement {
     .spacer { flex: 1; }
     .toolrow { display: flex; gap: 6px; }
     .main { display: grid; grid-template-columns: var(--rail) 4px 1fr; min-height: 0; position: relative; }
-    .rail { overflow: auto; border-right: 1px solid var(--line); background: var(--panel); }
+    .rail { overflow: auto; border-right: 1px solid var(--line); background: var(--panel); scrollbar-width: none; }
+    .rail::-webkit-scrollbar { width: 0; height: 0; }
     .rail-handle { cursor: col-resize; background: transparent; }
     .rail-handle:hover { background: var(--accent); }
-    .details { overflow: auto; min-width: 0; }
+    .details { overflow: auto; min-width: 0; scrollbar-width: thin; scrollbar-color: #2c3542 transparent; }
     .timeline-resize { cursor: row-resize; background: var(--line-soft); }
     .timeline-resize:hover { background: var(--accent); }
-    .timeline { border-top: 1px solid var(--line); background: var(--panel); overflow: auto; }
+    .timeline { border-top: 1px solid var(--line); background: var(--panel); overflow: auto; scrollbar-width: thin; scrollbar-color: #2c3542 transparent; }
     .tl-empty { padding: 16px; }
 
     .acc { border-bottom: 1px solid var(--line-soft); }
@@ -453,9 +455,9 @@ class VidedApp extends LitElement {
     .empty > div:first-child { font-size: 15px; }
     .logbox { margin-top: 10px; }
     .logbox summary { cursor: pointer; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
-    .logbox pre { max-height: 260px; overflow: auto; margin-top: 8px; }
+    .logbox pre { max-height: 260px; overflow: auto; margin-top: 8px; scrollbar-width: thin; scrollbar-color: #2c3542 transparent; }
     .pill.queued { color: var(--warn); } .pill.running { color: var(--accent); }
     .pill.done { color: var(--ok); } .pill.failed { color: var(--err); } .pill.cancelled { color: var(--muted); }
-  `;
+  `];
 }
 customElements.define("vided-app", VidedApp);
