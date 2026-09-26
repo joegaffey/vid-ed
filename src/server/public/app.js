@@ -46,6 +46,7 @@ class VidedApp extends LitElement {
     search: { state: true },
     runhint: { state: true },
     fileNames: { state: true },
+    detailTab: { state: true },
   };
 
   constructor() {
@@ -63,6 +64,7 @@ class VidedApp extends LitElement {
     this.search = "";
     this.runhint = "";
     this.fileNames = "";
+    this.detailTab = "info";
     this._rail = Number(localStorage.getItem("vided.rail")) || 300;
     this._timeline = Number(localStorage.getItem("vided.timeline")) || 220;
     this._es = null;
@@ -107,6 +109,7 @@ class VidedApp extends LitElement {
 
   selectAsset(a) {
     this.selection = { kind: "asset", id: a.id, asset: a };
+    this.detailTab = "info";
     this.frames = null;
     this.loadFrames(a.id);
   }
@@ -326,8 +329,8 @@ class VidedApp extends LitElement {
             <td><span class="pill ${j.status}">${j.status}</span></td>
           </tr>`)}
         </tbody></table>`}
-      <details class="logbox" ?open=${!!this.logJob}>
-        <summary>log ${this.logJob ? "· " + this.logJob : ""}</summary>
+      <details class="logbox">
+        <summary>technical log ${this.logJob ? "· " + this.logJob : ""}</summary>
         <pre>${this.log}</pre>
       </details>
     `;
@@ -342,37 +345,155 @@ class VidedApp extends LitElement {
       </div>`;
     }
     const a = sel.asset;
-    const isVideo = a.kind === "video";
-    const isImage = a.kind === "image";
+    const tabs = [["info", "Info"], ["transcript", "Transcript"], ["frames", "Frames"], ["notes", "Notes"], ["params", "Params"]];
     return html`
       <div class="detail-head">
         <div><span class="pill">${a.kind}</span> <strong>${a.path}</strong></div>
         <div class="muted">${fmtDur(a.technical?.duration_s)} · ${a.status}</div>
       </div>
+      <div class="tabs">
+        ${tabs.map(([id, label]) =>
+          html`<button class="tab ${this.detailTab === id ? "active" : ""}" @click=${() => (this.detailTab = id)}>${label}</button>`)}
+      </div>
       <div class="detail-body">
-        <div class="preview">
-          ${isVideo || a.kind === "audio"
-            ? html`<video controls preload="metadata" src=${"/api/media/" + a.id}></video>`
-            : isImage
-            ? html`<img src=${"/api/media/" + a.id} alt=${a.path} />`
-            : html`<div class="muted">No preview for ${a.kind}.</div>`}
-        </div>
-        <div class="frames">
-          <h3>Frames ${this.frames ? html`<span class="muted">(${this.frames.frames.length})</span>` : ""}</h3>
-          ${this.frames
-            ? this.frames.frames.length
-              ? html`<div class="gallery">
-                  ${this.frames.frames.map((f) => html`<div class="frame">
-                    <img loading="lazy" src=${f.url} alt=${"t=" + f.t} />
-                    <div class="cap"><span>t=${f.t}${f.selected ? " ✓" : ""}</span>
-                      ${f.description ? html`<span class="muted">${f.description}</span>` : ""}</div>
-                  </div>`)}
-                </div>`
-              : html`<p class="muted">No frames — run sample.</p>`
-            : html`<p class="muted">loading…</p>`}
-        </div>
+        ${this.detailTab === "info" ? this.renderInfo(a)
+          : this.detailTab === "transcript" ? this.renderTranscript(a)
+          : this.detailTab === "frames" ? this.renderFrames()
+          : this.detailTab === "notes" ? this.renderNotes(a)
+          : this.renderParams(a)}
       </div>
     `;
+  }
+
+  renderPreview(a) {
+    if (a.kind === "video" || a.kind === "audio") return html`<video controls preload="metadata" src=${"/api/media/" + a.id}></video>`;
+    if (a.kind === "image") return html`<img src=${"/api/media/" + a.id} alt=${a.path} />`;
+    return html`<div class="muted" style="padding:16px">No preview for ${a.kind}.</div>`;
+  }
+
+  renderInfo(a) {
+    const t = a.technical || {};
+    const v = t.video;
+    const au = t.audio;
+    const rows = [
+      ["Kind", a.kind],
+      ["Path", a.path],
+      ["Status", a.status],
+      ["Duration", fmtDur(t.duration_s)],
+      ["Size", a.bytes != null ? fmtBytes(a.bytes) : "–"],
+      ["Container", t.container || "–"],
+    ];
+    if (v) rows.push(["Video", [v.codec, v.width && v.height ? v.width + "×" + v.height : null, v.fps ? v.fps + " fps" : null, v.bitrate ? Math.round(v.bitrate / 1000) + " kbps" : null].filter(Boolean).join(" · ")]);
+    if (au) rows.push(["Audio", [au.codec, au.sample_rate ? au.sample_rate + " Hz" : null, au.channels ? au.channels + " ch" : null].filter(Boolean).join(" · ")]);
+    if (t.creation_time) rows.push(["Created", t.creation_time]);
+    rows.push(["Hash", a.content_hash ? a.content_hash.slice(0, 19) + "…" : "–"]);
+    return html`
+      <div class="preview">${this.renderPreview(a)}</div>
+      <div class="kv">${rows.map(([k, val]) => html`<div class="k">${k}</div><div class="v">${val}</div>`)}</div>
+    `;
+  }
+
+  renderTranscript(a) {
+    const tr = a.extracted?.transcript;
+    const segs = tr?.segments || [];
+    if (!segs.length) return html`<p class="muted">No transcript — run <em>extract-text</em> from the Params tab.</p>`;
+    return html`
+      <div class="muted" style="margin-bottom:8px">
+        ${tr.tool}${a.extracted.language ? " · " + a.extracted.language : ""} · ${segs.length} segments
+      </div>
+      <div class="segments">
+        ${segs.map((s) => html`<div class="seg"><span class="t">${fmtDur(s.start)}</span><span>${s.text}</span></div>`)}
+      </div>
+    `;
+  }
+
+  renderFrames() {
+    if (!this.frames) return html`<p class="muted">loading…</p>`;
+    if (!this.frames.frames.length) return html`<p class="muted">No frames — run <em>sample</em> from the Params tab.</p>`;
+    return html`<div class="gallery">
+      ${this.frames.frames.map((f) => html`<div class="frame">
+        <img loading="lazy" src=${f.url} alt=${"t=" + f.t} />
+        <div class="cap"><span>t=${f.t}${f.selected ? " ✓" : ""}</span>
+          ${f.description ? html`<span class="muted">${f.description}</span>` : ""}</div>
+      </div>`)}
+    </div>`;
+  }
+
+  assetMeta(a) {
+    return (this.context?.assets && (this.context.assets[a.id] || this.context.assets[a.path])) || {};
+  }
+
+  renderNotes(a) {
+    const m = this.assetMeta(a);
+    return html`
+      <div class="form">
+        <label>Title</label><input id="n_title" .value=${m.title || ""} />
+        <label>Role</label><input id="n_role" .value=${m.role || ""} placeholder="intro / b-roll / outro…" />
+        <label>Tags (comma separated)</label><input id="n_tags" .value=${(m.tags || []).join(", ")} />
+        <label>Notes</label><textarea id="n_notes" rows="4">${m.notes || ""}</textarea>
+        <div class="actions"><button class="primary" @click=${() => this.saveNotes(a)}>Save</button><span class="muted">${this.runhint}</span></div>
+      </div>
+    `;
+  }
+  async saveNotes(a) {
+    const q = (id) => this.renderRoot.getElementById(id);
+    const body = {
+      title: q("n_title").value || undefined,
+      role: q("n_role").value || undefined,
+      tags: q("n_tags").value.split(",").map((s) => s.trim()).filter(Boolean),
+      notes: q("n_notes").value || undefined,
+    };
+    const r = await api.put("/api/context/assets/" + encodeURIComponent(a.id), body);
+    this.runhint = r.ok ? "saved" : "save failed";
+    await this.loadContext();
+  }
+
+  renderParams(a) {
+    return html`
+      <div class="params">
+        <fieldset>
+          <legend>Transcribe</legend>
+          <div class="row">
+            <input id="p_lang" placeholder="language (auto)" style="width:120px" />
+            <label class="inline"><input id="p_ocr" type="checkbox" /> OCR images</label>
+            <button @click=${() => this.runAssetStage(a, "extract-text", [
+              ...(this.renderRoot.getElementById("p_lang").value ? ["--language", this.renderRoot.getElementById("p_lang").value] : []),
+              ...(this.renderRoot.getElementById("p_ocr").checked ? ["--ocr"] : []),
+            ])}>Run</button>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Sample</legend>
+          <div class="row">
+            <label class="inline">threshold <input id="p_thr" type="number" step="0.05" value="0.25" style="width:70px" /></label>
+            <label class="inline">rate/min <input id="p_rate" type="number" value="30" style="width:70px" /></label>
+            <button @click=${() => this.runAssetStage(a, "sample", ["--threshold", this.renderRoot.getElementById("p_thr").value, "--rate", this.renderRoot.getElementById("p_rate").value])}>Run</button>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Dedupe</legend>
+          <div class="row">
+            <label class="inline">phash distance <input id="p_dist" type="number" value="6" style="width:70px" /></label>
+            <label class="inline">budget <input id="p_budget" type="number" style="width:70px" /></label>
+            <button @click=${() => this.runAssetStage(a, "dedupe", [
+              "--phash-distance", this.renderRoot.getElementById("p_dist").value,
+              ...(this.renderRoot.getElementById("p_budget").value ? ["--budget", this.renderRoot.getElementById("p_budget").value] : []),
+            ])}>Run</button>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Vision</legend>
+          <div class="row">
+            <button @click=${() => this.runAssetStage(a, "annotate", ["--packet-out", "work/" + a.id + ".packet.json"])}>Build packet</button>
+            <span class="muted">describe frames, then ingest results</span>
+          </div>
+        </fieldset>
+      </div>
+    `;
+  }
+  async runAssetStage(a, op, extraArgs) {
+    await this.runStage(op, ["--assets", a.id, ...extraArgs]);
+    this.loadJobs();
   }
 
   renderTimeline() {
@@ -467,7 +588,23 @@ class VidedApp extends LitElement {
     td.path { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     .detail-head { padding: 14px 16px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-    .detail-body { padding: 16px; display: grid; gap: 16px; }
+    .tabs { display: flex; gap: 2px; padding: 0 8px; border-bottom: 1px solid var(--line); background: var(--panel); position: sticky; top: 0; z-index: 2; }
+    .tab { border: 0; border-radius: 0; background: transparent; padding: 10px 12px; color: var(--muted); border-bottom: 2px solid transparent; }
+    .tab:hover { color: var(--text); background: transparent; border-color: transparent; }
+    .tab.active { color: var(--text); border-bottom-color: var(--accent); }
+    .detail-body { padding: 16px; display: grid; gap: 16px; align-content: start; }
+    .kv { display: grid; grid-template-columns: 130px 1fr; gap: 5px 12px; font-size: 12px; }
+    .kv .k { color: var(--muted); }
+    .kv .v { word-break: break-word; }
+    .segments { display: flex; flex-direction: column; }
+    .seg { display: grid; grid-template-columns: 56px 1fr; gap: 10px; padding: 5px 0; border-bottom: 1px solid var(--line-soft); }
+    .seg .t { color: var(--muted); font-family: var(--mono); font-size: 11px; }
+    .params { display: flex; flex-direction: column; gap: 12px; }
+    fieldset { border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; margin: 0; }
+    legend { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; padding: 0 4px; }
+    label.inline { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 12px; margin: 0; }
+    label.inline input[type="checkbox"] { width: auto; }
+    .form { display: flex; flex-direction: column; }
     .preview { background: #000; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; max-width: 720px; }
     .preview video, .preview img { width: 100%; display: block; max-height: 420px; object-fit: contain; }
     .frames h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 10px; }

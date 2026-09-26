@@ -22,6 +22,12 @@ resizable bottom **Timeline** placeholder. Built with **Lit** (client bundled by
 Selection model `{ kind: 'none'|'asset'|'timelineItem', id }`; pane sizes and the
 open section persist in `localStorage`.
 
+**Details — Phase C done** — asset tabs: **Info** (probe + streaming preview),
+**Transcript** (segments), **Frames** (gallery), **Notes** (title/role/tags/notes
+→ `context.yaml`), **Params** (per-asset `extract-text`/`sample`/`dedupe`/
+`annotate` runs with parameters). Raw CLI output stays behind a collapsed
+"technical log".
+
 `vided Studio` is an optional local server + web UI for smart editing and
 fine-tuning where the agent is insufficient. The agent remains master; the CLI
 stays the source of truth. The studio is a **thin adapter**: it drives the same
