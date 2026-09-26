@@ -354,10 +354,15 @@ class VidedApp extends LitElement {
     this.refresh();
   }
   discardProposal() { this.proposal = null; }
-  zoomTimeline(dir) {
+  fitPps() {
     const dur = this.edl?.duration || 1;
-    const base = this.pps || Math.max(4, 900 / dur);
-    this.pps = Math.max(2, Math.min(400, dir > 0 ? base * 1.6 : base / 1.6));
+    const view = this.renderRoot?.querySelector(".tl-scroll")?.clientWidth || 900;
+    return Math.max(1, view / dur);
+  }
+  zoomTimeline(dir) {
+    const fit = this.fitPps();
+    const base = this.pps ?? fit;
+    this.pps = Math.max(fit, Math.min(400, dir > 0 ? base * 1.6 : base / 1.6));
   }
   setPlayhead(t) {
     const dur = this.edl?.duration || 0;
@@ -1517,7 +1522,7 @@ class VidedApp extends LitElement {
   }
 
   static styles = [base, css`
-    :host { display: grid; grid-template-rows: 44px 1fr 4px var(--timeline); height: 100vh; }
+    :host { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: 44px 1fr 4px var(--timeline); height: 100vh; width: 100%; overflow: hidden; }
     header { display: flex; align-items: center; gap: 12px; padding: 0 14px; border-bottom: 1px solid var(--line); background: var(--panel); }
     .brand { font-weight: 700; }
     .brand .muted { font-weight: 400; }
