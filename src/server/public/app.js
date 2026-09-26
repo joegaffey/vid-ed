@@ -39,6 +39,62 @@ const SECTIONS = [
   ["activity", "Activity"],
 ];
 
+// Short in-UI explanations for each major panel (the "?" popups).
+const HELP = {
+  project: {
+    title: "Project",
+    body: "Status of the analyzed project: asset count, total duration, frames selected by dedupe and frames annotated by vision, plus which native tools are available. The buttons run the analysis stages end-to-end (scan → extract-text → sample → dedupe).",
+  },
+  media: {
+    title: "Media bin",
+    body: "Every asset in the project. Upload files or fetch a URL to add media (the last file triggers a scan). Click a row to inspect it in Details; the + button on a video proposes adding it to the timeline. Search filters by path.",
+  },
+  analysis: {
+    title: "Analysis",
+    body: "Run a single pipeline stage with explicit parameters. Pick a stage, adjust its options, then Run. Results are cached by content hash, so re-running only recomputes that step — use Changes to see what has gone stale.",
+  },
+  context: {
+    title: "Context",
+    body: "The brief and directives the agent uses to compose the edit: audience, tone, target duration, must-include/avoid lists, voice and pronunciation. Save writes context.yaml; Build context pack produces the distilled work/context.md for the agent.",
+  },
+  vision: {
+    title: "Vision",
+    body: "Annotate the frames that survived dedupe. Build packet writes a vision packet for the agent; Ingest results merges the descriptions back into the manifest. Per-asset frames and controls live in Details → Frames.",
+  },
+  output: {
+    title: "Output",
+    body: "Files produced by vided render. Click a name to open or download it.",
+  },
+  changes: {
+    title: "Changes",
+    body: "Stale downstream stages (an input is newer than its output) with a one-click re-run, plus the tracked artifacts and their latest writer. Studio edits are proposals until you apply them; click a row for version history, diffs and reverts.",
+  },
+  activity: {
+    title: "Activity",
+    body: "Background jobs queued by the studio. Click a row to stream its output into the technical log below.",
+  },
+  "detail:overview": {
+    title: "Overview",
+    body: "Technical metadata and a preview for the selected asset. Images can be run through OCR here; text assets show their extracted content.",
+  },
+  "detail:transcript": {
+    title: "Transcript",
+    body: "Speech-to-text segments for this asset, produced by whisper.cpp. Re-transcribe with a specific language, or leave the field blank for auto-detection.",
+  },
+  "detail:frames": {
+    title: "Frames",
+    body: "Frames sampled from this asset after dedupe. Run Sample to detect scenes, Dedupe to cluster near-duplicates, or Build packet to annotate the selected frames. A ✓ marks frames chosen for vision.",
+  },
+  "detail:notes": {
+    title: "Notes",
+    body: "Per-asset metadata stored in context.yaml: title, role, tags and free-form notes. These feed the context pack the agent reads.",
+  },
+  timeline: {
+    title: "Timeline",
+    body: "The composed EDL (edit.yaml). Click the track to move the playhead, or a clip to trim, reorder or remove it. Changes appear as a diff and are only written when you Apply. Use −/+ to zoom, or fit to fill the width.",
+  },
+};
+
 // Project-wide stage parameters exposed in the Analysis panel.
 const STAGE_PARAMS = {
   scan: [{ n: "fast-hash", label: "fast hash", type: "bool" }],
@@ -102,6 +158,7 @@ class VidedApp extends LitElement {
     stale: { state: true },
     staleNodes: { state: true },
     proposal: { state: true },
+    help: { state: true },
   };
 
   constructor() {
@@ -130,6 +187,7 @@ class VidedApp extends LitElement {
     this.stale = null;
     this.staleNodes = [];
     this.proposal = null;
+    this.help = null;
     this._rail = Number(localStorage.getItem("vided.rail")) || 300;
     this._timeline = Number(localStorage.getItem("vided.timeline")) || 220;
     this._es = null;
@@ -141,6 +199,8 @@ class VidedApp extends LitElement {
     this.style.setProperty("--timeline", this._timeline + "px");
     this.refresh();
     this._timer = setInterval(() => this.loadJobs(), 5000);
+    this._onKey = (e) => { if (e.key === "Escape") this.help = null; };
+    window.addEventListener("keydown", this._onKey);
     this._events = new EventSource("/api/events");
     this._events.onmessage = (ev) => {
       let e;
@@ -155,6 +215,7 @@ class VidedApp extends LitElement {
   disconnectedCallback() {
     super.disconnectedCallback();
     clearInterval(this._timer);
+    window.removeEventListener("keydown", this._onKey);
     if (this._es) this._es.close();
     if (this._events) this._events.close();
   }
@@ -353,6 +414,30 @@ class VidedApp extends LitElement {
       case "activity": return this.renderActivity();
       default: return "";
     }
+  }
+
+  renderHelpButton(key, cls = "") {
+    if (!HELP[key]) return "";
+    return html`<button class="helpbtn ${cls}" title="What is this?"
+      aria-label=${"Help: " + HELP[key].title}
+      @click=${(e) => { e.stopPropagation(); this.help = this.help === key ? null : key; }}>?</button>`;
+  }
+  closeHelp() { this.help = null; }
+  renderHelpPopup() {
+    const h = HELP[this.help];
+    if (!h) return "";
+    return html`
+      <div class="help-backdrop" @click=${this.closeHelp}>
+        <div class="help-pop" role="dialog" aria-modal="true" aria-label=${h.title} @click=${(e) => e.stopPropagation()}>
+          <div class="help-head">
+            <span class="help-ico">?</span>
+            <strong>${h.title}</strong>
+            <span class="spacer"></span>
+            <button class="sm secondary" @click=${this.closeHelp}>close</button>
+          </div>
+          <p>${h.body}</p>
+        </div>
+      </div>`;
   }
 
   renderProject() {
@@ -664,6 +749,8 @@ class VidedApp extends LitElement {
       <div class="tabs">
         ${tabs.map(([id, label]) =>
           html`<button class="tab ${active === id ? "active" : ""}" @click=${() => (this.detailTab = id)}>${label}</button>`)}
+        <span class="spacer"></span>
+        ${this.renderHelpButton("detail:" + active, "tabs-help")}
       </div>
       <div class="detail-body">
         ${active === "overview" ? this.renderInfo(a)
@@ -867,6 +954,7 @@ class VidedApp extends LitElement {
         <button class="sm" @click=${() => this.zoomTimeline(-1)}>−</button>
         <button class="sm" @click=${() => this.zoomTimeline(1)}>+</button>
         <button class="sm" @click=${() => (this.pps = null)}>fit</button>
+        ${this.renderHelpButton("timeline", "tl-help")}
       </div>
       <div class="tl-scroll">
         <div class="tl-track" style=${"width:" + trackWidth} @click=${this.onTimelineClick}>
@@ -913,6 +1001,7 @@ class VidedApp extends LitElement {
               <button class="acc-head" @click=${() => this.toggle(id)}>
                 <span class="chev">${this.open === id ? "▾" : "▸"}</span>${label}
               </button>
+              ${this.renderHelpButton(id, "acc-help")}
               ${this.open === id ? html`<div class="acc-body">${this.renderSection(id)}</div>` : ""}
             </section>`)}
         </aside>
@@ -928,6 +1017,7 @@ class VidedApp extends LitElement {
             <button class="sm" @click=${() => { this.stale = null; this.refresh(); }}>reload</button>
           </div>`
         : ""}
+      ${this.help ? this.renderHelpPopup() : ""}
     `;
   }
 
@@ -964,7 +1054,7 @@ class VidedApp extends LitElement {
     .tl-item.active { outline: 2px solid var(--accent); outline-offset: 1px; }
     .tl-playhead { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--err); pointer-events: none; }
 
-    .acc { border-bottom: 1px solid var(--line); }
+    .acc { border-bottom: 1px solid var(--line); position: relative; }
     .acc-head { width: 100%; text-align: left; background: transparent; border: 0; border-radius: 0; padding: 9px 12px; color: var(--text); font-weight: 600; font-size: 12px; letter-spacing: .02em; display: flex; gap: 8px; align-items: center; }
     .acc-head:hover { background: var(--panel-2); border-color: transparent; }
     .acc.open .acc-head { background: var(--panel-2); box-shadow: inset 3px 0 0 var(--accent); }
@@ -1041,6 +1131,36 @@ class VidedApp extends LitElement {
     .logbox pre { max-height: 260px; overflow: auto; margin-top: 8px; scrollbar-width: thin; scrollbar-color: #2c3542 transparent; }
     .pill.queued { color: var(--warn); } .pill.running { color: var(--accent); }
     .pill.done { color: var(--ok); } .pill.failed { color: var(--err); } .pill.cancelled { color: var(--muted); }
+
+    .helpbtn {
+      width: 18px; height: 18px; padding: 0; border-radius: 50%;
+      border: 1px solid var(--line-strong); background: var(--panel-2);
+      color: var(--muted); font: 600 11px/1 inherit;
+      display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer; flex: none;
+    }
+    .helpbtn:hover { color: var(--text); border-color: var(--accent); background: var(--panel-3); }
+    .acc-help { position: absolute; top: 7px; right: 8px; }
+    .tabs-help { margin: 8px 8px 6px 0; align-self: center; }
+    .tl-help { margin-left: 2px; align-self: center; }
+
+    .help-backdrop {
+      position: fixed; inset: 0; z-index: 60; background: #00000073;
+      display: grid; place-items: center; padding: 20px;
+    }
+    .help-pop {
+      background: var(--panel); border: 1px solid var(--line-strong);
+      border-radius: var(--radius); box-shadow: 0 12px 40px #0009;
+      max-width: 460px; width: 100%; padding: 14px 16px;
+    }
+    .help-head { display: flex; align-items: center; gap: 8px; }
+    .help-ico {
+      width: 18px; height: 18px; border-radius: 50%; background: var(--accent);
+      color: #06101f; font: 700 11px/1 inherit;
+      display: inline-flex; align-items: center; justify-content: center; flex: none;
+    }
+    .help-pop p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+    .help-head { margin-bottom: 9px; }
   `];
 }
 customElements.define("vided-app", VidedApp);

@@ -203,6 +203,8 @@ persist in `localStorage`.
   (clip/title/slide/still).
 - **Timeline** — read-only from `edit.yaml` first, editable later (P4).
 - **Review** — diff/apply/revert, integrated into every editor (P2).
+- **Help** — every major panel (rail sections, Details tabs, Timeline) has a
+  `?` button opening an in-UI explanation popup (`HELP` map in `app.js`).
 
 ## 12. CLI impact
 
