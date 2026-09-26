@@ -1,4 +1,4 @@
-# STUDIO.md — vided Studio (proposed)
+# STUDIO.md — vid-ed Studio (proposed)
 
 Status: DRAFT — plan only. Phasing (§13) is provisional pending spec review.
 

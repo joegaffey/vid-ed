@@ -505,7 +505,7 @@ class VidedApp extends LitElement {
   render() {
     return html`
       <header>
-        <div class="brand">vided <span class="muted">studio</span></div>
+        <div class="brand">vid-ed <span class="muted">studio</span></div>
         <div class="proj muted">${this.status ? "project: " + this.status.project : ""}</div>
         <div class="spacer"></div>
         <div class="toolrow">

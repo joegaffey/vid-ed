@@ -1,10 +1,10 @@
-# vided
+# vid-ed
 
 An agentic video editor toolset for CLI AI assistants (opencode, Kiro, Claude
 Code). Point it at a folder of video/audio/images and it produces a narrated
 edit with on-screen captions and a closed-caption file.
 
-The agent does the creative reasoning; `vided` does the deterministic media
+The agent does the creative reasoning; vid-ed does the deterministic media
 work. Every command is non-interactive and returns JSON on stdout, so an agent
 can chain commands reliably.
 
