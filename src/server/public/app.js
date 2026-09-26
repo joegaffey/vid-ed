@@ -582,6 +582,41 @@ class VidedApp extends LitElement {
   selectClip(c) {
     this.selection = { kind: "clip", id: c.id, clip: c };
   }
+  assetFor(source) {
+    return (this.manifest?.assets || []).find((a) => a.id === source || a.path === source);
+  }
+  // A still frame for a video source, nearest the given time. Used for the
+  // read-only demo, where source video / clip renders aren't bundled.
+  frameUrlFor(source, t = 0) {
+    const a = this.assetFor(source);
+    if (!a || a.kind !== "video") return null;
+    const frames = a.visual?.frames || [];
+    if (!frames.length) return null;
+    const pool = frames.filter((f) => f.selected).length ? frames.filter((f) => f.selected) : frames;
+    const best = pool.reduce((p, f) => (Math.abs(f.t - t) < Math.abs(p.t - t) ? f : p), pool[0]);
+    return "api/frames/" + a.id + "/" + best.path.split("/").pop();
+  }
+  demoClipPreview(c) {
+    const wrap = (inner) => html`<div class="preview">${inner}</div>`;
+    if (c.kind === "video") {
+      const u = this.frameUrlFor(c.source, c.poster ?? c.in ?? 0);
+      return u ? wrap(html`<img src=${u} alt=${c.source} />`) : wrap(html`<div class="muted" style="padding:16px">No frame available.</div>`);
+    }
+    if (c.kind === "image") {
+      const a = this.assetFor(c.source);
+      return wrap(html`<img src=${"api/media/" + (a ? a.id : c.source)} alt=${c.source} />`);
+    }
+    if (c.kind === "audio") {
+      return wrap(html`<div class="muted" style="padding:16px">🎧 audio</div>`);
+    }
+    const bg = (c.background || "#101820");
+    const title = c.kind === "title" ? c.title : c.heading;
+    const body = c.kind === "title" ? c.subtitle : c.body;
+    return wrap(html`<div class="tl-card" style=${"background:" + bg}>
+      <div class="t">${title}</div>
+      ${body ? html`<div class=${c.kind === "slide" && c.variant === "mono" ? "b" : "s"}>${body}</div>` : ""}
+    </div>`);
+  }
   addPlacement(c) {
     this.proposeEdl([{ op: "add", track: c.kind === "audio" ? "audio" : "visual", use: c.id }]);
   }
@@ -670,7 +705,7 @@ class VidedApp extends LitElement {
       <div class="detail-body">
         <div class="info-grid">
           ${DEMO
-            ? (c.source === "generated" ? "" : html`<div class="preview"><div class="muted" style="padding:16px">Clip previews aren't included in the read-only demo.</div></div>`)
+            ? this.demoClipPreview(c)
             : (c.source === "generated" ? "" : html`<div class="preview">${preview}</div>`)}
           <div class="clip-side">
             ${item
@@ -997,7 +1032,14 @@ class VidedApp extends LitElement {
   }
 
   renderPreview(a) {
-    if (DEMO) return html`<div class="muted" style="padding:16px">Source media isn't included in the read-only demo.</div>`;
+    if (DEMO) {
+      if (a.kind === "video") {
+        const u = this.frameUrlFor(a.id, 0);
+        return u ? html`<img src=${u} alt=${a.path} />` : html`<div class="muted" style="padding:16px">No frame available.</div>`;
+      }
+      if (a.kind === "image") return html`<img src=${"api/media/" + a.id} alt=${a.path} />`;
+      return html`<div class="muted" style="padding:16px">No preview for ${a.kind}.</div>`;
+    }
     if (a.kind === "video" || a.kind === "audio") return html`<video controls preload="metadata" src=${"api/media/" + a.id}></video>`;
     if (a.kind === "image") return html`<img src=${"api/media/" + a.id} alt=${a.path} />`;
     return html`<div class="muted" style="padding:16px">No preview for ${a.kind}.</div>`;
@@ -1390,6 +1432,10 @@ class VidedApp extends LitElement {
     .block { margin-top: 16px; display: grid; gap: 8px; }
     .block .row strong { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
     .preview video, .preview img { width: 100%; height: auto; display: block; max-height: 60vh; object-fit: contain; }
+    .tl-card { aspect-ratio: 16 / 9; display: grid; place-content: center; gap: 6px; text-align: center; padding: 18px; }
+    .tl-card .t { font-size: 26px; font-weight: 700; }
+    .tl-card .s { color: #c9d1d9; font-size: 15px; }
+    .tl-card .b { font-family: var(--mono); font-size: 14px; white-space: pre-wrap; text-align: left; }
     .frames h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 10px; }
     .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
     .frame { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }

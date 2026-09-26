@@ -96,6 +96,14 @@ for (const dir of ["frames", "outputs"]) {
   const from = join(SAMPLE, "media", dir);
   if (existsSync(from)) await cp(from, api(dir), { recursive: true });
 }
+// image sources: media/sources/<assetId>.<ext> -> api/media/<assetId> (served as a file)
+const sourcesDir = join(SAMPLE, "media/sources");
+if (existsSync(sourcesDir)) {
+  for (const name of await readdir(sourcesDir)) {
+    await mkdir(api("media"), { recursive: true });
+    await cp(join(sourcesDir, name), api(join("media", name.replace(/\.[^.]+$/, ""))));
+  }
+}
 
 // --- shell --------------------------------------------------------------
 const shell = (await readFile("src/server/public/index.html", "utf8")).replace(
