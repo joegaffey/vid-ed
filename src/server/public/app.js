@@ -568,6 +568,15 @@ class VidedApp extends LitElement {
     f("Source", c.source);
     const formats = this.clipFormats?.length ? this.clipFormats : [c.format];
     edit("Format", "f_format", "select", c.format, undefined, formats);
+    if (asset) {
+      const t = asset.technical || {};
+      const v = t.video;
+      const a = t.audio;
+      const vp = v ? [v.width && v.height ? `${v.width}×${v.height}` : null, v.fps ? `${Math.round(v.fps)} fps` : null, v.codec, v.bitrate ? `${Math.round(v.bitrate / 1000)} kbps` : null].filter(Boolean).join(" · ") : "";
+      const ap = a ? [a.codec, a.sample_rate ? `${a.sample_rate} Hz` : null, a.channels ? `${a.channels} ch` : null].filter(Boolean).join(" · ") : "";
+      const sfmt = [vp, ap].filter(Boolean).join("  |  ");
+      if (sfmt) f("Source format", sfmt);
+    }
     f("Origin", c.origin);
     if (c.kind === "video") {
       edit("In (s)", "f_in", "number", c.in, 0.1);
