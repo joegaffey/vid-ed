@@ -16,13 +16,13 @@ title/role/tags/notes).
 **UI redesign — Phase A done** — NLE-style shell: top bar (project, tool health,
 refresh), a resizable **left rail with accordion sections** (Project, Media bin,
 Analysis, Context, Vision, Output, Activity), a center **Details** view for the
-selected artefact (asset Info with a streaming preview + frame gallery), and a
+selected artefact (asset Overview with a streaming preview + frame gallery), and a
 resizable bottom **Timeline** placeholder. Built with **Lit** (client bundled by
 `esbuild` via `npm run build:studio`), served statically from `dist/studio`.
 Selection model `{ kind: 'none'|'asset'|'timelineItem', id }`; pane sizes and the
 open section persist in `localStorage`.
 
-**Details — Phase C done** — asset tabs: **Info** (probe + streaming preview),
+**Details — Phase C done** — asset tabs: **Overview** (probe + streaming preview),
 **Transcript** (segments), **Frames** (gallery), **Notes** (title/role/tags/notes
 → `context.yaml`), **Process** (per-asset `extract-text`/`sample`/`dedupe`/
 `annotate` runs with parameters). Raw CLI output stays behind a collapsed
@@ -175,7 +175,7 @@ persist in `localStorage`.
 - **Script** — narration segments (text/timing/voice), per-segment TTS preview.
 - **Output** — rendered files, sidecars, publish metadata.
 - **Activity** — jobs list + live log (SSE).
-- **Details** — asset tabs (Info · Transcript · Frames · Notes · Process) or
+- **Details** — asset tabs (Overview · Transcript · Frames · Notes · Process) or
   timeline-item editor (clip/title/slide/still).
 - **Timeline** — read-only from `edit.yaml` first, editable later (P4).
 - **Review** — diff/apply/revert, integrated into every editor (P2).

@@ -102,7 +102,7 @@ class VidedApp extends LitElement {
     this.search = "";
     this.runhint = "";
     this.fileNames = "";
-    this.detailTab = "info";
+    this.detailTab = "overview";
     this.analysisOp = "sample";
     this._rail = Number(localStorage.getItem("vided.rail")) || 300;
     this._timeline = Number(localStorage.getItem("vided.timeline")) || 220;
@@ -148,7 +148,7 @@ class VidedApp extends LitElement {
 
   selectAsset(a) {
     this.selection = { kind: "asset", id: a.id, asset: a };
-    this.detailTab = "info";
+    this.detailTab = "overview";
     this.frames = null;
     this.loadFrames(a.id);
   }
@@ -461,7 +461,7 @@ class VidedApp extends LitElement {
       </div>`;
     }
     const a = sel.asset;
-    const tabs = [["info", "Info"], ["transcript", "Transcript"], ["frames", "Frames"], ["notes", "Notes"], ["process", "Process"]];
+    const tabs = [["overview", "Overview"], ["transcript", "Transcript"], ["frames", "Frames"], ["notes", "Notes"], ["process", "Process"]];
     return html`
       <div class="detail-head">
         <div><span class="pill">${a.kind}</span> <strong>${a.path}</strong></div>
@@ -472,7 +472,7 @@ class VidedApp extends LitElement {
           html`<button class="tab ${this.detailTab === id ? "active" : ""}" @click=${() => (this.detailTab = id)}>${label}</button>`)}
       </div>
       <div class="detail-body">
-        ${this.detailTab === "info" ? this.renderInfo(a)
+        ${this.detailTab === "overview" ? this.renderInfo(a)
           : this.detailTab === "transcript" ? this.renderTranscript(a)
           : this.detailTab === "frames" ? this.renderFrames()
           : this.detailTab === "notes" ? this.renderNotes(a)
