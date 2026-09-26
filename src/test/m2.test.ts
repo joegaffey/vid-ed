@@ -107,6 +107,33 @@ test("muted video clips contribute no audio", () => {
   assert.ok(plan.args.includes("-an"));
 });
 
+test("explainEdl reports whether the audio track fits the video", () => {
+  const long = resolved({
+    format: "720p30",
+    clips: [
+      { id: "v1", kind: "video", source: "clipA", format: "720p30", out: 4 },
+      { id: "m1", kind: "audio", source: "mu", format: "audio48k", duration: 20 },
+    ],
+    visual: [{ id: "a", use: "v1" }],
+    audio: [{ id: "m", use: "m1", offset: 0 }],
+  });
+  const ex = explainEdl(long, resolve);
+  assert.equal(ex.duration, 4);
+  assert.equal(ex.audio.end, 20);
+  assert.equal(ex.audio.fits, false);
+
+  const short = resolved({
+    format: "720p30",
+    clips: [
+      { id: "v1", kind: "video", source: "clipA", format: "720p30", out: 10 },
+      { id: "m1", kind: "audio", source: "mu", format: "audio48k", duration: 5 },
+    ],
+    visual: [{ id: "a", use: "v1" }],
+    audio: [{ id: "m", use: "m1", offset: 0 }],
+  });
+  assert.equal(explainEdl(short, resolve).audio.fits, true);
+});
+
 test("parseResolution and positionExpr helpers", () => {
   assert.deepEqual(parseResolution("1920x1080"), [1920, 1080]);
   assert.throws(() => parseResolution("nope"));

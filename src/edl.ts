@@ -148,7 +148,7 @@ export interface ExplainResult {
   duration: number;
   clip_count: number;
   clips: ExplainVisual[];
-  audio: { clips: number; attached: number };
+  audio: { clips: number; attached: number; end?: number; fits?: boolean };
   captions: { mode: string; export: string[] };
   overlays: { total: number; images: number; text: number };
 }
@@ -173,13 +173,34 @@ export function explainEdl(edl: ResolvedEdl, resolve?: Resolve): ExplainResult {
   });
   const images = edl.overlays.filter((o) => o.type === "image").length;
   const attached = edl.visual.filter((i) => i.clip.kind === "video" && !i.clip.muted).length;
+
+  // Audio-track extent: compare the end of the last audio clip with the video
+  // timeline, so a narration longer/shorter than the picture is obvious.
+  let audioEnd: number | undefined;
+  for (const item of edl.audio) {
+    const c = item.clip;
+    let dur: number | undefined;
+    if (c.kind === "audio") {
+      dur = c.out !== undefined ? c.out - (c.in ?? 0) : c.duration;
+      if (dur === undefined && resolve) dur = resolve(c.source)?.duration;
+    }
+    if (dur !== undefined) audioEnd = Math.max(audioEnd ?? 0, item.offset + dur);
+  }
+  const duration = Number(cursor.toFixed(3));
+
   return {
     schema: "vided.edl/3",
     output: edl.output,
-    duration: Number(cursor.toFixed(3)),
+    duration,
     clip_count: clips.length,
     clips,
-    audio: { clips: edl.audio.length, attached },
+    audio: {
+      clips: edl.audio.length,
+      attached,
+      ...(audioEnd !== undefined
+        ? { end: Number(audioEnd.toFixed(3)), fits: audioEnd <= duration + 1e-6 }
+        : {}),
+    },
     captions: { mode: edl.captions.mode, export: edl.captions.export },
     overlays: { total: edl.overlays.length, images, text: edl.overlays.length - images },
   };

@@ -64,7 +64,11 @@ export async function cmdCompose(opts: ComposeOptions): Promise<void> {
       for (const c of ex.clips) {
         lines.push(`  ${c.start}s -> ${c.end}s  ${c.id} (${c.kind}: ${c.source} [${c.format}])`);
       }
-      lines.push(`audio: clips=${ex.audio.clips} attached=${ex.audio.attached}`);
+      const a = ex.audio;
+      lines.push(
+        `audio: clips=${a.clips} attached=${a.attached}` +
+          (a.end !== undefined ? ` · ends ${a.end}s (${a.fits ? "fits" : "runs past"} ${ex.duration}s)` : ""),
+      );
       lines.push(`overlays: ${ex.overlays.total}`);
     }
     if (out.lint) {

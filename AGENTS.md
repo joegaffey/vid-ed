@@ -159,12 +159,15 @@ must satisfy from this file alone:
 4. `vided captions --from narration --formats srt,vtt,ass` → `work/captions.ass`
    (burn needs the `.ass`; the default is srt,vtt only).
 5. `vided clips`; add generated cards with `clips --add`, and register the
-   narration as an audio clip, e.g.
-   `clips --add '{"id":"vo","kind":"audio","source":"work/narration.wav","format":"audio48k"}'`.
+   narration as an audio clip with its duration (from `tts`) so the fit check
+   works, e.g.
+   `clips --add '{"id":"vo","kind":"audio","source":"work/narration.wav","format":"audio48k","duration":42.5}'`.
 6. Write `edit.yaml`: visual clips on `tracks.visual`, the narration on
    `tracks.audio: [{ id: vo, use: vo }]`, and
    `captions: { mode: burn, file: work/captions.ass }`.
-7. `vided compose edit.yaml --check --lint`, then `vided render edit.yaml`.
+7. `vided compose edit.yaml --check --lint --explain` — `--explain` reports the
+   timeline duration and, when audio clips declare a length, whether the audio
+   track fits (`audio: … ends 42.5s (fits 63.1s)`). Then `vided render edit.yaml`.
 
 Install the optional native tools into a project with:
 
