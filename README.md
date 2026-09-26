@@ -8,9 +8,15 @@ The agent does the creative reasoning; vid-ed does the deterministic media
 work. Every command is non-interactive and returns JSON on stdout, so an agent
 can chain commands reliably.
 
-Typical ask: **"Make a narrated video from these clips."** See
-[`AGENTS.md`](./AGENTS.md) for the ordered workflow, starter prompts and the
-vision (frame description) step.
+Typical ask: **"Make a narrated video from these clips."** A concrete example —
+two clips to fetch and edit together:
+
+- <https://www.youtube.com/watch?v=11TeA7der1Q> — RC Sim Racing Controller Case Design
+- <https://www.youtube.com/watch?v=lPexd2mvKew> — RC Sim Racing Controller - Test 1 (Assetto Corsa)
+
+Prompt: **"Download these two videos and make a narrated ~90s demo of the RC
+controller build."** See [`AGENTS.md`](./AGENTS.md) for the ordered workflow,
+starter prompts and the vision (frame description) step.
 
 ```
 ANALYZE (cached) -> MANIFEST -> CLIPS -> COMPOSE (agent) -> RENDER (ffmpeg)
