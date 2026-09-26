@@ -13,8 +13,12 @@ import {
 import { loadContextInput, saveContextInput } from "../context.js";
 import { readManifest, makeSourceResolver } from "../manifest.js";
 import { clipsById, loadClips } from "../clips.js";
+import { CLIPS_FILE } from "../clips.js";
 import { explainEdl, loadEdlFile, resolveEdl } from "../edl.js";
 import { applyEdlOps, type EdlOp } from "../edl-edit.js";
+import { applyClipOps, type ClipOp } from "../clips-edit.js";
+import { renderClipPreview } from "../preview.js";
+import { requireTool } from "../tools/resolve.js";
 import { JobQueue, resolveCliEntry } from "./jobs.js";
 import {
   HistoryStore,
@@ -35,6 +39,7 @@ export const ALLOWED_OPS = new Set([
   "dedupe",
   "annotate",
   "manifest",
+  "clips",
   "script",
   "tts",
   "captions",
@@ -285,6 +290,39 @@ export async function createStudioServer(opts: StudioServerOptions): Promise<Stu
       if (!result.ok) return sendJSON(res, 400, { error: result.error, issues: result.issues });
       const yaml = result.yaml!;
       return sendJSON(res, 200, { yaml, diff: diffLines(before, yaml) });
+    }
+
+    // --- clips -----------------------------------------------------------
+    if (req.method === "GET" && path === "/api/clips") {
+      const clips = await loadClips(paths);
+      return sendJSON(res, 200, { file: CLIPS_FILE, clips: clips?.clips ?? [] });
+    }
+
+    if (req.method === "POST" && path === "/api/clips/edit") {
+      const clipsPath = join(paths.root, CLIPS_FILE);
+      if (!existsSync(clipsPath)) return sendJSON(res, 400, { error: "no clips.yaml to edit" });
+      const before = await readFile(clipsPath, "utf8");
+      const body = (await readBody(req)) as { ops?: unknown };
+      const ops = Array.isArray(body.ops) ? (body.ops as ClipOp[]) : [];
+      const result = applyClipOps(before, ops);
+      if (!result.ok) return sendJSON(res, 400, { error: result.error, issues: result.issues });
+      return sendJSON(res, 200, { yaml: result.yaml!, diff: diffLines(before, result.yaml!) });
+    }
+
+    if (req.method === "GET" && path === "/api/clips/preview") {
+      const id = url.searchParams.get("id");
+      if (!id) return sendJSON(res, 400, { error: "id is required" });
+      const clip = (await loadClips(paths))?.clips.find((c) => c.id === id);
+      if (!clip) return sendJSON(res, 404, { error: "no such clip" });
+      const config = await loadConfig(paths);
+      const ffmpeg = await requireTool(config, "ffmpeg");
+      const manifest = await readManifest(paths);
+      try {
+        const r = await renderClipPreview({ paths, manifest, ffmpeg, clip });
+        return serveFile(req, res, r.path);
+      } catch (err) {
+        return sendJSON(res, 500, { error: (err as Error).message });
+      }
     }
 
     // --- context ---------------------------------------------------------

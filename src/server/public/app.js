@@ -31,6 +31,7 @@ const niceInterval = (seconds) => NICE_STEPS.find((n) => n >= seconds) ?? 600;
 const SECTIONS = [
   ["project", "Project"],
   ["media", "Media bin"],
+  ["clips", "Clips"],
   ["analysis", "Analysis"],
   ["context", "Context"],
   ["vision", "Vision"],
@@ -48,6 +49,10 @@ const HELP = {
   media: {
     title: "Media bin",
     body: "Every asset in the project. Upload files or fetch a URL to add media (the last file triggers a scan). Click a row to inspect it in Details; the + button on a video proposes adding it to the timeline. Search filters by path.",
+  },
+  clips: {
+    title: "Clips",
+    body: "The clip pool from clips.yaml — every clip an edit can use, by kind (video/image/audio/title/slide). Click a clip to inspect/preview it; ▶ renders it at its own format (cached); + proposes adding a placement to the timeline. Trimming a clip here affects every timeline item that uses it.",
   },
   analysis: {
     title: "Analysis",
@@ -136,6 +141,7 @@ class VidedApp extends LitElement {
   static properties = {
     status: { state: true },
     manifest: { state: true },
+    clips: { state: true },
     context: { state: true },
     outputs: { state: true },
     jobs: { state: true },
@@ -164,6 +170,7 @@ class VidedApp extends LitElement {
     super();
     this.status = null;
     this.manifest = null;
+    this.clips = [];
     this.context = null;
     this.outputs = [];
     this.jobs = [];
@@ -218,6 +225,7 @@ class VidedApp extends LitElement {
   async refresh() {
     this.loadStatus();
     this.loadManifest();
+    this.loadClips();
     this.loadContext();
     this.loadOutputs();
     this.loadJobs();
@@ -231,6 +239,9 @@ class VidedApp extends LitElement {
   }
   async loadManifest() {
     try { this.manifest = await api.get("/api/manifest"); } catch { this.manifest = null; }
+  }
+  async loadClips() {
+    try { this.clips = (await api.get("/api/clips")).clips || []; } catch { this.clips = []; }
   }
   async loadContext() {
     try { this.context = await api.get("/api/context"); } catch { this.context = null; }
@@ -272,7 +283,8 @@ class VidedApp extends LitElement {
     this.selection = { kind: "timelineItem", id: it.id, item: it };
   }
   rawItem(id) {
-    return (this.edl?.edl?.timeline || []).find((t) => t.id === id) || {};
+    const tracks = this.edl?.edl?.tracks || {};
+    return [...(tracks.visual || []), ...(tracks.audio || [])].find((t) => t.id === id) || {};
   }
   async proposeEdl(ops) {
     const r = await api.post("/api/edl/edit", { ops });
@@ -288,20 +300,6 @@ class VidedApp extends LitElement {
     this.refresh();
   }
   discardProposal() { this.proposal = null; }
-  saveTimelineItem(it) {
-    const raw = this.rawItem(it.id);
-    if (it.type === "clip") {
-      const q = (id) => Number(this.renderRoot.getElementById(id).value);
-      this.proposeEdl([
-        { op: "trim", id: it.id, in: q("ti_in"), out: q("ti_out") },
-        { op: "set", id: it.id, patch: { speed: q("ti_speed") } },
-      ]);
-    } else {
-      const d = Number(this.renderRoot.getElementById("ti_dur").value);
-      this.proposeEdl([{ op: "set", id: it.id, patch: { duration: d } }]);
-    }
-    void raw;
-  }
   zoomTimeline(dir) {
     const dur = this.edl?.duration || 1;
     const base = this.pps || Math.max(4, 900 / dur);
@@ -401,6 +399,7 @@ class VidedApp extends LitElement {
     switch (id) {
       case "project": return this.renderProject();
       case "media": return this.renderMedia();
+      case "clips": return this.renderClips();
       case "analysis": return this.renderAnalysis();
       case "context": return this.renderContext();
       case "vision": return this.renderVision();
@@ -493,6 +492,95 @@ class VidedApp extends LitElement {
     `;
   }
 
+  renderClips() {
+    const clips = this.clips || [];
+    if (!clips.length) return html`<p class="muted">No clips yet — run the clips stage (Changes → run, or \`vided clips\`).</p>`;
+    const kinds = ["video", "image", "audio", "title", "slide"];
+    return html`
+      ${kinds.map((k) => {
+        const list = clips.filter((c) => c.kind === k);
+        if (!list.length) return "";
+        return html`
+          <div class="grouphead">${k} · ${list.length}</div>
+          <table class="clips"><tbody>
+            ${list.map((c) => {
+              const active = this.selection.kind === "clip" && this.selection.id === c.id;
+              return html`<tr class="clickable ${active ? "active" : ""}" @click=${() => this.selectClip(c)}>
+                <td class="path" title=${c.id}>${this.clipLabel(c)}</td>
+                <td class="muted">${c.format}</td>
+                <td><button class="sm secondary" title="preview"
+                  @click=${(e) => { e.stopPropagation(); this.selectClip(c); }}>▶</button></td>
+                <td><button class="sm secondary" title=${c.kind === "audio" ? "add to audio track" : "add to timeline"}
+                  @click=${(e) => { e.stopPropagation(); this.addPlacement(c); }}>+</button></td>
+              </tr>`;
+            })}
+          </tbody></table>`;
+      })}`;
+  }
+  clipLabel(c) {
+    const base = (c.source || "").split(/[\/\\]/).pop() || c.source;
+    if (c.kind === "title") return c.title;
+    if (c.kind === "slide") return c.heading;
+    if (c.kind === "audio") return base + (c.out !== undefined ? ` [${c.in}–${c.out}]` : "");
+    if (c.kind === "image") return base + (c.duration ? ` ${c.duration}s` : "");
+    return base + ` [${c.in}–${c.out}]`;
+  }
+  selectClip(c) {
+    this.selection = { kind: "clip", id: c.id, clip: c };
+  }
+  addPlacement(c) {
+    this.proposeEdl([{ op: "add", track: c.kind === "audio" ? "audio" : "visual", use: c.id }]);
+  }
+  async proposeClipEdit(ops) {
+    const r = await api.post("/api/clips/edit", { ops });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) { this.runhint = j.error || "clip edit failed"; return; }
+    this.proposal = { artifact: "clips.yaml", yaml: j.yaml, diff: j.diff };
+  }
+  renderClipDetail(c) {
+    const rows = [
+      ["Kind", c.kind],
+      ["Source", c.source],
+      ["Format", c.format],
+      ["Origin", c.origin],
+      ...(c.kind === "audio" ? [["In", c.in], ["Out", c.out ?? "–"], ["Gain", (c.gain_db ?? 0) + " dB"]] : []),
+      ...(c.kind === "video" ? [["In", c.in], ["Out", c.out], ["Speed", c.speed], ["Muted", c.muted ? "yes" : "no"]] : []),
+      ...(c.kind === "image" ? [["Duration", c.duration + "s"], ["Fit", c.fit]] : []),
+      ...(c.kind === "title" ? [["Title", c.title], ["Duration", c.duration + "s"]] : []),
+      ...(c.kind === "slide" ? [["Heading", c.heading], ["Duration", c.duration + "s"]] : []),
+      ...(c.tags && c.tags.length ? [["Tags", c.tags.join(", ")]] : []),
+      ["Id", c.id],
+    ];
+    const src = "/api/clips/preview?id=" + encodeURIComponent(c.id);
+    const preview = c.kind === "audio"
+      ? html`<audio controls preload="metadata" src=${src}></audio>`
+      : html`<video controls preload="metadata" src=${src}></video>`;
+    return html`
+      <div class="detail-head">
+        <div><span class="pill">${c.kind}</span> <strong>${this.clipLabel(c)}</strong></div>
+        <div class="row">
+          <button class="primary" @click=${() => this.addPlacement(c)}>add to timeline</button>
+          <button class="secondary" @click=${() => this.proposeClipEdit([{ op: "rm", id: c.id }])}>remove clip</button>
+        </div>
+      </div>
+      <div class="detail-body">
+        ${c.source === "generated" ? "" : html`<div class="preview">${preview}</div>`}
+        ${c.kind === "video"
+          ? html`<div class="form">
+              <div class="row">
+                <div><label>in (s)</label><input id="cl_in" type="number" step="0.1" value=${c.in} /></div>
+                <div><label>out (s)</label><input id="cl_out" type="number" step="0.1" value=${c.out} /></div>
+              </div>
+              <div class="actions"><button class="primary" @click=${() => {
+                const q = (id) => Number(this.renderRoot.getElementById(id).value);
+                this.proposeClipEdit([{ op: "set", id: c.id, patch: { in: q("cl_in"), out: q("cl_out") } }]);
+              }}>Update clip</button><span class="muted">shared by every use of this clip</span></div>
+            </div>`
+          : ""}
+        <div class="kv">${rows.map(([k, v]) => html`<div class="k">${k}</div><div class="v">${v}</div>`)}</div>
+      </div>`;
+  }
+
   async onUpload(e) {
     const files = e.target.files;
     if (!files || !files.length) return;
@@ -519,8 +607,18 @@ class VidedApp extends LitElement {
   }
 
   addClip(a) {
-    const out = Math.min(5, Math.round(a.technical?.duration_s ?? 5));
-    this.proposeEdl([{ op: "add-clip", source: a.id, in: 0, out: out || 1 }]);
+    const clip = (this.clips || []).find(
+      (c) => c.source === a.path && (c.kind === "video" || c.kind === "image"),
+    );
+    if (clip) {
+      this.addPlacement(clip);
+      return;
+    }
+    const out = Math.min(5, Math.round(a.technical?.duration_s ?? 5)) || 1;
+    this.proposeClipEdit([
+      { op: "add", clip: { id: "clip-" + a.id.slice(0, 8), kind: "video", source: a.path, format: "1080p30", in: 0, out } },
+    ]);
+    this.runhint = "clip created — add it from the Clips panel";
   }
 
   renderAnalysis() {
@@ -718,6 +816,7 @@ class VidedApp extends LitElement {
     const sel = this.selection;
     if (this.proposal) return this.renderProposal();
     if (sel.kind === "history") return this.renderHistory();
+    if (sel.kind === "clip") return this.renderClipDetail(sel.clip);
     if (sel.kind === "timelineItem") return this.renderTimelineItem(sel.item);
     if (sel.kind !== "asset") {
       return html`<div class="empty">
@@ -895,11 +994,18 @@ class VidedApp extends LitElement {
 
   renderTimelineItem(it) {
     const raw = this.rawItem(it.id);
-    const isClip = it.type === "clip";
-    const rows = [["Type", it.type], ["ID", it.id], ["Source", raw.source ?? it.source ?? ""], ["Path", it.path ?? ""]];
+    const clip = (this.clips || []).find((c) => c.id === raw.use) || {};
+    const rows = [
+      ["Kind", it.kind],
+      ["Clip", raw.use ?? ""],
+      ["Source", clip.source ?? it.source ?? ""],
+      ["Format", it.format ?? clip.format ?? ""],
+      ["Path", it.path ?? ""],
+      ...(raw.offset !== undefined ? [["Offset", raw.offset + "s"]] : []),
+    ];
     return html`
       <div class="detail-head">
-        <div><span class="pill">${it.type}</span> <strong>${it.id}</strong></div>
+        <div><span class="pill">${it.kind}</span> <strong>${it.id}</strong></div>
         <div class="row">
           <button class="sm secondary" title="move earlier" @click=${() => this.proposeEdl([{ op: "reorder", id: it.id, delta: -1 }])}>◀</button>
           <button class="sm secondary" title="move later" @click=${() => this.proposeEdl([{ op: "reorder", id: it.id, delta: 1 }])}>▶</button>
@@ -908,14 +1014,25 @@ class VidedApp extends LitElement {
       </div>
       <div class="detail-body">
         <div class="form">
-          ${isClip
-            ? html`<div class="row">
-                <div><label>in (s)</label><input id="ti_in" type="number" step="0.1" value=${raw.in ?? 0} /></div>
-                <div><label>out (s)</label><input id="ti_out" type="number" step="0.1" value=${raw.out ?? it.duration} /></div>
-                <div><label>speed</label><input id="ti_speed" type="number" step="0.1" value=${raw.speed ?? 1} /></div>
-              </div>`
-            : html`<div><label>duration (s)</label><input id="ti_dur" type="number" step="0.1" value=${raw.duration ?? it.duration} /></div>`}
-          <div class="actions"><button class="primary" @click=${() => this.saveTimelineItem(it)}>Review change</button><span class="muted">${this.runhint}</span></div>
+          <div class="row">
+            ${it.kind === "audio"
+              ? html`<div><label>offset (s)</label><input id="ti_offset" type="number" step="0.1" value=${raw.offset ?? 0} /></div>
+                     <div><label>gain (dB)</label><input id="ti_gain" type="number" step="1" value=${raw.gain_db ?? clip.gain_db ?? 0} /></div>`
+              : html`<div><label>speed</label><input id="ti_speed" type="number" step="0.1" value=${raw.speed ?? 1} /></div>`}
+          </div>
+          <div class="actions">
+            <button class="primary" @click=${() => {
+              const q = (id) => Number(this.renderRoot.getElementById(id).value);
+              this.proposeEdl([it.kind === "audio"
+                ? { op: "set", id: it.id, patch: { offset: q("ti_offset"), gain_db: q("ti_gain") } }
+                : { op: "set", id: it.id, patch: { speed: q("ti_speed") } }]);
+            }}>Review change</button>
+            ${raw.use ? html`<button class="secondary" @click=${() => {
+              const c = (this.clips || []).find((x) => x.id === raw.use);
+              if (c) this.selectClip(c);
+            }}>edit clip</button>` : ""}
+            <span class="muted">${this.runhint}</span>
+          </div>
         </div>
         <div class="kv">${rows.map(([k, v]) => html`<div class="k">${k}</div><div class="v">${v}</div>`)}</div>
       </div>
@@ -935,7 +1052,7 @@ class VidedApp extends LitElement {
 
     return html`
       <div class="tl-bar">
-        <span class="muted">${items.length} items · ${fmtDur(dur)} @ ${edl.output?.resolution || ""}</span>
+        <span class="muted">${items.length} items · ${fmtDur(dur)} @ ${edl.output?.format || ""}</span>
         <span class="spacer"></span>
         <span class="muted mono">${fmtDur(this.playhead)}</span>
         <button class="sm" @click=${() => this.zoomTimeline(-1)}>−</button>
@@ -950,9 +1067,9 @@ class VidedApp extends LitElement {
           </div>
           <div class="tl-lane">
             ${items.map((it) => html`
-              <div class="tl-item ${it.type} ${this.selection.kind === "timelineItem" && this.selection.id === it.id ? "active" : ""}"
+              <div class="tl-item ${it.kind} ${this.selection.kind === "timelineItem" && this.selection.id === it.id ? "active" : ""}"
                 style=${"left:" + (it.start / dur) * 100 + "%;width:" + (it.duration / dur) * 100 + "%"}
-                title=${it.id + " · " + it.type + " · " + fmtSec(it.start) + "–" + fmtSec(it.end) + (it.source ? " · " + it.source : "")}
+                title=${it.id + " · " + it.kind + " · " + fmtSec(it.start) + "–" + fmtSec(it.end) + (it.source ? " · " + it.source : "")}
                 @click=${(e) => { e.stopPropagation(); this.selectTimelineItem(it); }}>
                 ${it.id}
               </div>`)}
@@ -1033,10 +1150,11 @@ class VidedApp extends LitElement {
     .tl-tick { position: absolute; top: 0; height: 22px; border-left: 1px solid var(--line-soft); padding-left: 4px; font: 10px/22px var(--mono); color: var(--muted); white-space: nowrap; }
     .tl-lane { position: relative; height: 52px; margin: 10px 0; background: var(--bg); border-top: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); }
     .tl-item { position: absolute; top: 4px; height: 44px; border-radius: 6px; border: 1px solid; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; padding: 4px 6px; font-size: 11px; cursor: pointer; }
-    .tl-item.clip { background: #1f6feb33; border-color: #4c8dff; }
+    .tl-item.video { background: #1f6feb33; border-color: #4c8dff; }
+    .tl-item.image { background: #d2992233; border-color: #e3b341; }
+    .tl-item.audio { background: #2ea04333; border-color: #3fb950; }
     .tl-item.title { background: #8957e533; border-color: #a371f7; }
     .tl-item.slide { background: #2ea04333; border-color: #3fb950; }
-    .tl-item.still { background: #d2992233; border-color: #e3b341; }
     .tl-item.active { outline: 2px solid var(--accent); outline-offset: 1px; }
     .tl-playhead { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--err); pointer-events: none; }
 
@@ -1068,6 +1186,11 @@ class VidedApp extends LitElement {
     .urlrow { display: flex; gap: 6px; }
     .urlrow input { flex: 1; }
     table.media { table-layout: fixed; }
+    .grouphead { margin: 10px 0 4px; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+    table.clips { table-layout: fixed; }
+    table.clips td { padding: 4px 6px; }
+    table.clips td:nth-child(2) { width: 72px; }
+    table.clips td:nth-child(3), table.clips td:nth-child(4) { width: 30px; text-align: right; }
     table.media td { padding: 5px 6px; }
     table.media td:nth-child(1) { width: 46px; }
     table.media td:nth-child(3) { width: 42px; text-align: right; }
