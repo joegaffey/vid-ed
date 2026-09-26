@@ -262,8 +262,28 @@ Global flags: `--dir <dir>`, `--human`, `--json` (default), `-q/--quiet`.
 | `models` | List/install the Piper binary and voices |
 | `voices` | Search the Piper voice catalogue |
 | `status` | Project status + vision cost report |
+| `studio` | Start the experimental local web studio |
 
 Run `vided <command> --help` for flags.
+
+## Studio (experimental)
+
+`vided studio` starts a local web UI (binds `127.0.0.1`) — an **experimental
+human + AI collaboration interface** layered over the same CLI and artifacts. It
+is a thin adapter: it never reimplements editing logic, it drives the CLI and
+reads/writes the project files.
+
+- Browse and edit the project: media bin, the **clip pool** (per-clip preview at
+  its own format, trim, add to timeline), a timeline view, and the generated
+  context pack the agent reads.
+- Long stages (scan/sample/tts/render/…) run through a job queue with a live log.
+- Studio edits are **proposals** — nothing canonical is written until you apply
+  it; a change history and staleness tracking show what is out of date.
+- Build the client once (`npm run build:studio`), then `vided studio` and open
+  the printed URL.
+
+Expect rough edges — the UI and its on-disk behavior may change.
+
 
 ## Samples
 
