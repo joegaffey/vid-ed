@@ -100,6 +100,7 @@ class VidedApp extends LitElement {
     changes: { state: true },
     diffText: { state: true },
     stale: { state: true },
+    staleNodes: { state: true },
   };
 
   constructor() {
@@ -126,6 +127,7 @@ class VidedApp extends LitElement {
     this.changes = [];
     this.diffText = null;
     this.stale = null;
+    this.staleNodes = [];
     this._rail = Number(localStorage.getItem("vided.rail")) || 300;
     this._timeline = Number(localStorage.getItem("vided.timeline")) || 220;
     this._es = null;
@@ -163,6 +165,7 @@ class VidedApp extends LitElement {
     this.loadJobs();
     this.loadEdl();
     this.loadHistory();
+    this.loadStaleness();
   }
 
   async loadStatus() {
@@ -186,6 +189,9 @@ class VidedApp extends LitElement {
 
   async loadHistory() {
     try { this.changes = await api.get("/api/history"); } catch { this.changes = []; }
+  }
+  async loadStaleness() {
+    try { this.staleNodes = await api.get("/api/staleness"); } catch { this.staleNodes = []; }
   }
   async openHistory(artifact) {
     try {
@@ -507,14 +513,33 @@ class VidedApp extends LitElement {
   }
 
   renderChanges() {
-    if (!this.changes.length) return html`<p class="muted">No tracked artifacts yet.</p>`;
-    return html`<table><tbody>
-      ${this.changes.map((c) => html`<tr class="clickable" @click=${() => this.openHistory(c.artifact)}>
-        <td>${c.artifact}</td>
-        <td><span class="pill ${c.writer === "studio" ? "done" : "cancelled"}">${c.writer}</span></td>
-        <td class="muted">${new Date(c.ts).toLocaleTimeString()}</td>
-      </tr>`)}
-    </tbody></table>`;
+    const stale = this.staleNodes || [];
+    return html`
+      ${stale.length
+        ? html`
+          <div class="muted" style="margin-bottom:6px">Stale downstream</div>
+          <table><tbody>
+            ${stale.map((s) => html`<tr>
+              <td>${s.label}
+                <div class="muted" style="font-size:11px">${s.output} · newer: ${s.staleInputs.join(", ")}</div>
+              </td>
+              <td class="row" style="justify-content:flex-end">
+                <button class="sm" @click=${() => this.runStage(s.op, s.args)}>re-run</button>
+              </td>
+            </tr>`)}
+          </tbody></table>`
+        : ""}
+      <div class="muted" style="margin:10px 0 6px">Tracked artifacts</div>
+      ${!this.changes.length
+        ? html`<p class="muted">No tracked artifacts yet.</p>`
+        : html`<table><tbody>
+            ${this.changes.map((c) => html`<tr class="clickable" @click=${() => this.openHistory(c.artifact)}>
+              <td>${c.artifact}</td>
+              <td><span class="pill ${c.writer === "studio" ? "done" : "cancelled"}">${c.writer}</span></td>
+              <td class="muted">${new Date(c.ts).toLocaleTimeString()}</td>
+            </tr>`)}
+          </tbody></table>`}
+    `;
   }
 
   renderHistory() {
@@ -805,6 +830,9 @@ class VidedApp extends LitElement {
         <div class="proj muted">${this.status ? "project: " + this.status.project : ""}</div>
         <div class="spacer"></div>
         <div class="toolrow">
+          ${this.staleNodes.length
+            ? html`<span class="badge missing" title="Downstream artifacts are stale">${this.staleNodes.length} stale</span>`
+            : ""}
           ${this.status
             ? Object.entries(this.status.tools || {}).map(([n, ok]) =>
                 html`<span class="badge ${ok ? "ok" : "missing"}">${n}</span>`)

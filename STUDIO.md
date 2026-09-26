@@ -40,13 +40,14 @@ via `GET /api/edl` (explain): ruler, a video lane with items coloured by type
 (clip/title/slide/still), playhead (click to scrub), zoom/±/fit, and click-to-
 select which syncs the Details inspector. Editing (drag/trim) is P4.
 
-**P2 (part 1) done** — per-artifact history in `.studio/history/<artifact>.json`
+**P2 done** — per-artifact history in `.studio/history/<artifact>.json`
 (array, deduped), `GET /api/history[/:artifact]`, `POST /api/apply|revert|diff`
 (mandatory-check writes), a 2s watcher that records external edits as
-`writer: agent`, the `.vided/STUDIO_CHANGES.md` notification file, and an SSE
-change stream (`GET /api/events`) that raises a stale-view banner in the UI.
-Remaining: downstream **stage staleness** (mark later artifacts stale when an
-earlier one changes).
+`writer: agent` (studio-run jobs as `writer: studio`), the
+`.vided/STUDIO_CHANGES.md` notification file, an SSE change stream
+(`GET /api/events`) with a stale-view banner, and **downstream stage staleness**
+(`GET /api/staleness` — mtime along the stage graph; stale nodes shown in the
+Changes section with a **re-run** action).
 
 `vided Studio` is an optional local server + web UI for smart editing and
 fine-tuning where the agent is insufficient. The agent remains master; the CLI

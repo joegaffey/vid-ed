@@ -21,6 +21,7 @@ import {
   diffLines,
   writeStudioChanges,
 } from "./history.js";
+import { computeStaleness } from "./staleness.js";
 
 /** Stages the studio may run through the CLI (plus the yt-dlp `download`). */
 export const ALLOWED_OPS = new Set([
@@ -181,21 +182,6 @@ export async function createStudioServer(opts: StudioServerOptions): Promise<Stu
   }
   await writeStudioChanges(paths.root, history);
 
-  const watcher = setInterval(() => {
-    void (async () => {
-      for (const artifact of TRACKED_ARTIFACTS) {
-        const content = await readArtifact(artifact);
-        if (content === undefined) continue;
-        const hash = contentHash(content);
-        if (lastSeen.get(artifact) === hash) continue;
-        lastSeen.set(artifact, hash);
-        await history.append(artifact, { content, writer: "agent" });
-        await writeStudioChanges(paths.root, history);
-        emitEvent({ type: "changed", artifact, writer: "agent", ts: new Date().toISOString() });
-      }
-    })();
-  }, 2000);
-
   const buildCommand = (op: string, args: string[]): { bin: string; argv: string[] } => {
     if (op === "download") {
       const ffmpeg = config.tools.ffmpeg;
@@ -219,6 +205,30 @@ export async function createStudioServer(opts: StudioServerOptions): Promise<Stu
     allowedOps: ALLOWED_OPS,
     buildCommand,
   });
+
+  // Writes within a short window after a studio-run job are attributed to the studio.
+  let lastStudioJobAt = 0;
+  queue.subscribe((e) => {
+    if (e.type === "status") lastStudioJobAt = Date.now();
+  });
+  const writerNow = (): "studio" | "agent" =>
+    Date.now() - lastStudioJobAt < 15000 ? "studio" : "agent";
+
+  const watcher = setInterval(() => {
+    void (async () => {
+      for (const artifact of TRACKED_ARTIFACTS) {
+        const content = await readArtifact(artifact);
+        if (content === undefined) continue;
+        const hash = contentHash(content);
+        if (lastSeen.get(artifact) === hash) continue;
+        lastSeen.set(artifact, hash);
+        const writer = writerNow();
+        await history.append(artifact, { content, writer });
+        await writeStudioChanges(paths.root, history);
+        emitEvent({ type: "changed", artifact, writer, ts: new Date().toISOString() });
+      }
+    })();
+  }, 2000);
 
   const server = createServer((req, res) => {
     handle(req, res).catch((err: unknown) => {
@@ -447,6 +457,10 @@ export async function createStudioServer(opts: StudioServerOptions): Promise<Stu
       return sendJSON(res, 200, { changed: current !== proposed, diff: diffLines(current, proposed) });
     }
 
+    if (req.method === "GET" && path === "/api/staleness") {
+      return sendJSON(res, 200, await computeStaleness(paths.root));
+    }
+
     // --- jobs ------------------------------------------------------------
     if (req.method === "GET" && path === "/api/jobs") {
       return sendJSON(res, 200, queue.list());
@@ -455,6 +469,7 @@ export async function createStudioServer(opts: StudioServerOptions): Promise<Stu
       const body = (await readBody(req)) as { op?: unknown; args?: unknown };
       if (typeof body.op !== "string") return sendJSON(res, 400, { error: "op is required" });
       const args = Array.isArray(body.args) ? body.args.map(String) : [];
+      lastStudioJobAt = Date.now();
       try {
         return sendJSON(res, 201, queue.enqueue(body.op, args));
       } catch (err) {
