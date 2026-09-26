@@ -286,7 +286,11 @@ class VidedApp extends LitElement {
   }
 
   selectTimelineItem(it) {
-    this.selection = { kind: "timelineItem", id: it.id, item: it };
+    const raw = this.rawItem(it.id);
+    const clip = (this.clips || []).find((c) => c.id === raw.use);
+    this.selection = clip
+      ? { kind: "clip", id: clip.id, clip, timelineItem: it }
+      : { kind: "timelineItem", id: it.id, item: it };
   }
   rawItem(id) {
     const tracks = this.edl?.edl?.tracks || {};
@@ -547,7 +551,7 @@ class VidedApp extends LitElement {
     if (!r.ok) { this.runhint = j.error || "clip edit failed"; return; }
     this.proposal = { artifact: "clips.yaml", yaml: j.yaml, diff: j.diff };
   }
-  renderClipDetail(c) {
+  renderClipDetail(c, item = null) {
     const asset = (this.manifest?.assets || []).find((a) => a.path === c.source);
     const meta = (this.context?.assets && (this.context.assets[c.source] || (asset && this.context.assets[asset.id]))) || {};
     const rows = [
@@ -583,6 +587,28 @@ class VidedApp extends LitElement {
         <div class="info-grid">
           ${c.source === "generated" ? "" : html`<div class="preview">${preview}</div>`}
           <div class="clip-side">
+            ${item
+              ? html`<div class="block">
+                  <div class="muted" style="font-size:11px;text-transform:uppercase;letter-spacing:.05em">Placement · ${item.id}</div>
+                  <div class="row">
+                    ${item.kind === "audio"
+                      ? html`<div><label>offset (s)</label><input id="p_offset" type="number" step="0.1" value=${this.rawItem(item.id).offset ?? 0} /></div>
+                             <div><label>gain (dB)</label><input id="p_gain" type="number" step="1" value=${this.rawItem(item.id).gain_db ?? c.gain_db ?? 0} /></div>`
+                      : html`<div><label>speed</label><input id="p_speed" type="number" step="0.1" value=${this.rawItem(item.id).speed ?? 1} /></div>`}
+                  </div>
+                  <div class="actions">
+                    <button class="sm secondary" title="move earlier" @click=${() => this.proposeEdl([{ op: "reorder", id: item.id, delta: -1 }])}>◀</button>
+                    <button class="sm secondary" title="move later" @click=${() => this.proposeEdl([{ op: "reorder", id: item.id, delta: 1 }])}>▶</button>
+                    <button class="sm secondary" @click=${() => this.proposeEdl([{ op: "remove", id: item.id }])}>remove from timeline</button>
+                    <button class="primary" @click=${() => {
+                      const q = (id) => Number(this.renderRoot.getElementById(id).value);
+                      this.proposeEdl([item.kind === "audio"
+                        ? { op: "set", id: item.id, patch: { offset: q("p_offset"), gain_db: q("p_gain") } }
+                        : { op: "set", id: item.id, patch: { speed: q("p_speed") } }]);
+                    }}>Review change</button>
+                  </div>
+                </div>`
+              : ""}
             ${c.kind === "video"
               ? html`<div class="form">
                   <div class="row">
@@ -843,7 +869,7 @@ class VidedApp extends LitElement {
     const sel = this.selection;
     if (this.proposal) return this.renderProposal();
     if (sel.kind === "history") return this.renderHistory();
-    if (sel.kind === "clip") return this.renderClipDetail(sel.clip);
+    if (sel.kind === "clip") return this.renderClipDetail(sel.clip, sel.timelineItem);
     if (sel.kind === "timelineItem") return this.renderTimelineItem(sel.item);
     if (sel.kind !== "asset") {
       return html`<div class="empty">
@@ -1094,7 +1120,7 @@ class VidedApp extends LitElement {
           </div>
           <div class="tl-lane">
             ${items.map((it) => html`
-              <div class="tl-item ${it.kind} ${this.selection.kind === "timelineItem" && this.selection.id === it.id ? "active" : ""}"
+              <div class="tl-item ${it.kind} ${(this.selection.kind === "timelineItem" && this.selection.id === it.id) || (this.selection.timelineItem && this.selection.timelineItem.id === it.id) ? "active" : ""}"
                 style=${"left:" + (it.start / dur) * 100 + "%;width:" + (it.duration / dur) * 100 + "%"}
                 title=${it.id + " · " + it.kind + " · " + fmtSec(it.start) + "–" + fmtSec(it.end) + (it.source ? " · " + it.source : "")}
                 @click=${(e) => { e.stopPropagation(); this.selectTimelineItem(it); }}>
