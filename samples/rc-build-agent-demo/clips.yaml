@@ -1362,6 +1362,7 @@ clips:
     origin: agent
     kind: audio
     in: 0
+    duration: 71.262
     gain_db: 0
   - id: ch-adapter
     source: generated

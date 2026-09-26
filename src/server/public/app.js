@@ -52,6 +52,7 @@ const SECTIONS = [
   ["analysis", "Analysis"],
   ["context", "Context"],
   ["vision", "Vision"],
+  ["captions", "Captions"],
   ["output", "Output"],
   ["changes", "Changes"],
   ["activity", "Activity"],
@@ -82,6 +83,10 @@ const HELP = {
   vision: {
     title: "Vision",
     body: "Annotate the frames that survived dedupe. Build packet writes a vision packet for the agent; Ingest results merges the descriptions back into the manifest. Per-asset frames and controls live in Details → Frames.",
+  },
+  captions: {
+    title: "Captions",
+    body: "The captions layer of edit.yaml. None = no captions; Soft = muxed mov_text (toggleable); Burn = rendered into the picture. Save proposes the change to edit.yaml (which you then apply). The caption file is usually work/captions.ass from `vided captions`.",
   },
   output: {
     title: "Output",
@@ -449,6 +454,7 @@ class VidedApp extends LitElement {
       case "analysis": return this.renderAnalysis();
       case "context": return this.renderContext();
       case "vision": return this.renderVision();
+      case "captions": return this.renderCaptions();
       case "output": return this.renderOutput();
       case "changes": return this.renderChanges();
       case "activity": return this.renderActivity();
@@ -851,6 +857,41 @@ class VidedApp extends LitElement {
       </div>
       <p class="muted">Describe the selected frames (agent), then ingest the results to merge descriptions into the manifest. Frames are per-asset in the Details → Frames tab.</p>
     `;
+  }
+
+  renderCaptions() {
+    const cap = this.edl?.edl?.captions || {};
+    if (!this.edl?.edl) return html`<p class="muted">No edit.yaml yet.</p>`;
+    const mode = cap.mode || "none";
+    const exps = cap.export || [];
+    return html`
+      <label>Mode</label>
+      <select id="cap_mode">
+        ${["none", "soft", "burn"].map((m) => html`<option value=${m} ?selected=${m === mode}>${m}</option>`)}
+      </select>
+      <label>Caption file (.ass for burn)</label>
+      <input id="cap_file" .value=${cap.file || ""} placeholder="work/captions.ass" />
+      <label>Export on render</label>
+      <div class="row">
+        ${["srt", "vtt", "ass"].map((v) =>
+          html`<label class="inline"><input type="checkbox" id=${"cap_ex_" + v} ?checked=${exps.includes(v)} /> ${v}</label>`)}
+      </div>
+      <div class="actions">
+        <button class="primary" @click=${this.saveCaptions}>Save</button>
+        <span class="muted">${this.runhint}</span>
+      </div>
+      <p class="muted">Save proposes a change to edit.yaml; you then apply it.</p>
+    `;
+  }
+  saveCaptions() {
+    const g = (id) => this.renderRoot.getElementById(id);
+    const file = g("cap_file").value;
+    const patch = {
+      mode: g("cap_mode").value,
+      export: ["srt", "vtt", "ass"].filter((v) => g("cap_ex_" + v).checked),
+      ...(file ? { file } : {}),
+    };
+    this.proposeEdl([{ op: "set-captions", patch }]);
   }
 
   renderContext() {
@@ -1268,6 +1309,17 @@ class VidedApp extends LitElement {
                 ${it.id}
               </div>`)}
           </div>
+          ${this.edl.audio?.items?.length
+            ? html`<div class="tl-lane audio">
+                ${this.edl.audio.items.map((it) => html`
+                  <div class="tl-item audio ${(this.selection.kind === "timelineItem" && this.selection.id === it.id) || (this.selection.timelineItem && this.selection.timelineItem.id === it.id) ? "active" : ""}"
+                    style=${"left:" + (it.start / dur) * 100 + "%;width:" + (it.duration / dur) * 100 + "%"}
+                    title=${it.id + " · audio · " + fmtSec(it.start) + "–" + fmtSec(it.end) + " · " + it.source}
+                    @click=${(e) => { e.stopPropagation(); this.selectTimelineItem({ id: it.id }); }}>
+                    ${it.id}
+                  </div>`)}
+              </div>`
+            : ""}
           <div class="tl-playhead" style=${"left:" + (this.playhead / dur) * 100 + "%"}></div>
         </div>
       </div>
@@ -1346,6 +1398,8 @@ class VidedApp extends LitElement {
     .tl-ruler { position: relative; height: 22px; border-bottom: 1px solid var(--line-soft); }
     .tl-tick { position: absolute; top: 0; height: 22px; border-left: 1px solid var(--line-soft); padding-left: 4px; font: 10px/22px var(--mono); color: var(--muted); white-space: nowrap; }
     .tl-lane { position: relative; height: 52px; margin: 10px 0; background: var(--bg); border-top: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); }
+    .tl-lane.audio { height: 34px; margin-top: 0; }
+    .tl-lane.audio .tl-item { height: 26px; top: 4px; }
     .tl-item { position: absolute; top: 4px; height: 44px; border-radius: 6px; border: 1px solid; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; padding: 4px 6px; font-size: 11px; cursor: pointer; }
     .tl-item.video { background: #1f6feb33; border-color: #4c8dff; }
     .tl-item.image { background: #d2992233; border-color: #e3b341; }

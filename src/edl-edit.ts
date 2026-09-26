@@ -16,7 +16,8 @@ export type EdlOp =
     }
   | { op: "remove"; id: string }
   | { op: "reorder"; id: string; delta: number }
-  | { op: "set"; id: string; patch: Record<string, unknown> };
+  | { op: "set"; id: string; patch: Record<string, unknown> }
+  | { op: "set-captions"; patch: Record<string, unknown> };
 
 export interface EdlEditResult {
   ok: boolean;
@@ -44,6 +45,10 @@ export function applyEdlOps(text: string, ops: EdlOp[]): EdlEditResult {
   };
 
   for (const op of ops) {
+    if (op.op === "set-captions") {
+      for (const [k, v] of Object.entries(op.patch)) doc.setIn(["captions", k], v);
+      continue;
+    }
     switch (op.op) {
       case "add": {
         const track: Track = op.track ?? "visual";

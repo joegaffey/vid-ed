@@ -42,3 +42,10 @@ test("schema-invalid edits are rejected", () => {
   assert.equal(r.ok, false);
   assert.ok(r.issues && r.issues.length > 0);
 });
+
+test("set-captions patches the captions layer", () => {
+  const r = applyEdlOps(EDL, [{ op: "set-captions", patch: { mode: "burn", file: "work/captions.ass" } }]);
+  assert.equal(r.ok, true);
+  assert.ok(r.yaml!.includes("mode: burn"));
+  assert.ok(r.yaml!.includes("work/captions.ass"));
+});

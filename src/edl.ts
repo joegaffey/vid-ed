@@ -142,13 +142,21 @@ export interface ExplainVisual {
   path?: string;
 }
 
+export interface ExplainAudioItem {
+  id: string;
+  source: string;
+  start: number;
+  end: number;
+  duration: number;
+}
+
 export interface ExplainResult {
   schema: string;
   output: Edl["output"];
   duration: number;
   clip_count: number;
   clips: ExplainVisual[];
-  audio: { clips: number; attached: number; end?: number; fits?: boolean };
+  audio: { clips: number; attached: number; end?: number; fits?: boolean; items: ExplainAudioItem[] };
   captions: { mode: string; export: string[] };
   overlays: { total: number; images: number; text: number };
 }
@@ -177,6 +185,7 @@ export function explainEdl(edl: ResolvedEdl, resolve?: Resolve): ExplainResult {
   // Audio-track extent: compare the end of the last audio clip with the video
   // timeline, so a narration longer/shorter than the picture is obvious.
   let audioEnd: number | undefined;
+  const audioItems: ExplainAudioItem[] = [];
   for (const item of edl.audio) {
     const c = item.clip;
     let dur: number | undefined;
@@ -184,7 +193,16 @@ export function explainEdl(edl: ResolvedEdl, resolve?: Resolve): ExplainResult {
       dur = c.out !== undefined ? c.out - (c.in ?? 0) : c.duration;
       if (dur === undefined && resolve) dur = resolve(c.source)?.duration;
     }
-    if (dur !== undefined) audioEnd = Math.max(audioEnd ?? 0, item.offset + dur);
+    if (dur === undefined) continue;
+    const start = item.offset;
+    audioItems.push({
+      id: item.id,
+      source: c.source,
+      start,
+      end: Number((start + dur).toFixed(3)),
+      duration: Number(dur.toFixed(3)),
+    });
+    audioEnd = Math.max(audioEnd ?? 0, start + dur);
   }
   const duration = Number(cursor.toFixed(3));
 
@@ -197,6 +215,7 @@ export function explainEdl(edl: ResolvedEdl, resolve?: Resolve): ExplainResult {
     audio: {
       clips: edl.audio.length,
       attached,
+      items: audioItems,
       ...(audioEnd !== undefined
         ? { end: Number(audioEnd.toFixed(3)), fits: audioEnd <= duration + 1e-6 }
         : {}),
