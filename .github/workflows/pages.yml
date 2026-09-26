@@ -28,6 +28,8 @@ jobs:
       - run: npm run build:studio
       - run: npm run build:studio-demo
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist/studio-demo
