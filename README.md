@@ -179,6 +179,9 @@ The agent then scanned the media, sampled/deduped and described frames,
 captured the gist page with the browser, wrote `edit.yaml` + `narration.yaml`,
 and ran `tts` → `captions` → `render`.
 
+Published result: **<https://www.youtube.com/watch?v=6v21-kAtpUo>** — *"RC
+Controller Build: 3D Case, Arduino Firmware, and Track Test"* (74s).
+
 ## Adding context
 
 Narration quality improves a lot with a little context. The intended way to
