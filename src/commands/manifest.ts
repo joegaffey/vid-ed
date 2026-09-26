@@ -1,5 +1,5 @@
-import { writeFile } from "node:fs/promises";
-import { isAbsolute, join } from "node:path";
+import { mkdir, writeFile } from "node:fs/promises";
+import { dirname, isAbsolute, join } from "node:path";
 import { loadConfig, projectPaths } from "../config.js";
 import { readAllAssets, refreshManifest } from "../manifest.js";
 import { loadBrief, loadAssetNotes, loadContextInput, buildContextPack } from "../context.js";
@@ -45,6 +45,7 @@ export async function cmdManifest(opts: ManifestOptions): Promise<void> {
       ? opts.contextPack
       : join(paths.root, opts.contextPack);
     const jsonPath = mdPath.replace(/\.md$/, "") + ".json";
+    await mkdir(dirname(mdPath), { recursive: true });
     await writeFile(mdPath, pack.markdown, "utf8");
     await writeFile(jsonPath, JSON.stringify(pack.json, null, 2) + "\n", "utf8");
     result.context_pack = {

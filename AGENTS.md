@@ -86,6 +86,10 @@ vided render edit.yaml
 vided render --clip <id>        # preview one clip at its own format (cached)
 ```
 
+`vided scan` uses the project's configured input roots, so bare `vided scan`
+works after `init`. Clips added or changed **after** the context pack was built
+don't appear in it until you re-run `vided manifest --context-pack …`.
+
 Minimal `clips.yaml` + `edit.yaml`. A clip is defined **only** in `clips.yaml`;
 `edit.yaml` references it by `use:` (every `tracks.visual[]` item needs `id`).
 `clips --add` takes a **single** clip object (JSON), not an array. Generated
