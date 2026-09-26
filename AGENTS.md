@@ -199,6 +199,8 @@ editable (`--add/--set/--rm`). Every clip has a `kind` (`video`/`image`/`audio`/
 The edit schema is `vided.edl/3`: `tracks.visual` and `tracks.audio` reference
 clips by `use:`, so trimming a clip in `clips.yaml` affects everywhere it is
 used. `vided render --clip <id>` previews one clip at its own format (cached).
+Derived video clips inherit `tags`/`note` from the selected frames inside their
+range, so each clip carries the context of the frames it was built from.
 
 Clip formats (canonical list in `src/schemas/clips.ts`; pick a `format` name
 from this set): `1080p30`, `1080p60`, `720p30`, `vertical1080p30`,

@@ -54,6 +54,8 @@ export interface ContextClip {
   in?: number;
   out?: number;
   duration?: number;
+  tags?: string[];
+  note?: string;
 }
 
 export interface ContextAsset {
@@ -185,6 +187,8 @@ export function buildContextJson(
       kind: c.kind,
       ...(c.kind === "video" || c.kind === "audio" ? { in: c.in, out: c.out } : {}),
       ...(c.kind === "image" || c.kind === "title" || c.kind === "slide" ? { duration: c.duration } : {}),
+      ...(c.tags && c.tags.length ? { tags: c.tags } : {}),
+      ...(c.note ? { note: c.note } : {}),
     });
     clipsBySource.set(c.source, list);
   }
@@ -222,7 +226,9 @@ function renderAssetBlock(a: ContextAsset, share: number): string {
     lines.push("clips:");
     for (const c of a.clips) {
       const range = c.out !== undefined ? `${c.in ?? 0}-${c.out}` : c.duration !== undefined ? `${c.duration}s` : "";
-      lines.push(`  - ${c.id} [${c.kind}${range ? " " + range : ""}]`);
+      const tags = c.tags?.length ? ` [${c.tags.join(",")}]` : "";
+      const note = c.note ? ` "${c.note}"` : "";
+      lines.push(`  - ${c.id} [${c.kind}${range ? " " + range : ""}]${tags}${note}`);
     }
   }
 

@@ -166,6 +166,12 @@ export function deriveClips(
       }
       kept.sort((a, b) => a.in - b.in);
       for (const c of kept) {
+        // Carry the context of the captured frames inside this range.
+        const inside = asset.visual.frames.filter(
+          (f) => f.selected && f.t >= c.in && f.t <= c.out,
+        );
+        const descs = inside.map((f) => f.description).filter((d): d is string => Boolean(d));
+        const tags = [...new Set(inside.flatMap((f) => f.tags ?? []))];
         clips.push({
           id: uniqueId(clipId(c.source, c.in, c.out)),
           kind: "video",
@@ -174,6 +180,8 @@ export function deriveClips(
           in: c.in,
           out: c.out,
           speed: 1,
+          ...(tags.length ? { tags } : {}),
+          ...(descs.length ? { note: descs.join(" ").slice(0, 240) } : {}),
           ...(c.poster !== undefined ? { poster: c.poster } : {}),
           origin: "derived",
         });
