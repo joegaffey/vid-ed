@@ -14,6 +14,7 @@ import { loadContextInput, saveContextInput } from "../context.js";
 import { readManifest, makeSourceResolver } from "../manifest.js";
 import { clipsById, loadClips } from "../clips.js";
 import { CLIPS_FILE } from "../clips.js";
+import { KNOWN_FORMATS } from "../schemas/clips.js";
 import { explainEdl, loadEdlFile, resolveEdl } from "../edl.js";
 import { applyEdlOps, type EdlOp } from "../edl-edit.js";
 import { applyClipOps, type ClipOp } from "../clips-edit.js";
@@ -295,7 +296,7 @@ export async function createStudioServer(opts: StudioServerOptions): Promise<Stu
     // --- clips -----------------------------------------------------------
     if (req.method === "GET" && path === "/api/clips") {
       const clips = await loadClips(paths);
-      return sendJSON(res, 200, { file: CLIPS_FILE, clips: clips?.clips ?? [] });
+      return sendJSON(res, 200, { file: CLIPS_FILE, clips: clips?.clips ?? [], formats: Object.keys(KNOWN_FORMATS) });
     }
 
     if (req.method === "POST" && path === "/api/clips/edit") {

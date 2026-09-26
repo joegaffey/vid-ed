@@ -142,6 +142,7 @@ class VidedApp extends LitElement {
     status: { state: true },
     manifest: { state: true },
     clips: { state: true },
+    clipFormats: { state: true },
     context: { state: true },
     contextPack: { state: true },
     outputs: { state: true },
@@ -172,6 +173,7 @@ class VidedApp extends LitElement {
     this.status = null;
     this.manifest = null;
     this.clips = [];
+    this.clipFormats = [];
     this.context = null;
     this.contextPack = null;
     this.outputs = [];
@@ -244,7 +246,11 @@ class VidedApp extends LitElement {
     try { this.manifest = await api.get("/api/manifest"); } catch { this.manifest = null; }
   }
   async loadClips() {
-    try { this.clips = (await api.get("/api/clips")).clips || []; } catch { this.clips = []; }
+    try {
+      const r = await api.get("/api/clips");
+      this.clips = r.clips || [];
+      this.clipFormats = r.formats || [];
+    } catch { this.clips = []; }
   }
   async loadContext() {
     try { this.context = await api.get("/api/context"); } catch { this.context = null; }
@@ -556,11 +562,12 @@ class VidedApp extends LitElement {
     const meta = (this.context?.assets && (this.context.assets[c.source] || (asset && this.context.assets[asset.id]))) || {};
     const fields = [];
     const f = (k, v) => fields.push({ k, v });
-    const edit = (k, id, type, value, step) => fields.push({ k, edit: { id, type, value, step } });
+    const edit = (k, id, type, value, step, options) => fields.push({ k, edit: { id, type, value, step, options } });
 
     f("Kind", c.kind);
     f("Source", c.source);
-    f("Format", c.format);
+    const formats = this.clipFormats?.length ? this.clipFormats : [c.format];
+    edit("Format", "f_format", "select", c.format, undefined, formats);
     f("Origin", c.origin);
     if (c.kind === "video") {
       edit("In (s)", "f_in", "number", c.in, 0.1);
@@ -593,7 +600,7 @@ class VidedApp extends LitElement {
     const readClipPatch = () => {
       const g = (id) => this.renderRoot.getElementById(id);
       const noteEl = g("f_note");
-      const base = noteEl ? { note: noteEl.value } : {};
+      const base = { format: g("f_format").value, ...(noteEl ? { note: noteEl.value } : {}) };
       if (c.kind === "video") {
         return { ...base, in: Number(g("f_in").value), out: Number(g("f_out").value), muted: g("f_muted").checked };
       }
@@ -650,7 +657,11 @@ class VidedApp extends LitElement {
                     ? html`<input id=${x.edit.id} type="checkbox" ?checked=${x.edit.value} />`
                     : x.edit.type === "textarea"
                       ? html`<textarea id=${x.edit.id} rows="3">${x.edit.value}</textarea>`
-                      : html`<input id=${x.edit.id} type=${x.edit.type} step=${x.edit.step ?? "any"} value=${x.edit.value} />`
+                      : x.edit.type === "select"
+                        ? html`<select id=${x.edit.id}>
+                            ${(x.edit.options || []).map((o) => html`<option value=${o} ?selected=${o === x.edit.value}>${o}</option>`)}
+                          </select>`
+                        : html`<input id=${x.edit.id} type=${x.edit.type} step=${x.edit.step ?? "any"} value=${x.edit.value} />`
                   : x.v}</div>`)}
             </div>
             <div class="actions">
@@ -1304,6 +1315,7 @@ class VidedApp extends LitElement {
     .fields .fk { color: var(--muted); }
     .fields .fv { word-break: break-word; }
     .fields input[type="number"], .fields input[type="text"] { width: 130px; }
+    .fields select { width: 140px; }
     .fields input[type="checkbox"] { width: auto; }
     .fields textarea { width: 100%; resize: vertical; }
     .kv .k { color: var(--muted); }
