@@ -415,7 +415,7 @@ export async function createStudioServer(opts: StudioServerOptions): Promise<Stu
     }
 
     // --- outputs ---------------------------------------------------------
-    if (req.method === "GET" && path === "/api/outputs") {
+    if (req.method === "GET" && (path === "/api/renders" || path === "/api/outputs")) {
       if (!existsSync(outDir)) return sendJSON(res, 200, []);
       const files = await readdir(outDir);
       const list = await Promise.all(
@@ -450,7 +450,7 @@ export async function createStudioServer(opts: StudioServerOptions): Promise<Stu
       return;
     }
 
-    if (req.method === "GET" && path === "/api/history") {
+    if (req.method === "GET" && (path === "/api/changes" || path === "/api/history")) {
       const out = [];
       for (const artifact of TRACKED_ARTIFACTS) {
         const latest = await history.latest(artifact);

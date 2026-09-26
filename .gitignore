@@ -14,3 +14,7 @@ out/
 *.webm
 *.gif
 *.wav
+
+# ...except the committed static-demo media
+!samples/rc-build-agent-demo/media/
+!samples/rc-build-agent-demo/media/**

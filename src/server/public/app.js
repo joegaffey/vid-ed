@@ -1,6 +1,19 @@
 import { LitElement, html, css } from "lit";
 import { base } from "./styles.js";
 
+// Host config (index.html): { "mode": "static" } for the read-only GH Pages demo.
+const CONFIG = (() => {
+  try {
+    return JSON.parse(document.getElementById("vided-config")?.textContent || "{}");
+  } catch {
+    return {};
+  }
+})();
+const DEMO = CONFIG.mode === "static";
+
+const readOnly = () =>
+  Promise.resolve(new Response(JSON.stringify({ error: "read-only demo" }), { status: 403 }));
+
 const api = {
   get: async (url) => {
     const r = await fetch(url);
@@ -8,9 +21,13 @@ const api = {
     return r.json();
   },
   post: (url, body) =>
-    fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) }),
+    DEMO
+      ? readOnly()
+      : fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) }),
   put: (url, body) =>
-    fetch(url, { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify(body) }),
+    DEMO
+      ? readOnly()
+      : fetch(url, { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify(body) }),
 };
 
 const fmtDur = (s) => {
@@ -204,13 +221,15 @@ class VidedApp extends LitElement {
     this._es = null;
   }
 
+  demoBlocked() { this.runhint = "read-only demo"; }
   connectedCallback() {
     super.connectedCallback();
     this.style.setProperty("--rail", this._rail + "px");
     this.style.setProperty("--timeline", this._timeline + "px");
     this.refresh();
     this._timer = setInterval(() => this.loadJobs(), 5000);
-    this._events = new EventSource("/api/events");
+    if (DEMO) return;
+    this._events = new EventSource("api/events");
     this._events.onmessage = (ev) => {
       let e;
       try { e = JSON.parse(ev.data); } catch { return; }
@@ -242,14 +261,14 @@ class VidedApp extends LitElement {
   }
 
   async loadStatus() {
-    try { this.status = await api.get("/api/status"); } catch { this.status = null; }
+    try { this.status = await api.get("api/status"); } catch { this.status = null; }
   }
   async loadManifest() {
-    try { this.manifest = await api.get("/api/manifest"); } catch { this.manifest = null; }
+    try { this.manifest = await api.get("api/manifest"); } catch { this.manifest = null; }
   }
   async loadClips() {
     try {
-      const r = await api.get("/api/clips");
+      const r = await api.get("api/clips");
       this.clips = r.clips || [];
       this.clipFormats = r.formats || [];
       this.clipsError = null;
@@ -259,40 +278,41 @@ class VidedApp extends LitElement {
     }
   }
   async loadContext() {
-    try { this.context = await api.get("/api/context"); } catch { this.context = null; }
+    try { this.context = await api.get("api/context"); } catch { this.context = null; }
   }
   async loadContextPack() {
-    try { this.contextPack = await api.get("/api/context-pack"); } catch { this.contextPack = null; }
+    try { this.contextPack = await api.get("api/context-pack"); } catch { this.contextPack = null; }
   }
   async loadOutputs() {
-    try { this.outputs = await api.get("/api/outputs"); } catch { this.outputs = []; }
+    try { this.outputs = await api.get("api/renders"); } catch { this.outputs = []; }
   }
   async loadJobs() {
-    try { this.jobs = await api.get("/api/jobs"); } catch { /* ignore */ }
+    try { this.jobs = await api.get("api/jobs"); } catch { /* ignore */ }
   }
   async loadEdl() {
-    try { this.edl = await api.get("/api/edl"); } catch { this.edl = { empty: true }; }
+    try { this.edl = await api.get("api/edl"); } catch { this.edl = { empty: true }; }
   }
 
   async loadHistory() {
-    try { this.changes = await api.get("/api/history"); } catch { this.changes = []; }
+    try { this.changes = await api.get("api/changes"); } catch { this.changes = []; }
   }
   async loadStaleness() {
-    try { this.staleNodes = await api.get("/api/staleness"); } catch { this.staleNodes = []; }
+    try { this.staleNodes = await api.get("api/staleness"); } catch { this.staleNodes = []; }
   }
   async openHistory(artifact) {
     try {
-      const h = await api.get("/api/history/" + encodeURIComponent(artifact));
+      const h = await api.get("api/history/" + encodeURIComponent(artifact));
       this.selection = { kind: "history", id: artifact, artifact, versions: h.versions };
       this.diffText = null;
     } catch { /* ignore */ }
   }
   async diffVersion(artifact, hash) {
-    const r = await api.post("/api/diff", { artifact, hash });
+    const r = await api.post("api/diff", { artifact, hash });
     if (r.ok) { const j = await r.json(); this.diffText = j.diff; }
   }
   async revertVersion(artifact, hash) {
-    await api.post("/api/revert", { artifact, hash });
+    if (DEMO) return this.demoBlocked();
+    await api.post("api/revert", { artifact, hash });
     await this.openHistory(artifact);
     this.refresh();
   }
@@ -309,14 +329,16 @@ class VidedApp extends LitElement {
     return [...(tracks.visual || []), ...(tracks.audio || [])].find((t) => t.id === id) || {};
   }
   async proposeEdl(ops) {
-    const r = await api.post("/api/edl/edit", { ops });
+    if (DEMO) return this.demoBlocked();
+    const r = await api.post("api/edl/edit", { ops });
     const j = await r.json().catch(() => ({}));
     if (!r.ok) { this.runhint = j.error || "edit failed"; return; }
     this.proposal = { artifact: "edit.yaml", yaml: j.yaml, diff: j.diff };
   }
   async applyProposal() {
+    if (DEMO) return this.demoBlocked();
     if (!this.proposal) return;
-    const r = await api.post("/api/apply", { artifact: this.proposal.artifact, content: this.proposal.yaml, label: "studio edit" });
+    const r = await api.post("api/apply", { artifact: this.proposal.artifact, content: this.proposal.yaml, label: "studio edit" });
     this.proposal = null;
     this.runhint = r.ok ? "applied" : "apply failed";
     this.refresh();
@@ -344,28 +366,30 @@ class VidedApp extends LitElement {
     if (a.kind === "text") this.loadText(a.id);
   }
   async loadFrames(id) {
-    try { this.frames = await api.get("/api/assets/" + id + "/frames"); } catch { this.frames = { frames: [] }; }
+    try { this.frames = await api.get("api/assets/" + id + "/frames"); } catch { this.frames = { frames: [] }; }
   }
   async loadText(id) {
-    try { this.textContent = await (await fetch("/api/media/" + id)).text(); } catch { this.textContent = "(unavailable)"; }
+    try { this.textContent = await (await fetch("api/media/" + id)).text(); } catch { this.textContent = "(unavailable)"; }
   }
 
   async runStage(op, args = []) {
+    if (DEMO) return this.demoBlocked();
     this.runhint = "queued…";
-    const r = await api.post("/api/jobs", { op, args });
+    const r = await api.post("api/jobs", { op, args });
     if (!r.ok) { this.runhint = "failed"; return; }
     const job = await r.json();
     await this.loadJobs();
     this.streamJob(job.id);
   }
   streamJob(id) {
+    if (DEMO) return;
     if (this._es) this._es.close();
     this.open = "activity";
     localStorage.setItem("vided.open", this.open);
     this.logJob = id;
     this.log = "";
     this.runhint = "running " + id + "…";
-    const es = new EventSource("/api/jobs/" + id + "/events");
+    const es = new EventSource("api/jobs/" + id + "/events");
     this._es = es;
     const onData = (ev) => {
       const job = JSON.parse(ev.data);
@@ -479,7 +503,7 @@ class VidedApp extends LitElement {
     const q = this.search.toLowerCase();
     const shown = assets.filter((a) => !q || a.path.toLowerCase().includes(q));
     return html`
-      <div class="uploader">
+      ${DEMO ? "" : html`<div class="uploader">
         <div class="row">
           <label class="filebtn">
             <input type="file" multiple @change=${this.onUpload} />
@@ -492,7 +516,7 @@ class VidedApp extends LitElement {
             @input=${(e) => (this._url = e.target.value)} />
           <button class="sm" @click=${this.downloadUrl}>get</button>
         </div>
-      </div>
+      </div>`}
       <input placeholder="search…" .value=${this.search} @input=${(e) => (this.search = e.target.value)} />
       ${assets.length === 0
         ? html`<p class="muted">No media yet — upload and run scan.</p>`
@@ -562,7 +586,8 @@ class VidedApp extends LitElement {
     this.proposeEdl([{ op: "add", track: c.kind === "audio" ? "audio" : "visual", use: c.id }]);
   }
   async proposeClipEdit(ops) {
-    const r = await api.post("/api/clips/edit", { ops });
+    if (DEMO) return this.demoBlocked();
+    const r = await api.post("api/clips/edit", { ops });
     const j = await r.json().catch(() => ({}));
     if (!r.ok) { this.runhint = j.error || "clip edit failed"; return; }
     this.proposal = { artifact: "clips.yaml", yaml: j.yaml, diff: j.diff };
@@ -630,7 +655,7 @@ class VidedApp extends LitElement {
       return { ...base, duration: Number(g("f_duration").value) };
     };
 
-    const src = "/api/clips/preview?id=" + encodeURIComponent(c.id);
+    const src = "api/clips/preview?id=" + encodeURIComponent(c.id);
     const preview = c.kind === "audio"
       ? html`<audio controls preload="metadata" src=${src}></audio>`
       : html`<video controls preload="metadata" src=${src}></video>`;
@@ -644,7 +669,9 @@ class VidedApp extends LitElement {
       </div>
       <div class="detail-body">
         <div class="info-grid">
-          ${c.source === "generated" ? "" : html`<div class="preview">${preview}</div>`}
+          ${DEMO
+            ? (c.source === "generated" ? "" : html`<div class="preview"><div class="muted" style="padding:16px">Clip previews aren't included in the read-only demo.</div></div>`)
+            : (c.source === "generated" ? "" : html`<div class="preview">${preview}</div>`)}
           <div class="clip-side">
             ${item
               ? html`<div class="block">
@@ -693,6 +720,7 @@ class VidedApp extends LitElement {
   }
 
   async onUpload(e) {
+    if (DEMO) return this.demoBlocked();
     const files = e.target.files;
     if (!files || !files.length) return;
     this.fileNames = files.length === 1 ? files[0].name : files.length + " files";
@@ -700,7 +728,7 @@ class VidedApp extends LitElement {
     for (const f of files) {
       i++;
       this.runhint = `uploading ${i}/${files.length}…`;
-      await fetch("/api/uploads?name=" + encodeURIComponent(f.name) + "&scan=" + (i === files.length ? "1" : "0"), {
+      await fetch("api/uploads?name=" + encodeURIComponent(f.name) + "&scan=" + (i === files.length ? "1" : "0"), {
         method: "POST",
         body: f,
       });
@@ -709,8 +737,9 @@ class VidedApp extends LitElement {
     this.refresh();
   }
   async downloadUrl() {
+    if (DEMO) return this.demoBlocked();
     if (!this._url) return;
-    const r = await api.post("/api/uploads/url", { url: this._url });
+    const r = await api.post("api/uploads/url", { url: this._url });
     if (!r.ok) { this.runhint = "download failed"; return; }
     const job = await r.json();
     await this.loadJobs();
@@ -762,6 +791,7 @@ class VidedApp extends LitElement {
       <input id=${id} type=${p.type === "number" ? "number" : "text"} step=${p.step ?? "any"} value=${p.def ?? ""} />`;
   }
   runAnalysis() {
+    if (DEMO) return this.demoBlocked();
     const op = this.analysisOp;
     const args = [];
     for (const p of STAGE_PARAMS[op] || []) {
@@ -820,6 +850,7 @@ class VidedApp extends LitElement {
     `;
   }
   async saveContext() {
+    if (DEMO) return this.demoBlocked();
     const q = (id) => this.renderRoot.getElementById(id);
     const pronunciation = {};
     for (const line of q("cx_pron").value.split("\n")) {
@@ -837,7 +868,7 @@ class VidedApp extends LitElement {
       language: q("cx_lang").value || undefined,
       pronunciation,
     };
-    const r = await api.put("/api/context", body);
+    const r = await api.put("api/context", body);
     this.runhint = r.ok ? "context saved" : "context save failed";
     await this.loadContext();
   }
@@ -900,7 +931,7 @@ class VidedApp extends LitElement {
     if (!this.outputs.length) return html`<p class="muted">No renders yet.</p>`;
     return html`<table><tbody>
       ${this.outputs.map((f) => html`<tr>
-        <td><a href=${"/api/outputs/" + encodeURIComponent(f.name)} target="_blank">${f.name}</a></td>
+        <td><a href=${"api/outputs/" + encodeURIComponent(f.name)} target="_blank">${f.name}</a></td>
         <td class="muted">${fmtBytes(f.bytes)}</td>
       </tr>`)}
     </tbody></table>`;
@@ -966,8 +997,9 @@ class VidedApp extends LitElement {
   }
 
   renderPreview(a) {
-    if (a.kind === "video" || a.kind === "audio") return html`<video controls preload="metadata" src=${"/api/media/" + a.id}></video>`;
-    if (a.kind === "image") return html`<img src=${"/api/media/" + a.id} alt=${a.path} />`;
+    if (DEMO) return html`<div class="muted" style="padding:16px">Source media isn't included in the read-only demo.</div>`;
+    if (a.kind === "video" || a.kind === "audio") return html`<video controls preload="metadata" src=${"api/media/" + a.id}></video>`;
+    if (a.kind === "image") return html`<img src=${"api/media/" + a.id} alt=${a.path} />`;
     return html`<div class="muted" style="padding:16px">No preview for ${a.kind}.</div>`;
   }
 
@@ -1076,6 +1108,7 @@ class VidedApp extends LitElement {
     `;
   }
   async saveNotes(a) {
+    if (DEMO) return this.demoBlocked();
     const q = (id) => this.renderRoot.getElementById(id);
     const body = {
       title: q("n_title").value || undefined,
@@ -1083,12 +1116,13 @@ class VidedApp extends LitElement {
       tags: q("n_tags").value.split(",").map((s) => s.trim()).filter(Boolean),
       notes: q("n_notes").value || undefined,
     };
-    const r = await api.put("/api/context/assets/" + encodeURIComponent(a.id), body);
+    const r = await api.put("api/context/assets/" + encodeURIComponent(a.id), body);
     this.runhint = r.ok ? "saved" : "save failed";
     await this.loadContext();
   }
 
   async runAssetStage(a, op, extraArgs) {
+    if (DEMO) return this.demoBlocked();
     await this.runStage(op, ["--assets", a.id, ...extraArgs]);
     this.loadJobs();
   }
@@ -1238,6 +1272,9 @@ class VidedApp extends LitElement {
             ⚠️ <b>${this.stale}</b> changed on disk (agent) ·
             <button class="sm" @click=${() => { this.stale = null; this.refresh(); }}>reload</button>
           </div>`
+        : ""}
+      ${DEMO
+        ? html`<div class="banner">🎬 Read-only demo — this is a static snapshot; editing, uploads and rendering are disabled.</div>`
         : ""}
     `;
   }

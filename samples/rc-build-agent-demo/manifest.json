@@ -1,0 +1,2964 @@
+{
+  "schema": "vided.manifest/1",
+  "project": "agent-demo",
+  "created_at": "2026-09-26T17:07:39.828Z",
+  "input_roots": [
+    "input"
+  ],
+  "config_hash": "sha256:6a4b60ff8f85efccb44df23fdb9f72c0218666447d6b817e1331089aa518dcf2",
+  "assets": [
+    {
+      "schema": "vided.asset/1",
+      "id": "5a7aeccdc483",
+      "path": "input/case-design.mp4",
+      "kind": "video",
+      "content_hash": "sha256:5a7aeccdc483f15cdd922100161e819c809bee0e79597d2b084fd3d11b1cdbf0",
+      "bytes": 64891498,
+      "mtime": "2026-09-26T17:05:27.306Z",
+      "status": "annotated",
+      "technical": {
+        "duration_s": 467.332,
+        "container": "mov,mp4,m4a,3gp,3g2,mj2",
+        "format_long_name": "QuickTime / MOV",
+        "size_bytes": 64891498,
+        "video": {
+          "index": 0,
+          "codec": "h264",
+          "profile": "High",
+          "width": 1920,
+          "height": 1080,
+          "fps": 25,
+          "bitrate": 1103578
+        },
+        "audio": {
+          "index": 1,
+          "codec": "aac",
+          "bitrate": 2272,
+          "sample_rate": 48000,
+          "channels": 2
+        }
+      },
+      "extracted": {
+        "transcript": null,
+        "ocr": null,
+        "sidecar": null
+      },
+      "visual": {
+        "scenes": [
+          {
+            "id": "s0",
+            "start": 0,
+            "end": 95.72
+          },
+          {
+            "id": "s1",
+            "start": 95.72,
+            "end": 216.56
+          },
+          {
+            "id": "s2",
+            "start": 216.56,
+            "end": 216.84
+          },
+          {
+            "id": "s3",
+            "start": 216.84,
+            "end": 217.04
+          },
+          {
+            "id": "s4",
+            "start": 217.04,
+            "end": 218.6
+          },
+          {
+            "id": "s5",
+            "start": 218.6,
+            "end": 218.8
+          },
+          {
+            "id": "s6",
+            "start": 218.8,
+            "end": 221.72
+          },
+          {
+            "id": "s7",
+            "start": 221.72,
+            "end": 226.2
+          },
+          {
+            "id": "s8",
+            "start": 226.2,
+            "end": 248.84
+          },
+          {
+            "id": "s9",
+            "start": 248.84,
+            "end": 249.56
+          },
+          {
+            "id": "s10",
+            "start": 249.56,
+            "end": 325.76
+          },
+          {
+            "id": "s11",
+            "start": 325.76,
+            "end": 326
+          },
+          {
+            "id": "s12",
+            "start": 326,
+            "end": 326.16
+          },
+          {
+            "id": "s13",
+            "start": 326.16,
+            "end": 326.28
+          },
+          {
+            "id": "s14",
+            "start": 326.28,
+            "end": 326.32
+          },
+          {
+            "id": "s15",
+            "start": 326.32,
+            "end": 326.56
+          },
+          {
+            "id": "s16",
+            "start": 326.56,
+            "end": 327.24
+          },
+          {
+            "id": "s17",
+            "start": 327.24,
+            "end": 330.44
+          },
+          {
+            "id": "s18",
+            "start": 330.44,
+            "end": 330.6
+          },
+          {
+            "id": "s19",
+            "start": 330.6,
+            "end": 330.92
+          },
+          {
+            "id": "s20",
+            "start": 330.92,
+            "end": 331.48
+          },
+          {
+            "id": "s21",
+            "start": 331.48,
+            "end": 331.56
+          },
+          {
+            "id": "s22",
+            "start": 331.56,
+            "end": 332.16
+          },
+          {
+            "id": "s23",
+            "start": 332.16,
+            "end": 379.36
+          },
+          {
+            "id": "s24",
+            "start": 379.36,
+            "end": 379.52
+          },
+          {
+            "id": "s25",
+            "start": 379.52,
+            "end": 448.08
+          },
+          {
+            "id": "s26",
+            "start": 448.08,
+            "end": 448.2
+          },
+          {
+            "id": "s27",
+            "start": 448.2,
+            "end": 467.332
+          }
+        ],
+        "frames": [
+          {
+            "t": 0,
+            "path": ".vided/frames/5a7aeccdc483/u_00001.jpg",
+            "phash": "b0e0e5e1b1e5e1e0",
+            "dhash": "e0104c0e4d4d9000",
+            "scene": "s0",
+            "selected": true,
+            "description": "The 3table editor opens on a dark grid viewport with its File menu showing Import and Export options.",
+            "tags": [
+              "3table",
+              "editor-ui",
+              "file-menu",
+              "intro"
+            ]
+          },
+          {
+            "t": 2,
+            "path": ".vided/frames/5a7aeccdc483/u_00002.jpg",
+            "phash": "b0e0e5e1b1e4e5e0",
+            "dhash": "e000100e0d118000",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 4,
+            "path": ".vided/frames/5a7aeccdc483/u_00003.jpg",
+            "phash": "a1f0e1e1a1f5e1e0",
+            "dhash": "e000448e2b511400",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 6,
+            "path": ".vided/frames/5a7aeccdc483/u_00004.jpg",
+            "phash": "e1e1e1e1e13c1c1e",
+            "dhash": "6868048e2b512200",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 8,
+            "path": ".vided/frames/5a7aeccdc483/u_00005.jpg",
+            "phash": "e1e1e1e1a41e1e1e",
+            "dhash": "6868040e33410000",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 10,
+            "path": ".vided/frames/5a7aeccdc483/u_00006.jpg",
+            "phash": "e1e1e1e1b03c1e1e",
+            "dhash": "6868140e0f510000",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 12,
+            "path": ".vided/frames/5a7aeccdc483/u_00007.jpg",
+            "phash": "b1e0e7e1b01c1e1e",
+            "dhash": "68600c0e0d4d3000",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 14,
+            "path": ".vided/frames/5a7aeccdc483/u_00008.jpg",
+            "phash": "e3e1e1e1b01c1e1e",
+            "dhash": "6868040e2b518800",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 16,
+            "path": ".vided/frames/5a7aeccdc483/u_00009.jpg",
+            "phash": "b1e0e5e5b31a4c4c",
+            "dhash": "68600c4d4d0d9008",
+            "scene": "s0",
+            "selected": true,
+            "description": "An 'Add Part' dialog lists part types such as Basic shapes and Extruded Profile over the empty 3table grid.",
+            "tags": [
+              "3table",
+              "editor-ui",
+              "add-part",
+              "modelling"
+            ]
+          },
+          {
+            "t": 18,
+            "path": ".vided/frames/5a7aeccdc483/u_00010.jpg",
+            "phash": "e1e1e1e1381e1e1e",
+            "dhash": "6868040e2b518000",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 20,
+            "path": ".vided/frames/5a7aeccdc483/u_00011.jpg",
+            "phash": "e1e1e1e1381e1e1e",
+            "dhash": "6868048e2b510000",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 22,
+            "path": ".vided/frames/5a7aeccdc483/u_00012.jpg",
+            "phash": "e5e2cbd934244e1a",
+            "dhash": "686c16464e310284",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 24,
+            "path": ".vided/frames/5a7aeccdc483/u_00013.jpg",
+            "phash": "e1e0cbd3342c4e1e",
+            "dhash": "6a6c12464e320c84",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 26,
+            "path": ".vided/frames/5a7aeccdc483/u_00014.jpg",
+            "phash": "f1e0c3f3302c4e1e",
+            "dhash": "686c13464e320884",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 28,
+            "path": ".vided/frames/5a7aeccdc483/u_00015.jpg",
+            "phash": "f3e3c3d932260e18",
+            "dhash": "686806464c300884",
+            "scene": "s0",
+            "selected": true,
+            "description": "A semi-transparent red case shell and a green circuit board sit side by side on the 3table grid.",
+            "tags": [
+              "3table",
+              "cad",
+              "case-shell",
+              "pcb",
+              "modelling"
+            ]
+          },
+          {
+            "t": 30,
+            "path": ".vided/frames/5a7aeccdc483/u_00016.jpg",
+            "phash": "a7e2c8d937261e18",
+            "dhash": "6a680626c6110484",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 32,
+            "path": ".vided/frames/5a7aeccdc483/u_00017.jpg",
+            "phash": "b5e2cad935264e18",
+            "dhash": "6a682606de310494",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 34,
+            "path": ".vided/frames/5a7aeccdc483/u_00018.jpg",
+            "phash": "f1e0e3c93c34661c",
+            "dhash": "686827069e210884",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 36,
+            "path": ".vided/frames/5a7aeccdc483/u_00019.jpg",
+            "phash": "f1e1e5e5381a0e1c",
+            "dhash": "68680f0d4c302021",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 38,
+            "path": ".vided/frames/5a7aeccdc483/u_00020.jpg",
+            "phash": "e9e0e7e3181c143e",
+            "dhash": "68690219196601a6",
+            "scene": "s0",
+            "selected": true,
+            "description": "The red case body, a white cube and the green PCB are laid out in the 3D viewport.",
+            "tags": [
+              "3table",
+              "cad",
+              "case",
+              "pcb"
+            ]
+          },
+          {
+            "t": 40,
+            "path": ".vided/frames/5a7aeccdc483/u_00021.jpg",
+            "phash": "f3e1e1e3321c0c36",
+            "dhash": "6a6e9b8d64304a09",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 42,
+            "path": ".vided/frames/5a7aeccdc483/u_00022.jpg",
+            "phash": "e1e0d3d3283c345e",
+            "dhash": "6a69021309604180",
+            "scene": "s0",
+            "selected": true,
+            "description": "The red case shell and green PCB lie flat on the grid with a white placeholder cube to the right.",
+            "tags": [
+              "3table",
+              "cad",
+              "case",
+              "pcb"
+            ]
+          },
+          {
+            "t": 44,
+            "path": ".vided/frames/5a7aeccdc483/u_00023.jpg",
+            "phash": "e5e0d2d32d2c165a",
+            "dhash": "6269031309604180",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 46,
+            "path": ".vided/frames/5a7aeccdc483/u_00024.jpg",
+            "phash": "e5e0d2d32d2c345a",
+            "dhash": "6269031349000100",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 48,
+            "path": ".vided/frames/5a7aeccdc483/u_00025.jpg",
+            "phash": "b3e2c8c93d36264c",
+            "dhash": "6e682606d82012a4",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 50,
+            "path": ".vided/frames/5a7aeccdc483/u_00026.jpg",
+            "phash": "b3e2c8c93d36264c",
+            "dhash": "6e682606d82212a4",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 52,
+            "path": ".vided/frames/5a7aeccdc483/u_00027.jpg",
+            "phash": "b3e2c8c93d36264c",
+            "dhash": "66682606d82212a4",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 54,
+            "path": ".vided/frames/5a7aeccdc483/u_00028.jpg",
+            "phash": "a5e2cac93d362658",
+            "dhash": "66682687dc615aa4",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 56,
+            "path": ".vided/frames/5a7aeccdc483/u_00029.jpg",
+            "phash": "b1e2cac93d362658",
+            "dhash": "666866461cb306a4",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 58,
+            "path": ".vided/frames/5a7aeccdc483/u_00030.jpg",
+            "phash": "87e2e0f19f0e0c78",
+            "dhash": "686c191d84600862",
+            "scene": "s0",
+            "selected": true,
+            "description": "A green case lid and the green PCB rest on a red base plate as the model takes shape.",
+            "tags": [
+              "3table",
+              "cad",
+              "case-lid",
+              "pcb",
+              "assembly"
+            ]
+          },
+          {
+            "t": 60,
+            "path": ".vided/frames/5a7aeccdc483/u_00031.jpg",
+            "phash": "87e2e0f19f0e4c38",
+            "dhash": "686c191f86600862",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 62,
+            "path": ".vided/frames/5a7aeccdc483/u_00032.jpg",
+            "phash": "87e2e0f19f0e0c78",
+            "dhash": "686c191f86400862",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 64,
+            "path": ".vided/frames/5a7aeccdc483/u_00033.jpg",
+            "phash": "b1e0e7e5381c1c1e",
+            "dhash": "68600d4d4c4c30a4",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 66,
+            "path": ".vided/frames/5a7aeccdc483/u_00034.jpg",
+            "phash": "b3e2e4cd18323e1c",
+            "dhash": "6c682d4d484960d0",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 68,
+            "path": ".vided/frames/5a7aeccdc483/u_00035.jpg",
+            "phash": "b3e2e4cd18323e1c",
+            "dhash": "6c68ad4d48496090",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 70,
+            "path": ".vided/frames/5a7aeccdc483/u_00036.jpg",
+            "phash": "b3e2e5cc18323e1c",
+            "dhash": "6c68ad4d489910c0",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 72,
+            "path": ".vided/frames/5a7aeccdc483/u_00037.jpg",
+            "phash": "b1e2e5cc32361e1c",
+            "dhash": "6c682d4dc89818d2",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 74,
+            "path": ".vided/frames/5a7aeccdc483/u_00038.jpg",
+            "phash": "b1f2e6cc18361e1c",
+            "dhash": "686c0d0d881820d2",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 76,
+            "path": ".vided/frames/5a7aeccdc483/u_00039.jpg",
+            "phash": "b1e2e7c918361e1c",
+            "dhash": "686a2d4d484860d2",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 78,
+            "path": ".vided/frames/5a7aeccdc483/u_00040.jpg",
+            "phash": "b1e0cee63a1c1c36",
+            "dhash": "686e4e4ea6261824",
+            "scene": "s0",
+            "selected": true,
+            "description": "An exploded view shows the green case, PCB and a red panel separated above the base.",
+            "tags": [
+              "3table",
+              "cad",
+              "exploded-view",
+              "assembly"
+            ]
+          },
+          {
+            "t": 80,
+            "path": ".vided/frames/5a7aeccdc483/u_00041.jpg",
+            "phash": "b3e2e5cd181a1e1c",
+            "dhash": "6c642d4d4c4da009",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 82,
+            "path": ".vided/frames/5a7aeccdc483/u_00042.jpg",
+            "phash": "b1e0c9e7361c1c1e",
+            "dhash": "68684e4646663844",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 84,
+            "path": ".vided/frames/5a7aeccdc483/u_00043.jpg",
+            "phash": "b1b0c8cb27343e1e",
+            "dhash": "6a68464647204641",
+            "scene": "s0",
+            "selected": true,
+            "description": "The case is shown in side profile: a grey body with a green lid seated on a grey base plate.",
+            "tags": [
+              "3table",
+              "cad",
+              "case",
+              "side-view"
+            ]
+          },
+          {
+            "t": 86,
+            "path": ".vided/frames/5a7aeccdc483/u_00044.jpg",
+            "phash": "b3f0c8c936361e1c",
+            "dhash": "6a68c64646488414",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 88,
+            "path": ".vided/frames/5a7aeccdc483/u_00045.jpg",
+            "phash": "b3f0ccce1a1c1c36",
+            "dhash": "68664e4ee64c1449",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 90,
+            "path": ".vided/frames/5a7aeccdc483/u_00046.jpg",
+            "phash": "b3f0ccce1a1c1c36",
+            "dhash": "68664e4ee64c1449",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 92,
+            "path": ".vided/frames/5a7aeccdc483/u_00047.jpg",
+            "phash": "b3f0c8c23e1c1c3e",
+            "dhash": "686e4e4e466c1449",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 94,
+            "path": ".vided/frames/5a7aeccdc483/u_00048.jpg",
+            "phash": "b5e6e2d81e2e0c1a",
+            "dhash": "66679f869c9a2408",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 95.72,
+            "path": ".vided/frames/5a7aeccdc483/scene_00001.jpg",
+            "phash": "b1e4cbb24a1c363c",
+            "dhash": "686656464e4e4e10",
+            "scene": "s1",
+            "selected": true,
+            "description": "A front view of the assembled enclosure, a green base and lid between two grey side walls.",
+            "tags": [
+              "3table",
+              "cad",
+              "case",
+              "assembled"
+            ]
+          },
+          {
+            "t": 98,
+            "path": ".vided/frames/5a7aeccdc483/u_00050.jpg",
+            "phash": "9bcae2631e1c1c3c",
+            "dhash": "ec7d9d9d9d409811",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 100,
+            "path": ".vided/frames/5a7aeccdc483/u_00051.jpg",
+            "phash": "b1f0e6e61e1c181e",
+            "dhash": "6c6c4d4d4c4d3200",
+            "scene": "s1",
+            "selected": true,
+            "description": "Looking into the open case, the green PCB and components sit between the grey walls.",
+            "tags": [
+              "3table",
+              "cad",
+              "case-interior",
+              "pcb"
+            ]
+          },
+          {
+            "t": 102,
+            "path": ".vided/frames/5a7aeccdc483/u_00052.jpg",
+            "phash": "b3f2e6cc0e1e181c",
+            "dhash": "67674e9c9d5a5824",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 104,
+            "path": ".vided/frames/5a7aeccdc483/u_00053.jpg",
+            "phash": "b3f2e2cc0e1e181e",
+            "dhash": "676e4e9d9c894820",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 106,
+            "path": ".vided/frames/5a7aeccdc483/u_00054.jpg",
+            "phash": "b3f2e2cc0e1e181e",
+            "dhash": "676e4e9d9c594822",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 108,
+            "path": ".vided/frames/5a7aeccdc483/u_00055.jpg",
+            "phash": "b3f2e2cc0e1e181e",
+            "dhash": "676e4e9d9c184822",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 110,
+            "path": ".vided/frames/5a7aeccdc483/u_00056.jpg",
+            "phash": "99f2e6cc0e1e181e",
+            "dhash": "6e6d4d8d9c4d4d35",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 112,
+            "path": ".vided/frames/5a7aeccdc483/u_00057.jpg",
+            "phash": "b1f0e6e61a1e1c1c",
+            "dhash": "686c4d4d4c4c3200",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 114,
+            "path": ".vided/frames/5a7aeccdc483/u_00058.jpg",
+            "phash": "b1f0e6e61a1e1c1c",
+            "dhash": "686c4d4d4c4c3200",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 116,
+            "path": ".vided/frames/5a7aeccdc483/u_00059.jpg",
+            "phash": "b1f0e6e61a1e1c1c",
+            "dhash": "686c4d4d4c4c3200",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 118,
+            "path": ".vided/frames/5a7aeccdc483/u_00060.jpg",
+            "phash": "99f2e6cc0c1e183e",
+            "dhash": "6e6d4d8d9c4d4c20",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 120,
+            "path": ".vided/frames/5a7aeccdc483/u_00061.jpg",
+            "phash": "b1f0e6661a1e1e1c",
+            "dhash": "686c4d0d4c4c3000",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 122,
+            "path": ".vided/frames/5a7aeccdc483/u_00062.jpg",
+            "phash": "99f2e6641c1e1e1c",
+            "dhash": "686d9d9d8c5a2410",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 124,
+            "path": ".vided/frames/5a7aeccdc483/u_00063.jpg",
+            "phash": "99f2e6601c1e3e1c",
+            "dhash": "686d9d9d9c5a2420",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 126,
+            "path": ".vided/frames/5a7aeccdc483/u_00064.jpg",
+            "phash": "99f0e6661c1e1e1c",
+            "dhash": "606ccd8dcc482442",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 128,
+            "path": ".vided/frames/5a7aeccdc483/u_00065.jpg",
+            "phash": "99f0e6e40e0e1e1e",
+            "dhash": "e05c8d0d8c4ca148",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 130,
+            "path": ".vided/frames/5a7aeccdc483/u_00066.jpg",
+            "phash": "99f0e6e40e0e1e1e",
+            "dhash": "e0dc8d0d8c4ca148",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 132,
+            "path": ".vided/frames/5a7aeccdc483/u_00067.jpg",
+            "phash": "99f0e6e6180e1e1e",
+            "dhash": "e05c8d0d8c4ca148",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 134,
+            "path": ".vided/frames/5a7aeccdc483/u_00068.jpg",
+            "phash": "99f0e6e6180e1e1e",
+            "dhash": "e05c8d0d8c4ca44a",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 136,
+            "path": ".vided/frames/5a7aeccdc483/u_00069.jpg",
+            "phash": "99f0e6e41a0e1e1e",
+            "dhash": "e05c8d0d8c48a44a",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 138,
+            "path": ".vided/frames/5a7aeccdc483/u_00070.jpg",
+            "phash": "99f0e6e41a0e1e1e",
+            "dhash": "e05c8d0d8c4aa44a",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 140,
+            "path": ".vided/frames/5a7aeccdc483/u_00071.jpg",
+            "phash": "99f0e6e41a0e1e1e",
+            "dhash": "e05c8d0d8c4aa44a",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 142,
+            "path": ".vided/frames/5a7aeccdc483/u_00072.jpg",
+            "phash": "99f0e6e41a0e1e1e",
+            "dhash": "e05c8d0d8c4ca44a",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 144,
+            "path": ".vided/frames/5a7aeccdc483/u_00073.jpg",
+            "phash": "99f0e6e41a0e1e1e",
+            "dhash": "e05c8d0d8c5ca44a",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 146,
+            "path": ".vided/frames/5a7aeccdc483/u_00074.jpg",
+            "phash": "99f0e6e6180e1e1e",
+            "dhash": "e05c8d0d8c4ca44a",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 148,
+            "path": ".vided/frames/5a7aeccdc483/u_00075.jpg",
+            "phash": "99f0e6e41a0e1e1e",
+            "dhash": "e05c8d0d8c9ca44a",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 150,
+            "path": ".vided/frames/5a7aeccdc483/u_00076.jpg",
+            "phash": "99f0e6e6180e1e1e",
+            "dhash": "e05c8d0d8c4ea14a",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 152,
+            "path": ".vided/frames/5a7aeccdc483/u_00077.jpg",
+            "phash": "99f0e6e6180e1e1e",
+            "dhash": "e05c8d0d8c4ca44a",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 154,
+            "path": ".vided/frames/5a7aeccdc483/u_00078.jpg",
+            "phash": "99f8e6e61a1a0e1c",
+            "dhash": "e8dd9d0dcc20c002",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 156,
+            "path": ".vided/frames/5a7aeccdc483/u_00079.jpg",
+            "phash": "b1f0e4e61e0e1a1e",
+            "dhash": "e86c4d4d4c4d5024",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 158,
+            "path": ".vided/frames/5a7aeccdc483/u_00080.jpg",
+            "phash": "b1f0e4e61e0e1a1e",
+            "dhash": "e86c4d4d4c4d3044",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 160,
+            "path": ".vided/frames/5a7aeccdc483/u_00081.jpg",
+            "phash": "b1f0e4e61e1e1a0e",
+            "dhash": "e86c4d4d4d4d3044",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 162,
+            "path": ".vided/frames/5a7aeccdc483/u_00082.jpg",
+            "phash": "b1f0e4e61e0e1a1e",
+            "dhash": "e86c4d4d4c4d3044",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 164,
+            "path": ".vided/frames/5a7aeccdc483/u_00083.jpg",
+            "phash": "b1f0e4e61e0e1a1e",
+            "dhash": "e86c4d4d4c4d304a",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 166,
+            "path": ".vided/frames/5a7aeccdc483/u_00084.jpg",
+            "phash": "b1f0e4e61e0e1a1e",
+            "dhash": "e86c4d4d4c4d3044",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 168,
+            "path": ".vided/frames/5a7aeccdc483/u_00085.jpg",
+            "phash": "b1f0e4e61e0e1a1e",
+            "dhash": "e86c4d4d4c4d3044",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 170,
+            "path": ".vided/frames/5a7aeccdc483/u_00086.jpg",
+            "phash": "b1f0e4e61e0e1a1e",
+            "dhash": "e86c4d4d4c4d3044",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 172,
+            "path": ".vided/frames/5a7aeccdc483/u_00087.jpg",
+            "phash": "b1f0e4e61e0e1a1e",
+            "dhash": "e86c4d4d4d4d3044",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 174,
+            "path": ".vided/frames/5a7aeccdc483/u_00088.jpg",
+            "phash": "b1f0e4e61e0e1a1e",
+            "dhash": "e86c4d4d4c4d7044",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 176,
+            "path": ".vided/frames/5a7aeccdc483/u_00089.jpg",
+            "phash": "b1f0e4e41e1e1a1e",
+            "dhash": "e86c4d4d4d4d5044",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 178,
+            "path": ".vided/frames/5a7aeccdc483/u_00090.jpg",
+            "phash": "b1f0e4e61e0e1a1e",
+            "dhash": "e86c4d4d4c4d5044",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 180,
+            "path": ".vided/frames/5a7aeccdc483/u_00091.jpg",
+            "phash": "b1f0e4e61e0e1a1e",
+            "dhash": "e86c4d4d4c4d5044",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 182,
+            "path": ".vided/frames/5a7aeccdc483/u_00092.jpg",
+            "phash": "b1f0e4e61e0e1a1e",
+            "dhash": "e86c4d4d4c4d5044",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 184,
+            "path": ".vided/frames/5a7aeccdc483/u_00093.jpg",
+            "phash": "b1f0e4e61e0e1a1e",
+            "dhash": "e86c4d4d4c4d7044",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 186,
+            "path": ".vided/frames/5a7aeccdc483/u_00094.jpg",
+            "phash": "b1f0e4e61e0e1a1e",
+            "dhash": "e86c4d4d4c4d7044",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 188,
+            "path": ".vided/frames/5a7aeccdc483/u_00095.jpg",
+            "phash": "f1f0e4e61a1a0e4e",
+            "dhash": "e4754d4d4cc00400",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 190,
+            "path": ".vided/frames/5a7aeccdc483/u_00096.jpg",
+            "phash": "f1f0e4e61a1a0e4e",
+            "dhash": "e4754d4d4cc00000",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 192,
+            "path": ".vided/frames/5a7aeccdc483/u_00097.jpg",
+            "phash": "f1f0eccd1a1a0e0e",
+            "dhash": "ea66cc4d4d320800",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 194,
+            "path": ".vided/frames/5a7aeccdc483/u_00098.jpg",
+            "phash": "f1f0eccc1a1a0e4e",
+            "dhash": "ea66cc0d4d320800",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 196,
+            "path": ".vided/frames/5a7aeccdc483/u_00099.jpg",
+            "phash": "f1f0e4661a1a0e6e",
+            "dhash": "e475cd4d4d302400",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 198,
+            "path": ".vided/frames/5a7aeccdc483/u_00100.jpg",
+            "phash": "f1f0e4661a1a0e6e",
+            "dhash": "e475cd4d4d302400",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 200,
+            "path": ".vided/frames/5a7aeccdc483/u_00101.jpg",
+            "phash": "f1f0e4661a1a0e6e",
+            "dhash": "e475cd4d4db00400",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 202,
+            "path": ".vided/frames/5a7aeccdc483/u_00102.jpg",
+            "phash": "f1f0e4461a1e0e5e",
+            "dhash": "e475cd0d4db00400",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 204,
+            "path": ".vided/frames/5a7aeccdc483/u_00103.jpg",
+            "phash": "f1f0e44e0e1e1e1a",
+            "dhash": "e46dcd0d4db02400",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 206,
+            "path": ".vided/frames/5a7aeccdc483/u_00104.jpg",
+            "phash": "f1f0e44e0e1e0e1e",
+            "dhash": "e46dcd0d4db02400",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 208,
+            "path": ".vided/frames/5a7aeccdc483/u_00105.jpg",
+            "phash": "b1f0e44e0e0e4e5e",
+            "dhash": "ec4dcd0d4db02400",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 210,
+            "path": ".vided/frames/5a7aeccdc483/u_00106.jpg",
+            "phash": "f1f0e4460e1e0e6e",
+            "dhash": "ec4dcd0d4da00a40",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 212,
+            "path": ".vided/frames/5a7aeccdc483/u_00107.jpg",
+            "phash": "b9f0e6660e0e4666",
+            "dhash": "ec4dcd0d4d608c80",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 214,
+            "path": ".vided/frames/5a7aeccdc483/u_00108.jpg",
+            "phash": "b1f8ca520e1e2e6c",
+            "dhash": "eccfc34746462d18",
+            "scene": "s1",
+            "selected": true,
+            "description": "The closed grey case box shows small green snap-fit tabs on its top and front faces.",
+            "tags": [
+              "3table",
+              "cad",
+              "case",
+              "snap-fit"
+            ]
+          },
+          {
+            "t": 216,
+            "path": ".vided/frames/5a7aeccdc483/u_00109.jpg",
+            "phash": "abfa5560171a1e0e",
+            "dhash": "f1f18d0d71794100",
+            "scene": "s1",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 216.56,
+            "path": ".vided/frames/5a7aeccdc483/scene_00002.jpg",
+            "phash": "d7d26868680f1e1e",
+            "dhash": "f8f49c34f0f0f0e0",
+            "scene": "s2",
+            "selected": true,
+            "description": "A top-down close-up of the case interior reveals the green PCB module nested inside.",
+            "tags": [
+              "3table",
+              "cad",
+              "case-interior",
+              "pcb"
+            ]
+          },
+          {
+            "t": 218,
+            "path": ".vided/frames/5a7aeccdc483/u_00110.jpg",
+            "phash": "adeaf0340e160f36",
+            "dhash": "d7f3b3939397861e",
+            "scene": "s4",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 218.6,
+            "path": ".vided/frames/5a7aeccdc483/scene_00005.jpg",
+            "phash": "a13a6ada72042ebe",
+            "dhash": "cfc737366c1d3a74",
+            "scene": "s5",
+            "selected": true,
+            "description": "An exploded view separates the grey case base, green PCB and green module.",
+            "tags": [
+              "3table",
+              "cad",
+              "exploded-view",
+              "pcb"
+            ]
+          },
+          {
+            "t": 220,
+            "path": ".vided/frames/5a7aeccdc483/u_00111.jpg",
+            "phash": "b9f0e6620e061f1e",
+            "dhash": "e848dd0dcc4d320c",
+            "scene": "s6",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 221.72,
+            "path": ".vided/frames/5a7aeccdc483/scene_00007.jpg",
+            "phash": "21f8d6265e162d3a",
+            "dhash": "e86bcb4bc3232724",
+            "scene": "s7",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 224,
+            "path": ".vided/frames/5a7aeccdc483/u_00113.jpg",
+            "phash": "b9f0e60c0e0e1e6e",
+            "dhash": "ed6dcd0c9c8d4c70",
+            "scene": "s7",
+            "selected": true,
+            "description": "The case base holds the green PCB with the green lid partially seated.",
+            "tags": [
+              "3table",
+              "cad",
+              "assembly",
+              "pcb"
+            ]
+          },
+          {
+            "t": 226.2,
+            "path": ".vided/frames/5a7aeccdc483/scene_00008.jpg",
+            "phash": "9bc2e2671e0e331a",
+            "dhash": "65fd9d1d9d0c40aa",
+            "scene": "s8",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 228,
+            "path": ".vided/frames/5a7aeccdc483/u_00115.jpg",
+            "phash": "bdf0e2d81e060cdc",
+            "dhash": "e747d68e9d9a3408",
+            "scene": "s8",
+            "selected": true,
+            "description": "A long, empty grey case body is shown open at an angle on the grid.",
+            "tags": [
+              "3table",
+              "cad",
+              "case",
+              "empty"
+            ]
+          },
+          {
+            "t": 230,
+            "path": ".vided/frames/5a7aeccdc483/u_00116.jpg",
+            "phash": "a9f0d4661a4e26b6",
+            "dhash": "d9ced7894723530b",
+            "scene": "s8",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 232,
+            "path": ".vided/frames/5a7aeccdc483/u_00117.jpg",
+            "phash": "b1e0ed364e1a0e5c",
+            "dhash": "e0684d0dcc4d4d5a",
+            "scene": "s8",
+            "selected": true,
+            "description": "Top-down into the case, the green PCB and module are seated in their slots.",
+            "tags": [
+              "3table",
+              "cad",
+              "case-interior",
+              "pcb"
+            ]
+          },
+          {
+            "t": 234,
+            "path": ".vided/frames/5a7aeccdc483/u_00118.jpg",
+            "phash": "b1e0ed1e0e1a0edc",
+            "dhash": "e068cd0d8c4d4d5a",
+            "scene": "s8",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 236,
+            "path": ".vided/frames/5a7aeccdc483/u_00119.jpg",
+            "phash": "b5f8c2720c0f3798",
+            "dhash": "e16cdf978e463609",
+            "scene": "s8",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 238,
+            "path": ".vided/frames/5a7aeccdc483/u_00120.jpg",
+            "phash": "93e46848761e07fa",
+            "dhash": "e47bfd9d6d3d8d4c",
+            "scene": "s8",
+            "selected": true,
+            "description": "An angled view of the grey case base with the green PCB seated inside.",
+            "tags": [
+              "3table",
+              "cad",
+              "case",
+              "pcb"
+            ]
+          },
+          {
+            "t": 240,
+            "path": ".vided/frames/5a7aeccdc483/u_00121.jpg",
+            "phash": "99f0e21c1e661f98",
+            "dhash": "e07cde9f9898201c",
+            "scene": "s8",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 242,
+            "path": ".vided/frames/5a7aeccdc483/u_00122.jpg",
+            "phash": "99f0e06c1e26679c",
+            "dhash": "f86cfd9d9d986102",
+            "scene": "s8",
+            "selected": true,
+            "description": "A cross-section view exposes the red interior and an orange internal partition above the green base.",
+            "tags": [
+              "3table",
+              "cad",
+              "cross-section",
+              "internals"
+            ]
+          },
+          {
+            "t": 244,
+            "path": ".vided/frames/5a7aeccdc483/u_00123.jpg",
+            "phash": "99d8f03c1e0e0f9c",
+            "dhash": "dcfcfd9d9d986002",
+            "scene": "s8",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 246,
+            "path": ".vided/frames/5a7aeccdc483/u_00124.jpg",
+            "phash": "b1f07d92061e0e7c",
+            "dhash": "e46ce83e2f2d04c0",
+            "scene": "s8",
+            "selected": true,
+            "description": "The finished case appears as a plain sealed grey box on the grid.",
+            "tags": [
+              "3table",
+              "cad",
+              "case",
+              "closed"
+            ]
+          },
+          {
+            "t": 248,
+            "path": ".vided/frames/5a7aeccdc483/u_00125.jpg",
+            "phash": "91e5fc101e063e76",
+            "dhash": "cffff6264e2c2c1d",
+            "scene": "s8",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 248.84,
+            "path": ".vided/frames/5a7aeccdc483/scene_00009.jpg",
+            "phash": "a1f8fa500e161ece",
+            "dhash": "e76bf71f56062e3d",
+            "scene": "s9",
+            "selected": true,
+            "description": "A cross-section close-up of the case wall shows the red internal structure.",
+            "tags": [
+              "3table",
+              "cad",
+              "cross-section",
+              "internals"
+            ]
+          },
+          {
+            "t": 249.56,
+            "path": ".vided/frames/5a7aeccdc483/scene_00010.jpg",
+            "phash": "72e1f00e0e0e1ede",
+            "dhash": "ea68e62525252707",
+            "scene": "s10",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 252,
+            "path": ".vided/frames/5a7aeccdc483/u_00127.jpg",
+            "phash": "b3e4cc18161e4db6",
+            "dhash": "e866e6244d4d4c2d",
+            "scene": "s10",
+            "selected": true,
+            "description": "Inside the open case, a green module sits in a red compartment at an angle.",
+            "tags": [
+              "3table",
+              "cad",
+              "case-interior",
+              "pcb"
+            ]
+          },
+          {
+            "t": 254,
+            "path": ".vided/frames/5a7aeccdc483/u_00128.jpg",
+            "phash": "b1f6ed981a16062e",
+            "dhash": "e8e4e64e4d4c48a2",
+            "scene": "s10",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 256,
+            "path": ".vided/frames/5a7aeccdc483/u_00129.jpg",
+            "phash": "b1f6ed981a16062e",
+            "dhash": "e8e4e64e4d4c4824",
+            "scene": "s10",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 258,
+            "path": ".vided/frames/5a7aeccdc483/u_00130.jpg",
+            "phash": "b3edc81a0e160f36",
+            "dhash": "e8e6e625252c4d24",
+            "scene": "s10",
+            "selected": true,
+            "description": "A top-down view of the case interior shows the green PCB next to a red round component.",
+            "tags": [
+              "3table",
+              "cad",
+              "case-interior",
+              "pcb"
+            ]
+          },
+          {
+            "t": 260,
+            "path": ".vided/frames/5a7aeccdc483/u_00131.jpg",
+            "phash": "b3edc81a0e160f36",
+            "dhash": "e8e6e725252c4d24",
+            "scene": "s10",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 262,
+            "path": ".vided/frames/5a7aeccdc483/u_00132.jpg",
+            "phash": "b3edc81a0e160f36",
+            "dhash": "e8e6e724252c4d24",
+            "scene": "s10",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 264,
+            "path": ".vided/frames/5a7aeccdc483/u_00133.jpg",
+            "phash": "b3edc81a0e160f36",
+            "dhash": "e8e6e724252c4d24",
+            "scene": "s10",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 266,
+            "path": ".vided/frames/5a7aeccdc483/u_00134.jpg",
+            "phash": "b3edc81a0e160f36",
+            "dhash": "e8e6e724252d4d24",
+            "scene": "s10",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 268,
+            "path": ".vided/frames/5a7aeccdc483/u_00135.jpg",
+            "phash": "b3edc81a0e160f36",
+            "dhash": "e8e6e724252d4d24",
+            "scene": "s10",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 270,
+            "path": ".vided/frames/5a7aeccdc483/u_00136.jpg",
+            "phash": "b3edc81a0e160f36",
+            "dhash": "e8e6e724252d4d24",
+            "scene": "s10",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 272,
+            "path": ".vided/frames/5a7aeccdc483/u_00137.jpg",
+            "phash": "f3ecc81a0e160f36",
+            "dhash": "e8e6e725252d4d24",
+            "scene": "s10",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 274,
+            "path": ".vided/frames/5a7aeccdc483/u_00138.jpg",
+            "phash": "b9f0e4481e071dba",
+            "dhash": "e8e4ce8e8d58a408",
+            "scene": "s10",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 276,
+            "path": ".vided/frames/5a7aeccdc483/u_00139.jpg",
+            "phash": "b1f4ec1806160fbe",
+            "dhash": "e8e4e6264d4c4c2c",
+            "scene": "s10",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 278,
+            "path": ".vided/frames/5a7aeccdc483/u_00140.jpg",
+            "phash": "b1f4ec1806160fbe",
+            "dhash": "e8e4e6264d4c4c2c",
+            "scene": "s10",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 280,
+            "path": ".vided/frames/5a7aeccdc483/u_00141.jpg",
+            "phash": "b1e4ec1806160ffe",
+            "dhash": "e8e4e6264d4c4c2c",
+            "scene": "s10",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 282,
+            "path": ".vided/frames/5a7aeccdc483/u_00142.jpg",
+            "phash": "b5e0cc1c121e5ade",
+            "dhash": "f3e3e706469e968e",
+            "scene": "s10",
+            "selected": true,
+            "description": "The case interior holds the green PCB and module alongside grey threaded mounting posts.",
+            "tags": [
+              "3table",
+              "cad",
+              "case-interior",
+              "mounting-posts"
+            ]
+          },
+          {
+            "t": 284,
+            "path": ".vided/frames/5a7aeccdc483/u_00143.jpg",
+            "phash": "b5f4c84c160e5ada",
+            "dhash": "e6e6e707478f934f",
+            "scene": "s10",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 286,
+            "path": ".vided/frames/5a7aeccdc483/u_00144.jpg",
+            "phash": "f7f9c80c0e0e49e4",
+            "dhash": "e7e7e62626262626",
+            "scene": "s10",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 288,
+            "path": ".vided/frames/5a7aeccdc483/u_00145.jpg",
+            "phash": "b1e4c81a160e6fb6",
+            "dhash": "e8e6e6264c8d8d4a",
+            "scene": "s10",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 290,
+            "path": ".vided/frames/5a7aeccdc483/u_00146.jpg",
+            "phash": "b5f0c91e360e43cc",
+            "dhash": "e4eae6460e1c98b4",
+            "scene": "s10",
+            "selected": true,
+            "description": "Green PCBs and grey threaded inserts sit inside the open case with a red component.",
+            "tags": [
+              "3table",
+              "cad",
+              "case-interior",
+              "pcb"
+            ]
+          },
+          {
+            "t": 292,
+            "path": ".vided/frames/5a7aeccdc483/u_00147.jpg",
+            "phash": "b9e0cc1a320e66ee",
+            "dhash": "e8ecf64e4c9d9899",
+            "scene": "s10",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 294,
+            "path": ".vided/frames/5a7aeccdc483/u_00148.jpg",
+            "phash": "b1e0cc1a320e66fe",
+            "dhash": "e8ece60e4c9d9899",
+            "scene": "s10",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 296,
+            "path": ".vided/frames/5a7aeccdc483/u_00149.jpg",
+            "phash": "b1e0cc1a260e6fba",
+            "dhash": "ececf6264e9d9a9a",
+            "scene": "s10",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 298,
+            "path": ".vided/frames/5a7aeccdc483/u_00150.jpg",
+            "phash": "b1e4cc18061e2fbe",
+            "dhash": "e8e6e6264c4d4d4d",
+            "scene": "s10",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 300,
+            "path": ".vided/frames/5a7aeccdc483/u_00151.jpg",
+            "phash": "b1e4cc18061e6fb6",
+            "dhash": "e8e6e6264d4d4d4d",
+            "scene": "s10",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 302,
+            "path": ".vided/frames/5a7aeccdc483/u_00152.jpg",
+            "phash": "b5f0c90e360c63ce",
+            "dhash": "e4e8e6060e1c9ab6",
+            "scene": "s10",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 304,
+            "path": ".vided/frames/5a7aeccdc483/u_00153.jpg",
+            "phash": "b5f0e88e060f3a72",
+            "dhash": "e8e4c6060e1cb065",
+            "scene": "s10",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 306,
+            "path": ".vided/frames/5a7aeccdc483/u_00154.jpg",
+            "phash": "b3e4c818061e6fb6",
+            "dhash": "e8e6e626244d4d4d",
+            "scene": "s10",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 308,
+            "path": ".vided/frames/5a7aeccdc483/u_00155.jpg",
+            "phash": "b3e8f23e02181f8e",
+            "dhash": "eef3f80e169e4c2d",
+            "scene": "s10",
+            "selected": true,
+            "description": "An angled view shows green PCB sections, grey posts and a red part inside the case.",
+            "tags": [
+              "3table",
+              "cad",
+              "case-interior",
+              "pcb"
+            ]
+          },
+          {
+            "t": 310,
+            "path": ".vided/frames/5a7aeccdc483/u_00156.jpg",
+            "phash": "b3e8f23e02181f8e",
+            "dhash": "eef3f80e169e4c2d",
+            "scene": "s10",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 312,
+            "path": ".vided/frames/5a7aeccdc483/u_00157.jpg",
+            "phash": "b0fcc8961e0207fe",
+            "dhash": "eef3e34f8f267d19",
+            "scene": "s10",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 314,
+            "path": ".vided/frames/5a7aeccdc483/u_00158.jpg",
+            "phash": "b5f0cb1e260e079c",
+            "dhash": "e6e9f2468f1e1cb2",
+            "scene": "s10",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 316,
+            "path": ".vided/frames/5a7aeccdc483/u_00159.jpg",
+            "phash": "b5f0cb1e260e07d8",
+            "dhash": "e6e9f2468f1e1cb2",
+            "scene": "s10",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 318,
+            "path": ".vided/frames/5a7aeccdc483/u_00160.jpg",
+            "phash": "b1edd8120e0e2db6",
+            "dhash": "ecf6f22626264d4d",
+            "scene": "s10",
+            "selected": true,
+            "description": "Top-down into the case, a green PCB and a red divider separate the internal compartments.",
+            "tags": [
+              "3table",
+              "cad",
+              "case-interior",
+              "pcb"
+            ]
+          },
+          {
+            "t": 320,
+            "path": ".vided/frames/5a7aeccdc483/u_00161.jpg",
+            "phash": "b1e0c81a360e2ffc",
+            "dhash": "ece6f6264e9d9d5a",
+            "scene": "s10",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 322,
+            "path": ".vided/frames/5a7aeccdc483/u_00162.jpg",
+            "phash": "b5f0f906060e36ce",
+            "dhash": "e6eae6062e3e3cc1",
+            "scene": "s10",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 324,
+            "path": ".vided/frames/5a7aeccdc483/u_00163.jpg",
+            "phash": "b5f0f906060e36ce",
+            "dhash": "e6eae6062e3e3cc1",
+            "scene": "s10",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 325.76,
+            "path": ".vided/frames/5a7aeccdc483/scene_00011.jpg",
+            "phash": "f8f0e6f010c64f38",
+            "dhash": "f8ffc10b48c83f0b",
+            "scene": "s11",
+            "selected": true,
+            "description": "A close-up of the interior shows green panel dividers and grey posts.",
+            "tags": [
+              "3table",
+              "cad",
+              "case-interior",
+              "detail"
+            ]
+          },
+          {
+            "t": 326.28,
+            "path": ".vided/frames/5a7aeccdc483/scene_00014.jpg",
+            "phash": "f8f8ea508a069774",
+            "dhash": "e1e1e320c01001fd",
+            "scene": "s14",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 327.24,
+            "path": ".vided/frames/5a7aeccdc483/scene_00017.jpg",
+            "phash": "edf8a894161e0b3c",
+            "dhash": "def3d918d61b36b3",
+            "scene": "s17",
+            "selected": true,
+            "description": "Macro detail of a green PCB component next to a grey cylindrical post.",
+            "tags": [
+              "3table",
+              "cad",
+              "pcb",
+              "detail"
+            ]
+          },
+          {
+            "t": 328,
+            "path": ".vided/frames/5a7aeccdc483/u_00165.jpg",
+            "phash": "e3f5f20c160e164e",
+            "dhash": "b7f4f439f4322165",
+            "scene": "s17",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 330.44,
+            "path": ".vided/frames/5a7aeccdc483/scene_00018.jpg",
+            "phash": "bf6d97240a1a0736",
+            "dhash": "cfe6f619b367c68d",
+            "scene": "s18",
+            "selected": true,
+            "description": "Grey cylindrical posts stand between green PCB sections inside the case.",
+            "tags": [
+              "3table",
+              "cad",
+              "case-interior",
+              "mounting-posts"
+            ]
+          },
+          {
+            "t": 331.48,
+            "path": ".vided/frames/5a7aeccdc483/scene_00021.jpg",
+            "phash": "70f1f42c0a0f0efa",
+            "dhash": "eae8e4082912c1e9",
+            "scene": "s21",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 332.16,
+            "path": ".vided/frames/5a7aeccdc483/scene_00023.jpg",
+            "phash": "ad78f61a160c2a3e",
+            "dhash": "c3e6d393bd793336",
+            "scene": "s23",
+            "selected": true,
+            "description": "A close-up shows a green PCB and module with grey mounting posts between them.",
+            "tags": [
+              "3table",
+              "cad",
+              "pcb",
+              "detail"
+            ]
+          },
+          {
+            "t": 334,
+            "path": ".vided/frames/5a7aeccdc483/u_00168.jpg",
+            "phash": "b9e0d896161277c6",
+            "dhash": "e9f3e387979e9d9a",
+            "scene": "s23",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 336,
+            "path": ".vided/frames/5a7aeccdc483/u_00169.jpg",
+            "phash": "b9e0d896161277c6",
+            "dhash": "e9f3e387979e9d9a",
+            "scene": "s23",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 338,
+            "path": ".vided/frames/5a7aeccdc483/u_00170.jpg",
+            "phash": "b1f4ec181a121ede",
+            "dhash": "f6f6e6264d4d4c20",
+            "scene": "s23",
+            "selected": true,
+            "description": "The open case is viewed top-down with green PCBs and mounting posts fitted.",
+            "tags": [
+              "3table",
+              "cad",
+              "case-interior",
+              "pcb"
+            ]
+          },
+          {
+            "t": 340,
+            "path": ".vided/frames/5a7aeccdc483/u_00171.jpg",
+            "phash": "b1f4ec181a124ede",
+            "dhash": "f6e6e60c4c4d4c20",
+            "scene": "s23",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 342,
+            "path": ".vided/frames/5a7aeccdc483/u_00172.jpg",
+            "phash": "b1f4ec181a129ade",
+            "dhash": "f6f6e6264d4d4c20",
+            "scene": "s23",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 344,
+            "path": ".vided/frames/5a7aeccdc483/u_00173.jpg",
+            "phash": "f1f4ec181e121ada",
+            "dhash": "f6e6e6064d4d4c20",
+            "scene": "s23",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 346,
+            "path": ".vided/frames/5a7aeccdc483/u_00174.jpg",
+            "phash": "f1f4ec18021e1eda",
+            "dhash": "f6e6e6664d4d8c20",
+            "scene": "s23",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 348,
+            "path": ".vided/frames/5a7aeccdc483/u_00175.jpg",
+            "phash": "f1f4ec181e121ada",
+            "dhash": "f6e6e6064d4d4c20",
+            "scene": "s23",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 350,
+            "path": ".vided/frames/5a7aeccdc483/u_00176.jpg",
+            "phash": "f1f4ec181e121ada",
+            "dhash": "f6e6e6064d4d4c20",
+            "scene": "s23",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 352,
+            "path": ".vided/frames/5a7aeccdc483/u_00177.jpg",
+            "phash": "f1f4ec181e121ada",
+            "dhash": "f6e6e6064d4d4c20",
+            "scene": "s23",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 354,
+            "path": ".vided/frames/5a7aeccdc483/u_00178.jpg",
+            "phash": "b1f4ec181e121ade",
+            "dhash": "f6e6e6264d4d4c20",
+            "scene": "s23",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 356,
+            "path": ".vided/frames/5a7aeccdc483/u_00179.jpg",
+            "phash": "b9e0c89a160e2fe6",
+            "dhash": "ecf2e347969d9a62",
+            "scene": "s23",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 358,
+            "path": ".vided/frames/5a7aeccdc483/u_00180.jpg",
+            "phash": "b5f8e0340e069bdc",
+            "dhash": "ecf3dd0e8f462689",
+            "scene": "s23",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 360,
+            "path": ".vided/frames/5a7aeccdc483/u_00181.jpg",
+            "phash": "b5f8e0341e069adc",
+            "dhash": "ecf3dd8e8e463609",
+            "scene": "s23",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 362,
+            "path": ".vided/frames/5a7aeccdc483/u_00182.jpg",
+            "phash": "b1f8e2320e161bec",
+            "dhash": "ecdadd8e464ea504",
+            "scene": "s23",
+            "selected": true,
+            "description": "A long red rod runs through the green PCB sections inside the open case.",
+            "tags": [
+              "3table",
+              "cad",
+              "case-interior",
+              "components"
+            ]
+          },
+          {
+            "t": 364,
+            "path": ".vided/frames/5a7aeccdc483/u_00183.jpg",
+            "phash": "b1f0e89a161a33e6",
+            "dhash": "ecf2e7869e4d5a24",
+            "scene": "s23",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 366,
+            "path": ".vided/frames/5a7aeccdc483/u_00184.jpg",
+            "phash": "b5f8e1241e0e19ec",
+            "dhash": "efe5d91e87c72209",
+            "scene": "s23",
+            "selected": true,
+            "description": "The case interior shows two green PCB sections divided by a central rib.",
+            "tags": [
+              "3table",
+              "cad",
+              "case-interior",
+              "pcb"
+            ]
+          },
+          {
+            "t": 368,
+            "path": ".vided/frames/5a7aeccdc483/u_00185.jpg",
+            "phash": "b1f9d84c0e0c17b6",
+            "dhash": "dbcdce2726164802",
+            "scene": "s23",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 370,
+            "path": ".vided/frames/5a7aeccdc483/u_00186.jpg",
+            "phash": "b9f8dc26061616ea",
+            "dhash": "cfcbcd45a323120c",
+            "scene": "s23",
+            "selected": true,
+            "description": "An angled view into the case shows green PCB strips slotted between grey walls and posts.",
+            "tags": [
+              "3table",
+              "cad",
+              "case-interior",
+              "pcb"
+            ]
+          },
+          {
+            "t": 372,
+            "path": ".vided/frames/5a7aeccdc483/u_00187.jpg",
+            "phash": "73f9f8060e0e1732",
+            "dhash": "cccde40506262327",
+            "scene": "s23",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 374,
+            "path": ".vided/frames/5a7aeccdc483/u_00188.jpg",
+            "phash": "b1f8d4261e162cd6",
+            "dhash": "cecfc3252523268d",
+            "scene": "s23",
+            "selected": true,
+            "description": "Green PCBs are seated in slots inside the grey case with threaded posts.",
+            "tags": [
+              "3table",
+              "cad",
+              "case-interior",
+              "pcb"
+            ]
+          },
+          {
+            "t": 376,
+            "path": ".vided/frames/5a7aeccdc483/u_00189.jpg",
+            "phash": "f0f9700e0e061efc",
+            "dhash": "e9e9e80818202222",
+            "scene": "s23",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 378,
+            "path": ".vided/frames/5a7aeccdc483/u_00190.jpg",
+            "phash": "70f9f1060e0f0f6c",
+            "dhash": "e0e9e80703a12222",
+            "scene": "s23",
+            "selected": true,
+            "description": "A corner close-up of the case shows a green panel and a grey post.",
+            "tags": [
+              "3table",
+              "cad",
+              "case-interior",
+              "detail"
+            ]
+          },
+          {
+            "t": 379.36,
+            "path": ".vided/frames/5a7aeccdc483/scene_00024.jpg",
+            "phash": "f0f8706a0e0d173e",
+            "dhash": "e0eece3fd765e6e6",
+            "scene": "s24",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 380,
+            "path": ".vided/frames/5a7aeccdc483/u_00191.jpg",
+            "phash": "f1f1ef100e0e05da",
+            "dhash": "e0e8e60b4c462323",
+            "scene": "s25",
+            "selected": true,
+            "description": "The open case interior holds two green PCB strips along its length.",
+            "tags": [
+              "3table",
+              "cad",
+              "case-interior",
+              "pcb"
+            ]
+          },
+          {
+            "t": 382,
+            "path": ".vided/frames/5a7aeccdc483/u_00192.jpg",
+            "phash": "f1f1ef100e0607da",
+            "dhash": "e0e8e60b4c472723",
+            "scene": "s25",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 384,
+            "path": ".vided/frames/5a7aeccdc483/u_00193.jpg",
+            "phash": "f1edf2180e0647b8",
+            "dhash": "e0e8e00a4f4d4d4e",
+            "scene": "s25",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 386,
+            "path": ".vided/frames/5a7aeccdc483/u_00194.jpg",
+            "phash": "f1edf2180e0647b8",
+            "dhash": "e0e8e00a4f4d4d4e",
+            "scene": "s25",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 388,
+            "path": ".vided/frames/5a7aeccdc483/u_00195.jpg",
+            "phash": "f1edf2180e0647b8",
+            "dhash": "e0e8e00a4f4d4d4e",
+            "scene": "s25",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 390,
+            "path": ".vided/frames/5a7aeccdc483/u_00196.jpg",
+            "phash": "f1edf2180e0647b8",
+            "dhash": "e0e8e00a4f4d4d4e",
+            "scene": "s25",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 392,
+            "path": ".vided/frames/5a7aeccdc483/u_00197.jpg",
+            "phash": "f1edf6180e064798",
+            "dhash": "e0e8e00a4f4d4d4e",
+            "scene": "s25",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 394,
+            "path": ".vided/frames/5a7aeccdc483/u_00198.jpg",
+            "phash": "b8e1e6180e0e2ff8",
+            "dhash": "e0e8e0084f4d8e96",
+            "scene": "s25",
+            "selected": true,
+            "description": "Straight into the open case, a green module sits between grey walls and posts.",
+            "tags": [
+              "3table",
+              "cad",
+              "case-interior",
+              "pcb"
+            ]
+          },
+          {
+            "t": 396,
+            "path": ".vided/frames/5a7aeccdc483/u_00199.jpg",
+            "phash": "b8e1e6180e0e2ff8",
+            "dhash": "e0e8e0084d4d8e96",
+            "scene": "s25",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 398,
+            "path": ".vided/frames/5a7aeccdc483/u_00200.jpg",
+            "phash": "d8f1e01e020e6fba",
+            "dhash": "e0e8e0484d9d183a",
+            "scene": "s25",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 400,
+            "path": ".vided/frames/5a7aeccdc483/u_00201.jpg",
+            "phash": "78f1bd220e1656ac",
+            "dhash": "e1e2e430c1048699",
+            "scene": "s25",
+            "selected": true,
+            "description": "A close-up of green PCBs and grey cylindrical posts inside the case.",
+            "tags": [
+              "3table",
+              "cad",
+              "pcb",
+              "detail"
+            ]
+          },
+          {
+            "t": 402,
+            "path": ".vided/frames/5a7aeccdc483/u_00202.jpg",
+            "phash": "78f1bd220e161ab6",
+            "dhash": "e1e2e410e1048689",
+            "scene": "s25",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 404,
+            "path": ".vided/frames/5a7aeccdc483/u_00203.jpg",
+            "phash": "78f1bd220e161ab6",
+            "dhash": "e1e2e41061848689",
+            "scene": "s25",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 406,
+            "path": ".vided/frames/5a7aeccdc483/u_00204.jpg",
+            "phash": "80f9fd021e0e6fb0",
+            "dhash": "e0e8e81c0f333c06",
+            "scene": "s25",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 408,
+            "path": ".vided/frames/5a7aeccdc483/u_00205.jpg",
+            "phash": "f0f9f10e025f39c0",
+            "dhash": "e0e8e03c3f03f47f",
+            "scene": "s25",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 410,
+            "path": ".vided/frames/5a7aeccdc483/u_00206.jpg",
+            "phash": "f0f9f10e025f39c0",
+            "dhash": "e0e8e03c3f01f47f",
+            "scene": "s25",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 412,
+            "path": ".vided/frames/5a7aeccdc483/u_00207.jpg",
+            "phash": "e0f9f10e065f39c0",
+            "dhash": "e0e8e03c3f01f47f",
+            "scene": "s25",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 414,
+            "path": ".vided/frames/5a7aeccdc483/u_00208.jpg",
+            "phash": "f1f9f01e06120f74",
+            "dhash": "e0eceb25999d0e46",
+            "scene": "s25",
+            "selected": true,
+            "description": "Top-down, two green PCBs are separated by a red divider inside the case.",
+            "tags": [
+              "3table",
+              "cad",
+              "case-interior",
+              "pcb"
+            ]
+          },
+          {
+            "t": 416,
+            "path": ".vided/frames/5a7aeccdc483/u_00209.jpg",
+            "phash": "f1f9f01e06120f74",
+            "dhash": "e0eceb25999d0e46",
+            "scene": "s25",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 418,
+            "path": ".vided/frames/5a7aeccdc483/u_00210.jpg",
+            "phash": "e5f0db240e0e16da",
+            "dhash": "e0e8e6171313524c",
+            "scene": "s25",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 420,
+            "path": ".vided/frames/5a7aeccdc483/u_00211.jpg",
+            "phash": "f1f8d9360e064acc",
+            "dhash": "e0e4e82727262696",
+            "scene": "s25",
+            "selected": true,
+            "description": "The completed grey case box sits closed with a green switch on its front face.",
+            "tags": [
+              "3table",
+              "cad",
+              "case",
+              "finished"
+            ]
+          },
+          {
+            "t": 422,
+            "path": ".vided/frames/5a7aeccdc483/u_00212.jpg",
+            "phash": "e5f8db240e0616da",
+            "dhash": "e0e8e6071313520c",
+            "scene": "s25",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 424,
+            "path": ".vided/frames/5a7aeccdc483/u_00213.jpg",
+            "phash": "e5f8db240e0617d8",
+            "dhash": "e4e8e61313325248",
+            "scene": "s25",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 426,
+            "path": ".vided/frames/5a7aeccdc483/u_00214.jpg",
+            "phash": "f1f0d82c261a0ede",
+            "dhash": "e4e8e42723122c12",
+            "scene": "s25",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 428,
+            "path": ".vided/frames/5a7aeccdc483/u_00215.jpg",
+            "phash": "f1f0ce25121a47da",
+            "dhash": "e0e8e40f0b120c22",
+            "scene": "s25",
+            "selected": true,
+            "description": "The closed case sits on the grid while the 'Add Part' dialog is reopened.",
+            "tags": [
+              "3table",
+              "editor-ui",
+              "add-part",
+              "case"
+            ]
+          },
+          {
+            "t": 430,
+            "path": ".vided/frames/5a7aeccdc483/u_00216.jpg",
+            "phash": "f1f0d82c261a0ede",
+            "dhash": "e4e8e42723122c12",
+            "scene": "s25",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 432,
+            "path": ".vided/frames/5a7aeccdc483/u_00217.jpg",
+            "phash": "f5f0d82c26120ede",
+            "dhash": "e4e8e42723122c12",
+            "scene": "s25",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 434,
+            "path": ".vided/frames/5a7aeccdc483/u_00218.jpg",
+            "phash": "f1f0d824261a1dde",
+            "dhash": "e4e8cc0723122c12",
+            "scene": "s25",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 436,
+            "path": ".vided/frames/5a7aeccdc483/u_00219.jpg",
+            "phash": "f1f0d80c261a4cfe",
+            "dhash": "e4e8e42723524c4c",
+            "scene": "s25",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 438,
+            "path": ".vided/frames/5a7aeccdc483/u_00220.jpg",
+            "phash": "f1f8da0c26124cee",
+            "dhash": "e4e8e42723422c24",
+            "scene": "s25",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 440,
+            "path": ".vided/frames/5a7aeccdc483/u_00221.jpg",
+            "phash": "f1f0db2c061617cc",
+            "dhash": "e4e8e42703422c22",
+            "scene": "s25",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 442,
+            "path": ".vided/frames/5a7aeccdc483/u_00222.jpg",
+            "phash": "e5f0db2c060f18da",
+            "dhash": "e2e8e31303434892",
+            "scene": "s25",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 444,
+            "path": ".vided/frames/5a7aeccdc483/u_00223.jpg",
+            "phash": "e5f0db0c260f18da",
+            "dhash": "e2e8e31303437882",
+            "scene": "s25",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 446,
+            "path": ".vided/frames/5a7aeccdc483/u_00224.jpg",
+            "phash": "61f0f9086e071cfc",
+            "dhash": "e0e3e624831e2e00",
+            "scene": "s25",
+            "selected": true,
+            "description": "A view of the model shows a green module against a beige panel as a part is edited.",
+            "tags": [
+              "3table",
+              "cad",
+              "part-edit"
+            ]
+          },
+          {
+            "t": 448.08,
+            "path": ".vided/frames/5a7aeccdc483/scene_00026.jpg",
+            "phash": "f0f0b1ac0f0e163e",
+            "dhash": "e9eaf4b0f1fef800",
+            "scene": "s26",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 450,
+            "path": ".vided/frames/5a7aeccdc483/u_00226.jpg",
+            "phash": "e5f079b40e0f0666",
+            "dhash": "e8e8f0b4b6360924",
+            "scene": "s27",
+            "selected": true,
+            "description": "A side view of the case base and walls with grey mounting posts.",
+            "tags": [
+              "3table",
+              "cad",
+              "side-view",
+              "case"
+            ]
+          },
+          {
+            "t": 452,
+            "path": ".vided/frames/5a7aeccdc483/u_00227.jpg",
+            "phash": "edf273280c172e4c",
+            "dhash": "e8f0f6b4f3f30012",
+            "scene": "s27",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 454,
+            "path": ".vided/frames/5a7aeccdc483/u_00228.jpg",
+            "phash": "f6f8319c0d060f96",
+            "dhash": "e0e8f4b4f8fdac0e",
+            "scene": "s27",
+            "selected": true,
+            "description": "A side profile shows the case wall, base and internal posts.",
+            "tags": [
+              "3table",
+              "cad",
+              "side-view",
+              "case"
+            ]
+          },
+          {
+            "t": 456,
+            "path": ".vided/frames/5a7aeccdc483/u_00229.jpg",
+            "phash": "f1f0c806060f36fe",
+            "dhash": "e0e8e7070606260a",
+            "scene": "s27",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 458,
+            "path": ".vided/frames/5a7aeccdc483/u_00230.jpg",
+            "phash": "b1f0f9060e4e278e",
+            "dhash": "c6cecf4f0f06c00c",
+            "scene": "s27",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 460,
+            "path": ".vided/frames/5a7aeccdc483/u_00231.jpg",
+            "phash": "a5e8d9f1d266260c",
+            "dhash": "eceb030746063609",
+            "scene": "s27",
+            "selected": true,
+            "description": "A final exploded view fans out the case lid, base, red module and green PCB.",
+            "tags": [
+              "3table",
+              "cad",
+              "exploded-view",
+              "final"
+            ]
+          },
+          {
+            "t": 462,
+            "path": ".vided/frames/5a7aeccdc483/u_00232.jpg",
+            "phash": "b1f0d3f9ecc8180c",
+            "dhash": "e5e70646464e3004",
+            "scene": "s27",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 464,
+            "path": ".vided/frames/5a7aeccdc483/u_00233.jpg",
+            "phash": "b5f1c9f1f802260e",
+            "dhash": "e8e607c606460618",
+            "scene": "s27",
+            "selected": true,
+            "description": "The exploded view separates the case base from its lid on the grid.",
+            "tags": [
+              "3table",
+              "cad",
+              "exploded-view",
+              "final"
+            ]
+          },
+          {
+            "t": 466,
+            "path": ".vided/frames/5a7aeccdc483/u_00234.jpg",
+            "phash": "b5f0c9f1f112260e",
+            "dhash": "e8e807c606060638",
+            "scene": "s27",
+            "selected": false,
+            "tags": []
+          }
+        ],
+        "vision_budget": {
+          "max_frames": 47,
+          "used": 47
+        }
+      },
+      "tags": [
+        "3table",
+        "editor-ui",
+        "file-menu",
+        "intro",
+        "add-part",
+        "modelling",
+        "cad",
+        "case-shell",
+        "pcb",
+        "case",
+        "case-lid",
+        "assembly",
+        "exploded-view",
+        "side-view",
+        "assembled",
+        "case-interior",
+        "snap-fit",
+        "empty",
+        "cross-section",
+        "internals",
+        "closed",
+        "mounting-posts",
+        "detail",
+        "components",
+        "finished",
+        "part-edit",
+        "final"
+      ],
+      "provenance": {
+        "tool": "vided",
+        "version": "0.1.0",
+        "generated_at": "2026-09-26T17:05:57.146Z"
+      }
+    },
+    {
+      "schema": "vided.asset/1",
+      "id": "86f0efa1d268",
+      "path": "input/controller-test.mp4",
+      "kind": "video",
+      "content_hash": "sha256:86f0efa1d2686d28f25a968ae3dc9dea0bd0a000dc9d1d363e8c313f9ecdd22d",
+      "bytes": 23042969,
+      "mtime": "2026-09-26T17:05:27.326Z",
+      "status": "annotated",
+      "technical": {
+        "duration_s": 33.049,
+        "container": "mov,mp4,m4a,3gp,3g2,mj2",
+        "format_long_name": "QuickTime / MOV",
+        "size_bytes": 23042969,
+        "video": {
+          "index": 0,
+          "codec": "h264",
+          "profile": "High",
+          "width": 1920,
+          "height": 1080,
+          "fps": 60,
+          "bitrate": 5439583
+        },
+        "audio": {
+          "index": 1,
+          "codec": "aac",
+          "bitrate": 129567,
+          "sample_rate": 48000,
+          "channels": 2
+        }
+      },
+      "extracted": {
+        "transcript": null,
+        "ocr": null,
+        "sidecar": null
+      },
+      "visual": {
+        "scenes": [
+          {
+            "id": "s0",
+            "start": 0,
+            "end": 33.049
+          }
+        ],
+        "frames": [
+          {
+            "t": 0,
+            "path": ".vided/frames/86f0efa1d268/u_00001.jpg",
+            "phash": "3331039dcf354f0c",
+            "dhash": "0d4721c2d9ad0639",
+            "scene": "s0",
+            "selected": true,
+            "description": "Cockpit POV on track: a hand holds a black DIY controller with red spoke marks while cars run ahead and the dash shows a Renault Sport display and RaceLogic timer.",
+            "tags": [
+              "controller",
+              "track-test",
+              "cockpit",
+              "pov",
+              "one-handed"
+            ]
+          },
+          {
+            "t": 2,
+            "path": ".vided/frames/86f0efa1d268/u_00002.jpg",
+            "phash": "2f1f8326d90956cc",
+            "dhash": "05a7118a96a7236a",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 4,
+            "path": ".vided/frames/86f0efa1d268/u_00003.jpg",
+            "phash": "1f0f82df09314af8",
+            "dhash": "0587118899b42635",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 6,
+            "path": ".vided/frames/86f0efa1d268/u_00004.jpg",
+            "phash": "1f0f825820feb71a",
+            "dhash": "0719879748c990a4",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 8,
+            "path": ".vided/frames/86f0efa1d268/u_00005.jpg",
+            "phash": "1f07c24820feb756",
+            "dhash": "0711878700999024",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 10,
+            "path": ".vided/frames/86f0efa1d268/u_00006.jpg",
+            "phash": "0f05d25950eea576",
+            "dhash": "270626171091b1ac",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 12,
+            "path": ".vided/frames/86f0efa1d268/u_00007.jpg",
+            "phash": "0b21e3dd90cea746",
+            "dhash": "0f0307491e92b9ac",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 14,
+            "path": ".vided/frames/86f0efa1d268/u_00008.jpg",
+            "phash": "2b0e88c0f6e47cba",
+            "dhash": "131f85a7cd2969cf",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 16,
+            "path": ".vided/frames/86f0efa1d268/u_00009.jpg",
+            "phash": "2b1f28c2f9905f70",
+            "dhash": "1713978fc9a96bc9",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 18,
+            "path": ".vided/frames/86f0efa1d268/u_00010.jpg",
+            "phash": "3f1f0242ccd0feb0",
+            "dhash": "17939f968ba96dd9",
+            "scene": "s0",
+            "selected": true,
+            "description": "The cockpit view shows the DIY controller held in one hand, dash in gear 3 with the RaceLogic timer running as cars battle ahead.",
+            "tags": [
+              "controller",
+              "track-test",
+              "cockpit",
+              "racing",
+              "one-handed"
+            ]
+          },
+          {
+            "t": 20,
+            "path": ".vided/frames/86f0efa1d268/u_00011.jpg",
+            "phash": "0f2f0241c4d2fdb6",
+            "dhash": "03939f9d99b92dd6",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 22,
+            "path": ".vided/frames/86f0efa1d268/u_00012.jpg",
+            "phash": "2f1f2a034072edd6",
+            "dhash": "139f9b9f19792dd9",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 24,
+            "path": ".vided/frames/86f0efa1d268/u_00013.jpg",
+            "phash": "0f1d870fa92669e4",
+            "dhash": "1f0e898f99b9a4f0",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 26,
+            "path": ".vided/frames/86f0efa1d268/u_00014.jpg",
+            "phash": "334cc047d9a65fb0",
+            "dhash": "6c09038fc9b56647",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 28,
+            "path": ".vided/frames/86f0efa1d268/u_00015.jpg",
+            "phash": "2f358ef003371b8c",
+            "dhash": "06a68fad69cd8fb9",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 30,
+            "path": ".vided/frames/86f0efa1d268/u_00016.jpg",
+            "phash": "ef011df9a187070e",
+            "dhash": "8dd93566dbd3a0a0",
+            "scene": "s0",
+            "selected": false,
+            "tags": []
+          },
+          {
+            "t": 32,
+            "path": ".vided/frames/86f0efa1d268/u_00017.jpg",
+            "phash": "6b39010fbfb19348",
+            "dhash": "9d2369cfbbb1a060",
+            "scene": "s0",
+            "selected": true,
+            "description": "The hand-held DIY controller is framed over the dash in gear 1, timer at 0:26, during the on-track test.",
+            "tags": [
+              "controller",
+              "track-test",
+              "cockpit",
+              "one-handed"
+            ]
+          }
+        ],
+        "vision_budget": {
+          "max_frames": 3,
+          "used": 3
+        }
+      },
+      "tags": [
+        "controller",
+        "track-test",
+        "cockpit",
+        "pov",
+        "one-handed",
+        "racing"
+      ],
+      "provenance": {
+        "tool": "vided",
+        "version": "0.1.0",
+        "generated_at": "2026-09-26T17:05:57.214Z"
+      }
+    },
+    {
+      "schema": "vided.asset/1",
+      "id": "acf3344b9a04",
+      "path": "input/gist-code.png",
+      "kind": "image",
+      "content_hash": "sha256:acf3344b9a040bca26b6de7046ddb0e79a2b5a457820063c4dd8b7efe93143f7",
+      "bytes": 56946,
+      "mtime": "2026-09-26T17:05:27.329Z",
+      "status": "probed",
+      "technical": {
+        "container": "png_pipe",
+        "format_long_name": "piped png sequence",
+        "size_bytes": 56946,
+        "video": {
+          "index": 0,
+          "codec": "png",
+          "width": 1224,
+          "height": 651,
+          "fps": 25
+        }
+      },
+      "extracted": {
+        "transcript": null,
+        "ocr": null,
+        "sidecar": null
+      },
+      "visual": {
+        "scenes": [],
+        "frames": []
+      },
+      "tags": [],
+      "provenance": {
+        "tool": "vided",
+        "version": "0.1.0",
+        "generated_at": "2026-09-26T17:05:57.227Z"
+      }
+    }
+  ],
+  "totals": {
+    "assets": 3,
+    "duration_s": 500.381,
+    "unique_frames": 50
+  }
+}
