@@ -30,6 +30,10 @@ agent workflow. Key artifacts:
 Gather context through conversation, then write it to \`brief.md\` and the
 per-input sidecars so it persists. Run \`vided manifest --context-pack\` to fold
 it into the agent-facing digest.
+
+Typical ask: "Make a narrated video from these clips." See the repository
+AGENTS.md for the ordered workflow, the vision (frame description) step and
+starter prompts.
 `;
 
 export async function cmdInit(opts: InitOptions): Promise<void> {

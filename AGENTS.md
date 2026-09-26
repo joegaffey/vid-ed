@@ -136,6 +136,32 @@ and their `tags` are merged onto the asset. Re-run
 `vided manifest --context-pack` afterwards. Without this step the composer sees
 only timestamps — no idea what the footage shows.
 
+## Starter prompts
+
+A user should be able to start from a one-line ask. Typical prompts an agent
+must satisfy from this file alone:
+
+- "Make a narrated video from these clips."
+- "Cut these clips into a 30-second vertical teaser."
+- "Make a warm ~90s demo for sim racers, narrated, with captions."
+
+### Recipe: a narrated video
+
+1. `vided scan` → `extract-text` → `sample` → `dedupe` → `annotate` (describe
+   the frames; see Vision above).
+2. Write `brief.md` (audience/tone/target length), then
+   `vided manifest --context-pack work/context.md` and read it.
+3. `vided script --out narration.yaml` (scaffolds beats from described frames);
+   rewrite the prose. Then `vided tts narration.yaml` → `work/narration.wav`.
+4. `vided captions --from narration` → `work/captions.ass`.
+5. `vided clips`; add generated cards with `clips --add`, and register the
+   narration as an audio clip, e.g.
+   `clips --add '{"id":"vo","kind":"audio","source":"work/narration.wav","format":"audio48k"}'`.
+6. Write `edit.yaml`: visual clips on `tracks.visual`, the narration on
+   `tracks.audio: [{ id: vo, use: vo }]`, and
+   `captions: { mode: burn, file: work/captions.ass }`.
+7. `vided compose edit.yaml --check --lint`, then `vided render edit.yaml`.
+
 Install the optional native tools into a project with:
 
 ```sh
