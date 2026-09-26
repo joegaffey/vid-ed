@@ -461,7 +461,7 @@ class VidedApp extends LitElement {
       </div>`;
     }
     const a = sel.asset;
-    const tabs = [["info", "Info"], ["transcript", "Transcript"], ["frames", "Frames"], ["notes", "Notes"], ["params", "Params"]];
+    const tabs = [["info", "Info"], ["transcript", "Transcript"], ["frames", "Frames"], ["notes", "Notes"], ["process", "Process"]];
     return html`
       <div class="detail-head">
         <div><span class="pill">${a.kind}</span> <strong>${a.path}</strong></div>
@@ -476,7 +476,7 @@ class VidedApp extends LitElement {
           : this.detailTab === "transcript" ? this.renderTranscript(a)
           : this.detailTab === "frames" ? this.renderFrames()
           : this.detailTab === "notes" ? this.renderNotes(a)
-          : this.renderParams(a)}
+          : this.renderProcess(a)}
       </div>
     `;
   }
@@ -514,7 +514,7 @@ class VidedApp extends LitElement {
   renderTranscript(a) {
     const tr = a.extracted?.transcript;
     const segs = tr?.segments || [];
-    if (!segs.length) return html`<p class="muted">No transcript — run <em>extract-text</em> from the Params tab.</p>`;
+    if (!segs.length) return html`<p class="muted">No transcript — run <em>extract-text</em> from the Process tab.</p>`;
     return html`
       <div class="muted" style="margin-bottom:8px">
         ${tr.tool}${a.extracted.language ? " · " + a.extracted.language : ""} · ${segs.length} segments
@@ -527,7 +527,7 @@ class VidedApp extends LitElement {
 
   renderFrames() {
     if (!this.frames) return html`<p class="muted">loading…</p>`;
-    if (!this.frames.frames.length) return html`<p class="muted">No frames — run <em>sample</em> from the Params tab.</p>`;
+    if (!this.frames.frames.length) return html`<p class="muted">No frames — run <em>sample</em> from the Process tab.</p>`;
     return html`<div class="gallery">
       ${this.frames.frames.map((f) => html`<div class="frame">
         <img loading="lazy" src=${f.url} alt=${"t=" + f.t} />
@@ -566,7 +566,7 @@ class VidedApp extends LitElement {
     await this.loadContext();
   }
 
-  renderParams(a) {
+  renderProcess(a) {
     return html`
       <div class="params">
         <fieldset>

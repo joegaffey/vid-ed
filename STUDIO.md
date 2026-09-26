@@ -24,7 +24,7 @@ open section persist in `localStorage`.
 
 **Details — Phase C done** — asset tabs: **Info** (probe + streaming preview),
 **Transcript** (segments), **Frames** (gallery), **Notes** (title/role/tags/notes
-→ `context.yaml`), **Params** (per-asset `extract-text`/`sample`/`dedupe`/
+→ `context.yaml`), **Process** (per-asset `extract-text`/`sample`/`dedupe`/
 `annotate` runs with parameters). Raw CLI output stays behind a collapsed
 "technical log".
 
@@ -175,7 +175,7 @@ persist in `localStorage`.
 - **Script** — narration segments (text/timing/voice), per-segment TTS preview.
 - **Output** — rendered files, sidecars, publish metadata.
 - **Activity** — jobs list + live log (SSE).
-- **Details** — asset tabs (Info · Transcript · Frames · Notes · Params) or
+- **Details** — asset tabs (Info · Transcript · Frames · Notes · Process) or
   timeline-item editor (clip/title/slide/still).
 - **Timeline** — read-only from `edit.yaml` first, editable later (P4).
 - **Review** — diff/apply/revert, integrated into every editor (P2).
