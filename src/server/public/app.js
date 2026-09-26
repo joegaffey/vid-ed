@@ -235,12 +235,13 @@ class VidedApp extends LitElement {
       <input placeholder="search…" .value=${this.search} @input=${(e) => (this.search = e.target.value)} />
       ${assets.length === 0
         ? html`<p class="muted">No media yet — upload and run scan.</p>`
-        : html`<table><tbody>
+        : html`<table class="media"><tbody>
             ${shown.map((a) => {
               const sel = a.visual?.frames?.filter((f) => f.selected).length ?? 0;
               const active = this.selection.kind === "asset" && this.selection.id === a.id;
               return html`<tr class="clickable ${active ? "active" : ""}" @click=${() => this.selectAsset(a)}>
-                <td>${a.kind}</td><td>${a.path}</td><td class="muted">${fmtDur(a.technical?.duration_s)}</td>
+                <td>${a.kind}</td><td class="path" title=${a.path}>${a.path}</td>
+                <td class="muted">${fmtDur(a.technical?.duration_s)}</td>
                 <td class="muted">${sel ? sel + "f" : ""}</td>
               </tr>`;
             })}
@@ -418,20 +419,20 @@ class VidedApp extends LitElement {
     .rail-handle { cursor: col-resize; background: transparent; }
     .rail-handle:hover { background: var(--accent); }
     .details { overflow: auto; min-width: 0; scrollbar-width: thin; scrollbar-color: #2c3542 transparent; }
-    .timeline-resize { cursor: row-resize; background: var(--line-soft); }
+    .timeline-resize { cursor: row-resize; background: var(--line); }
     .timeline-resize:hover { background: var(--accent); }
     .timeline { border-top: 1px solid var(--line); background: var(--panel); overflow: auto; scrollbar-width: thin; scrollbar-color: #2c3542 transparent; }
     .tl-empty { padding: 16px; }
 
-    .acc { border-bottom: 1px solid var(--line-soft); }
+    .acc { border-bottom: 1px solid var(--line); }
     .acc-head { width: 100%; text-align: left; background: transparent; border: 0; border-radius: 0; padding: 9px 12px; color: var(--text); font-weight: 600; font-size: 12px; letter-spacing: .02em; display: flex; gap: 8px; align-items: center; }
-    .acc-head:hover { background: #1a2029; }
-    .acc.open .acc-head { background: var(--panel-2); }
+    .acc-head:hover { background: var(--panel-2); border-color: transparent; }
+    .acc.open .acc-head { background: var(--panel-2); box-shadow: inset 3px 0 0 var(--accent); }
     .chev { color: var(--muted); width: 10px; }
     .acc-body { padding: 10px 12px 14px; }
 
     .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-    .stat { background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 10px; }
+    .stat { background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 10px; }
     .stat .v { font-size: 18px; font-weight: 600; }
     .stat .k { color: var(--muted); font-size: 11px; }
     .tools { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
@@ -440,6 +441,12 @@ class VidedApp extends LitElement {
     .uploader { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
     .urlrow { display: flex; gap: 6px; }
     .urlrow input { flex: 1; }
+    table.media { table-layout: fixed; }
+    table.media td { padding: 5px 6px; }
+    table.media td:nth-child(1) { width: 46px; }
+    table.media td:nth-child(3) { width: 42px; text-align: right; }
+    table.media td:nth-child(4) { width: 30px; text-align: right; }
+    td.path { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     .detail-head { padding: 14px 16px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
     .detail-body { padding: 16px; display: grid; gap: 16px; }
