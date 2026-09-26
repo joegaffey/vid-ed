@@ -167,13 +167,14 @@ export function buildRenderPlan(edl: ResolvedEdl, opts: BuildOptions): RenderPla
       const src = opts.resolveSource(overlay.source);
       if (!src) throw new Error(`Overlay references unknown source "${overlay.source}".`);
       inputs.push({ path: src.path, options: [] });
+      const idx = inputs.length - 1;
       const label = `v${next}`;
       const chain = [
         ...(overlay.width ? [`scale=${overlay.width}:-1`] : []),
         "format=rgba",
         `colorchannelmixer=aa=${overlay.opacity}`,
       ];
-      filters.push(`[${next}:v]${chain.join(",")}[ovl${next}]`);
+      filters.push(`[${idx}:v]${chain.join(",")}[ovl${next}]`);
       const { x, y } = positionExpr(overlay.position, { w: "overlay_w", h: "overlay_h" });
       filters.push(`[${vcur}][ovl${next}]overlay=${x}:${y}:enable='between(t,${overlay.start},${overlay.end})'[${label}]`);
       vcur = label;
