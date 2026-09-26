@@ -511,8 +511,12 @@ class VidedApp extends LitElement {
           <table class="clips"><tbody>
             ${list.map((c) => {
               const active = this.selection.kind === "clip" && this.selection.id === c.id;
+              const ctx = [c.tags && c.tags.length ? c.tags.join(" ") : "", c.note || ""].filter(Boolean).join(" — ");
               return html`<tr class="clickable ${active ? "active" : ""}" @click=${() => this.selectClip(c)}>
-                <td class="path" title=${c.id}>${this.clipLabel(c)}</td>
+                <td class="path" title=${c.note || c.id}>
+                  <div>${this.clipLabel(c)}</div>
+                  ${ctx ? html`<div class="clipctx muted">${ctx}</div>` : ""}
+                </td>
                 <td class="muted">${c.format}</td>
                 <td><button class="sm secondary" title="preview"
                   @click=${(e) => { e.stopPropagation(); this.selectClip(c); }}>▶</button></td>
@@ -1214,6 +1218,7 @@ class VidedApp extends LitElement {
     table.clips td { padding: 4px 6px; }
     table.clips td:nth-child(2) { width: 72px; }
     table.clips td:nth-child(3), table.clips td:nth-child(4) { width: 30px; text-align: right; }
+    .clipctx { font-size: 11px; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
     table.media td { padding: 5px 6px; }
     table.media td:nth-child(1) { width: 46px; }
     table.media td:nth-child(3) { width: 42px; text-align: right; }
