@@ -269,9 +269,17 @@ Run `vided <command> --help` for flags.
 
 Working demos produced by the toolchain:
 
-> These were produced under **v0.1** (EDL `vided.edl/1`, no clips stage). The
-> clip model landed in **0.2**; see the `v0.1` tag for the old contract.
+> The `rc-build-*` samples (and the rest below) were produced under **v0.1** (EDL
+> `vided.edl/1`, no clips stage). The clip model landed in **0.2**; see the
+> `v0.1` tag for the old contract.
 
+- **`samples/rc-build-agent-demo/`** — the **0.2** clip-model build: a
+  fresh agent was given only the two source videos + the gist screenshot and a
+  one-paragraph prompt, and drove the whole pipeline itself (`annotate` on 50
+  frames → `clips` → `script`/`tts`/`captions` → `compose` → `render`).
+  Published: **https://www.youtube.com/watch?v=6v21-kAtpUo** (artifacts:
+  `clips.yaml`, `edit.yaml`, `narration.yaml`, `brief.md`, `work/context.*`,
+  `work/vision.*`, `work/captions.*`).
 - **`samples/rc-build-gist-demo/`** — a chaptered build-and-test cut with title
   cards, a firmware walkthrough using browser screen captures, Piper
   voice-over and soft captions. Published:

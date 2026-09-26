@@ -1,0 +1,1434 @@
+# vided clips — the pool every edit composes from.
+# Each clip declares an output `format` from the canonical set (see AGENTS.md).
+# kind: video | image | audio | title | slide; generated kinds use source: generated.
+schema: vided.clips/1
+clips:
+  - id: sel-case-design-0-1000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - editor-ui
+      - file-menu
+      - intro
+    note: The 3table editor opens on a dark grid viewport with its File menu showing
+      Import and Export options.
+    poster: 0
+    origin: derived
+    kind: video
+    in: 0
+    out: 1
+    speed: 1
+  - id: sel-case-design-0-95720
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - editor-ui
+      - file-menu
+      - intro
+      - add-part
+      - modelling
+      - cad
+      - case-shell
+      - pcb
+      - case
+      - case-lid
+      - assembly
+      - exploded-view
+      - side-view
+      - assembled
+    note: "The 3table editor opens on a dark grid viewport with its File menu
+      showing Import and Export options. An 'Add Part' dialog lists part types
+      such as Basic shapes and Extruded Profile over the empty 3table grid. A
+      semi-transparent red case shell and a green circuit board sit side by side
+      on the 3table grid. The red case body, a white cube and the green PCB are
+      laid out in the 3D viewport. The red case shell and green PCB lie flat on
+      the grid with a white placeholder cube to the right. A green case lid and
+      the green PCB rest on a red base plate as the model takes shape. An
+      exploded view shows the green case, PCB and a red panel separated above
+      the base. The case is shown in side profile: a grey body with a green lid
+      seated on a grey base plate. A front view of the assembled enclosure, a
+      green base and lid between two grey side walls."
+    origin: derived
+    kind: video
+    in: 0
+    out: 95.72
+    speed: 1
+  - id: sel-case-design-15000-17000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - editor-ui
+      - add-part
+      - modelling
+    note: An 'Add Part' dialog lists part types such as Basic shapes and Extruded
+      Profile over the empty 3table grid.
+    poster: 16
+    origin: derived
+    kind: video
+    in: 15
+    out: 17
+    speed: 1
+  - id: sel-case-design-27000-29000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case-shell
+      - pcb
+      - modelling
+    note: A semi-transparent red case shell and a green circuit board sit side by
+      side on the 3table grid.
+    poster: 28
+    origin: derived
+    kind: video
+    in: 27
+    out: 29
+    speed: 1
+  - id: sel-case-design-37000-39000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case
+      - pcb
+    note: The red case body, a white cube and the green PCB are laid out in the 3D
+      viewport.
+    poster: 38
+    origin: derived
+    kind: video
+    in: 37
+    out: 39
+    speed: 1
+  - id: sel-case-design-41000-43000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case
+      - pcb
+    note: The red case shell and green PCB lie flat on the grid with a white
+      placeholder cube to the right.
+    poster: 42
+    origin: derived
+    kind: video
+    in: 41
+    out: 43
+    speed: 1
+  - id: sel-case-design-57000-59000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case-lid
+      - pcb
+      - assembly
+    note: A green case lid and the green PCB rest on a red base plate as the model
+      takes shape.
+    poster: 58
+    origin: derived
+    kind: video
+    in: 57
+    out: 59
+    speed: 1
+  - id: sel-case-design-77000-79000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - exploded-view
+      - assembly
+    note: An exploded view shows the green case, PCB and a red panel separated above
+      the base.
+    poster: 78
+    origin: derived
+    kind: video
+    in: 77
+    out: 79
+    speed: 1
+  - id: sel-case-design-83000-85000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case
+      - side-view
+    note: "The case is shown in side profile: a grey body with a green lid seated on
+      a grey base plate."
+    poster: 84
+    origin: derived
+    kind: video
+    in: 83
+    out: 85
+    speed: 1
+  - id: sel-case-design-94720-96720
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case
+      - assembled
+    note: A front view of the assembled enclosure, a green base and lid between two
+      grey side walls.
+    poster: 95.72
+    origin: derived
+    kind: video
+    in: 94.72
+    out: 96.72
+    speed: 1
+  - id: sel-case-design-95720-216560
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case
+      - assembled
+      - case-interior
+      - pcb
+      - snap-fit
+    note: A front view of the assembled enclosure, a green base and lid between two
+      grey side walls. Looking into the open case, the green PCB and components
+      sit between the grey walls. The closed grey case box shows small green
+      snap-fit tabs on its top and front faces. A top-down close-up of the case
+      interior reveals the green PCB module nested inside.
+    origin: derived
+    kind: video
+    in: 95.72
+    out: 216.56
+    speed: 1
+  - id: sel-case-design-99000-101000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case-interior
+      - pcb
+    note: Looking into the open case, the green PCB and components sit between the
+      grey walls.
+    poster: 100
+    origin: derived
+    kind: video
+    in: 99
+    out: 101
+    speed: 1
+  - id: sel-case-design-213000-219600
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case
+      - snap-fit
+      - case-interior
+      - pcb
+      - exploded-view
+    note: The closed grey case box shows small green snap-fit tabs on its top and
+      front faces. A top-down close-up of the case interior reveals the green
+      PCB module nested inside. An exploded view separates the grey case base,
+      green PCB and green module.
+    poster: 214
+    origin: derived
+    kind: video
+    in: 213
+    out: 219.6
+    speed: 1
+  - id: sel-case-design-217040-218600
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - exploded-view
+      - pcb
+    note: An exploded view separates the grey case base, green PCB and green module.
+    origin: derived
+    kind: video
+    in: 217.04
+    out: 218.6
+    speed: 1
+  - id: sel-case-design-218800-221720
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags: []
+    origin: derived
+    kind: video
+    in: 218.8
+    out: 221.72
+    speed: 1
+  - id: sel-case-design-221720-226200
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - assembly
+      - pcb
+    note: The case base holds the green PCB with the green lid partially seated.
+    origin: derived
+    kind: video
+    in: 221.72
+    out: 226.2
+    speed: 1
+  - id: sel-case-design-223000-225000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - assembly
+      - pcb
+    note: The case base holds the green PCB with the green lid partially seated.
+    poster: 224
+    origin: derived
+    kind: video
+    in: 223
+    out: 225
+    speed: 1
+  - id: sel-case-design-226200-248840
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case
+      - empty
+      - case-interior
+      - pcb
+      - cross-section
+      - internals
+      - closed
+    note: A long, empty grey case body is shown open at an angle on the grid.
+      Top-down into the case, the green PCB and module are seated in their
+      slots. An angled view of the grey case base with the green PCB seated
+      inside. A cross-section view exposes the red interior and an orange
+      internal partition above the green base. The finished case appears as a
+      plain sealed grey box on the grid. A cross-section close-up of the case
+      wall shows the red internal structure.
+    origin: derived
+    kind: video
+    in: 226.2
+    out: 248.84
+    speed: 1
+  - id: sel-case-design-227000-229000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case
+      - empty
+    note: A long, empty grey case body is shown open at an angle on the grid.
+    poster: 228
+    origin: derived
+    kind: video
+    in: 227
+    out: 229
+    speed: 1
+  - id: sel-case-design-231000-233000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case-interior
+      - pcb
+    note: Top-down into the case, the green PCB and module are seated in their slots.
+    poster: 232
+    origin: derived
+    kind: video
+    in: 231
+    out: 233
+    speed: 1
+  - id: sel-case-design-237000-239000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case
+      - pcb
+    note: An angled view of the grey case base with the green PCB seated inside.
+    poster: 238
+    origin: derived
+    kind: video
+    in: 237
+    out: 239
+    speed: 1
+  - id: sel-case-design-241000-243000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - cross-section
+      - internals
+    note: A cross-section view exposes the red interior and an orange internal
+      partition above the green base.
+    poster: 242
+    origin: derived
+    kind: video
+    in: 241
+    out: 243
+    speed: 1
+  - id: sel-case-design-245000-249840
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case
+      - closed
+      - cross-section
+      - internals
+    note: The finished case appears as a plain sealed grey box on the grid. A
+      cross-section close-up of the case wall shows the red internal structure.
+    poster: 246
+    origin: derived
+    kind: video
+    in: 245
+    out: 249.84
+    speed: 1
+  - id: sel-case-design-248840-249560
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - cross-section
+      - internals
+    note: A cross-section close-up of the case wall shows the red internal structure.
+    origin: derived
+    kind: video
+    in: 248.84
+    out: 249.56
+    speed: 1
+  - id: sel-case-design-249560-325760
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case-interior
+      - pcb
+      - mounting-posts
+      - detail
+    note: Inside the open case, a green module sits in a red compartment at an
+      angle. A top-down view of the case interior shows the green PCB next to a
+      red round component. The case interior holds the green PCB and module
+      alongside grey threaded mounting posts. Green PCBs and grey threaded
+      inserts sit inside the open case with a red component. An angled view
+      shows green PCB sections, grey posts and a red part inside the case.
+      Top-down into the case, a green PCB and a red divider separate the
+      internal compartments. A close-up of the interior shows green panel
+      dividers and grey posts.
+    origin: derived
+    kind: video
+    in: 249.56
+    out: 325.76
+    speed: 1
+  - id: sel-case-design-251000-253000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case-interior
+      - pcb
+    note: Inside the open case, a green module sits in a red compartment at an angle.
+    poster: 252
+    origin: derived
+    kind: video
+    in: 251
+    out: 253
+    speed: 1
+  - id: sel-case-design-257000-259000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case-interior
+      - pcb
+    note: A top-down view of the case interior shows the green PCB next to a red
+      round component.
+    poster: 258
+    origin: derived
+    kind: video
+    in: 257
+    out: 259
+    speed: 1
+  - id: sel-case-design-281000-283000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case-interior
+      - mounting-posts
+    note: The case interior holds the green PCB and module alongside grey threaded
+      mounting posts.
+    poster: 282
+    origin: derived
+    kind: video
+    in: 281
+    out: 283
+    speed: 1
+  - id: sel-case-design-289000-291000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case-interior
+      - pcb
+    note: Green PCBs and grey threaded inserts sit inside the open case with a red
+      component.
+    poster: 290
+    origin: derived
+    kind: video
+    in: 289
+    out: 291
+    speed: 1
+  - id: sel-case-design-307000-309000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case-interior
+      - pcb
+    note: An angled view shows green PCB sections, grey posts and a red part inside
+      the case.
+    poster: 308
+    origin: derived
+    kind: video
+    in: 307
+    out: 309
+    speed: 1
+  - id: sel-case-design-317000-319000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case-interior
+      - pcb
+    note: Top-down into the case, a green PCB and a red divider separate the
+      internal compartments.
+    poster: 318
+    origin: derived
+    kind: video
+    in: 317
+    out: 319
+    speed: 1
+  - id: sel-case-design-324760-328240
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case-interior
+      - detail
+      - pcb
+    note: A close-up of the interior shows green panel dividers and grey posts.
+      Macro detail of a green PCB component next to a grey cylindrical post.
+    poster: 325.76
+    origin: derived
+    kind: video
+    in: 324.76
+    out: 328.24
+    speed: 1
+  - id: sel-case-design-326560-327240
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - pcb
+      - detail
+    note: Macro detail of a green PCB component next to a grey cylindrical post.
+    origin: derived
+    kind: video
+    in: 326.56
+    out: 327.24
+    speed: 1
+  - id: sel-case-design-327240-330440
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - pcb
+      - detail
+      - case-interior
+      - mounting-posts
+    note: Macro detail of a green PCB component next to a grey cylindrical post.
+      Grey cylindrical posts stand between green PCB sections inside the case.
+    origin: derived
+    kind: video
+    in: 327.24
+    out: 330.44
+    speed: 1
+  - id: sel-case-design-329440-333160
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case-interior
+      - mounting-posts
+      - pcb
+      - detail
+    note: Grey cylindrical posts stand between green PCB sections inside the case. A
+      close-up shows a green PCB and module with grey mounting posts between
+      them.
+    poster: 330.44
+    origin: derived
+    kind: video
+    in: 329.44
+    out: 333.16
+    speed: 1
+  - id: sel-case-design-330920-331480
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags: []
+    origin: derived
+    kind: video
+    in: 330.92
+    out: 331.48
+    speed: 1
+  - id: sel-case-design-331560-332160
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - pcb
+      - detail
+    note: A close-up shows a green PCB and module with grey mounting posts between
+      them.
+    origin: derived
+    kind: video
+    in: 331.56
+    out: 332.16
+    speed: 1
+  - id: sel-case-design-332160-379360
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - pcb
+      - detail
+      - case-interior
+      - components
+    note: A close-up shows a green PCB and module with grey mounting posts between
+      them. The open case is viewed top-down with green PCBs and mounting posts
+      fitted. A long red rod runs through the green PCB sections inside the open
+      case. The case interior shows two green PCB sections divided by a central
+      rib. An angled view into the case shows green PCB strips slotted between
+      grey walls and posts. Green PCBs are seated in slots inside the grey case
+      with threaded posts. A corner close-up of the case shows a green panel and
+      a grey post.
+    origin: derived
+    kind: video
+    in: 332.16
+    out: 379.36
+    speed: 1
+  - id: sel-case-design-337000-339000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case-interior
+      - pcb
+    note: The open case is viewed top-down with green PCBs and mounting posts fitted.
+    poster: 338
+    origin: derived
+    kind: video
+    in: 337
+    out: 339
+    speed: 1
+  - id: sel-case-design-361000-363000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case-interior
+      - components
+    note: A long red rod runs through the green PCB sections inside the open case.
+    poster: 362
+    origin: derived
+    kind: video
+    in: 361
+    out: 363
+    speed: 1
+  - id: sel-case-design-365000-367000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case-interior
+      - pcb
+    note: The case interior shows two green PCB sections divided by a central rib.
+    poster: 366
+    origin: derived
+    kind: video
+    in: 365
+    out: 367
+    speed: 1
+  - id: sel-case-design-369000-371000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case-interior
+      - pcb
+    note: An angled view into the case shows green PCB strips slotted between grey
+      walls and posts.
+    poster: 370
+    origin: derived
+    kind: video
+    in: 369
+    out: 371
+    speed: 1
+  - id: sel-case-design-373000-375000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case-interior
+      - pcb
+    note: Green PCBs are seated in slots inside the grey case with threaded posts.
+    poster: 374
+    origin: derived
+    kind: video
+    in: 373
+    out: 375
+    speed: 1
+  - id: sel-case-design-377000-381000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case-interior
+      - detail
+      - pcb
+    note: A corner close-up of the case shows a green panel and a grey post. The
+      open case interior holds two green PCB strips along its length.
+    poster: 378
+    origin: derived
+    kind: video
+    in: 377
+    out: 381
+    speed: 1
+  - id: sel-case-design-379520-448080
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case-interior
+      - pcb
+      - detail
+      - case
+      - finished
+      - editor-ui
+      - add-part
+      - part-edit
+    note: The open case interior holds two green PCB strips along its length.
+      Straight into the open case, a green module sits between grey walls and
+      posts. A close-up of green PCBs and grey cylindrical posts inside the
+      case. Top-down, two green PCBs are separated by a red divider inside the
+      case. The completed grey case box sits closed with a green switch on its
+      front face. The closed case sits on the grid while the 'Add Part' dialog
+      is reopened. A view of the model shows a green module against a beige
+      panel as a part is edited.
+    origin: derived
+    kind: video
+    in: 379.52
+    out: 448.08
+    speed: 1
+  - id: sel-case-design-393000-395000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case-interior
+      - pcb
+    note: Straight into the open case, a green module sits between grey walls and
+      posts.
+    poster: 394
+    origin: derived
+    kind: video
+    in: 393
+    out: 395
+    speed: 1
+  - id: sel-case-design-399000-401000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - pcb
+      - detail
+    note: A close-up of green PCBs and grey cylindrical posts inside the case.
+    poster: 400
+    origin: derived
+    kind: video
+    in: 399
+    out: 401
+    speed: 1
+  - id: sel-case-design-413000-415000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case-interior
+      - pcb
+    note: Top-down, two green PCBs are separated by a red divider inside the case.
+    poster: 414
+    origin: derived
+    kind: video
+    in: 413
+    out: 415
+    speed: 1
+  - id: sel-case-design-419000-421000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - case
+      - finished
+    note: The completed grey case box sits closed with a green switch on its front
+      face.
+    poster: 420
+    origin: derived
+    kind: video
+    in: 419
+    out: 421
+    speed: 1
+  - id: sel-case-design-427000-429000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - editor-ui
+      - add-part
+      - case
+    note: The closed case sits on the grid while the 'Add Part' dialog is reopened.
+    poster: 428
+    origin: derived
+    kind: video
+    in: 427
+    out: 429
+    speed: 1
+  - id: sel-case-design-445000-447000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - part-edit
+    note: A view of the model shows a green module against a beige panel as a part
+      is edited.
+    poster: 446
+    origin: derived
+    kind: video
+    in: 445
+    out: 447
+    speed: 1
+  - id: sel-case-design-448200-467332
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - side-view
+      - case
+      - exploded-view
+      - final
+    note: A side view of the case base and walls with grey mounting posts. A side
+      profile shows the case wall, base and internal posts. A final exploded
+      view fans out the case lid, base, red module and green PCB. The exploded
+      view separates the case base from its lid on the grid.
+    origin: derived
+    kind: video
+    in: 448.2
+    out: 467.332
+    speed: 1
+  - id: sel-case-design-449000-451000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - side-view
+      - case
+    note: A side view of the case base and walls with grey mounting posts.
+    poster: 450
+    origin: derived
+    kind: video
+    in: 449
+    out: 451
+    speed: 1
+  - id: sel-case-design-453000-455000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - side-view
+      - case
+    note: A side profile shows the case wall, base and internal posts.
+    poster: 454
+    origin: derived
+    kind: video
+    in: 453
+    out: 455
+    speed: 1
+  - id: sel-case-design-459000-461000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - exploded-view
+      - final
+    note: A final exploded view fans out the case lid, base, red module and green
+      PCB.
+    poster: 460
+    origin: derived
+    kind: video
+    in: 459
+    out: 461
+    speed: 1
+  - id: sel-case-design-463000-465000
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: false
+    tags:
+      - 3table
+      - cad
+      - exploded-view
+      - final
+    note: The exploded view separates the case base from its lid on the grid.
+    poster: 464
+    origin: derived
+    kind: video
+    in: 463
+    out: 465
+    speed: 1
+  - id: sel-controller-test-0-1000
+    source: input/controller-test.mp4
+    format: 1080p60
+    muted: false
+    tags:
+      - controller
+      - track-test
+      - cockpit
+      - pov
+      - one-handed
+    note: "Cockpit POV on track: a hand holds a black DIY controller with red spoke
+      marks while cars run ahead and the dash shows a Renault Sport display and
+      RaceLogic timer."
+    poster: 0
+    origin: derived
+    kind: video
+    in: 0
+    out: 1
+    speed: 1
+  - id: sel-controller-test-0-33049
+    source: input/controller-test.mp4
+    format: 1080p60
+    muted: false
+    tags:
+      - controller
+      - track-test
+      - cockpit
+      - pov
+      - one-handed
+      - racing
+    note: "Cockpit POV on track: a hand holds a black DIY controller with red spoke
+      marks while cars run ahead and the dash shows a Renault Sport display and
+      RaceLogic timer. The cockpit view shows the DIY controller held in one
+      hand, dash in gear 3 with the RaceLogic timer running as cars battle
+      ahead. The hand-held DIY controller is framed over the dash in gear 1,
+      timer at 0:26, during the on-track test."
+    origin: derived
+    kind: video
+    in: 0
+    out: 33.049
+    speed: 1
+  - id: sel-controller-test-17000-19000
+    source: input/controller-test.mp4
+    format: 1080p60
+    muted: false
+    tags:
+      - controller
+      - track-test
+      - cockpit
+      - racing
+      - one-handed
+    note: The cockpit view shows the DIY controller held in one hand, dash in gear 3
+      with the RaceLogic timer running as cars battle ahead.
+    poster: 18
+    origin: derived
+    kind: video
+    in: 17
+    out: 19
+    speed: 1
+  - id: sel-controller-test-31000-33000
+    source: input/controller-test.mp4
+    format: 1080p60
+    muted: false
+    tags:
+      - controller
+      - track-test
+      - cockpit
+      - one-handed
+    note: The hand-held DIY controller is framed over the dash in gear 1, timer at
+      0:26, during the on-track test.
+    poster: 32
+    origin: derived
+    kind: video
+    in: 31
+    out: 33
+    speed: 1
+  - id: sel-gist-code-0-5000
+    source: input/gist-code.png
+    format: vertical1080p30
+    muted: false
+    tags: []
+    origin: derived
+    kind: image
+    duration: 5
+    fit: contain
+  - id: t-intro
+    source: generated
+    format: 1080p30
+    muted: false
+    tags: []
+    origin: agent
+    kind: title
+    title: RC Controller Build
+    subtitle: Receiver adapter · firmware · custom case · track test
+    duration: 3.4
+    background: "#101820"
+    style:
+      title_size: 96
+      subtitle_size: 48
+      color: white
+      subtitle_color: "#cccccc"
+  - id: ch-design
+    source: generated
+    format: 1080p30
+    muted: false
+    tags: []
+    origin: agent
+    kind: title
+    title: 02  ·  Case Design
+    duration: 3.06
+    background: "#101820"
+    style:
+      title_size: 96
+      subtitle_size: 48
+      color: white
+      subtitle_color: "#cccccc"
+  - id: ch-firmware
+    source: generated
+    format: 1080p30
+    muted: false
+    tags: []
+    origin: agent
+    kind: title
+    title: 03  ·  Firmware
+    duration: 3
+    background: "#101820"
+    style:
+      title_size: 96
+      subtitle_size: 48
+      color: white
+      subtitle_color: "#cccccc"
+  - id: ch-test
+    source: generated
+    format: 1080p30
+    muted: false
+    tags: []
+    origin: agent
+    kind: title
+    title: 04  ·  Track Test
+    duration: 2.5
+    background: "#101820"
+    style:
+      title_size: 96
+      subtitle_size: 48
+      color: white
+      subtitle_color: "#cccccc"
+  - id: t-outro
+    source: generated
+    format: 1080p30
+    muted: false
+    tags: []
+    origin: agent
+    kind: title
+    title: Thanks for watching
+    duration: 2.277
+    background: "#101820"
+    style:
+      title_size: 96
+      subtitle_size: 48
+      color: white
+      subtitle_color: "#cccccc"
+  - id: case-open
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: true
+    tags: []
+    origin: agent
+    kind: video
+    in: 0
+    out: 1
+    speed: 1
+  - id: d-shell
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: true
+    tags: []
+    origin: agent
+    kind: video
+    in: 27
+    out: 29
+    speed: 1
+  - id: d-addpart
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: true
+    tags: []
+    origin: agent
+    kind: video
+    in: 15
+    out: 17
+    speed: 1
+  - id: d-casepcb
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: true
+    tags: []
+    origin: agent
+    kind: video
+    in: 37
+    out: 39
+    speed: 1
+  - id: d-lidbase
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: true
+    tags: []
+    origin: agent
+    kind: video
+    in: 57
+    out: 59
+    speed: 1
+  - id: d-exploded
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: true
+    tags: []
+    origin: agent
+    kind: video
+    in: 77
+    out: 79
+    speed: 1
+  - id: d-side
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: true
+    tags: []
+    origin: agent
+    kind: video
+    in: 83
+    out: 85
+    speed: 1
+  - id: d-basepcb
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: true
+    tags: []
+    origin: agent
+    kind: video
+    in: 223
+    out: 225
+    speed: 1
+  - id: d-cross
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: true
+    tags: []
+    origin: agent
+    kind: video
+    in: 241
+    out: 243
+    speed: 1
+  - id: d-topdown
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: true
+    tags: []
+    origin: agent
+    kind: video
+    in: 317
+    out: 319
+    speed: 1
+  - id: d-openpcb
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: true
+    tags: []
+    origin: agent
+    kind: video
+    in: 337
+    out: 339
+    speed: 1
+  - id: d-divider
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: true
+    tags: []
+    origin: agent
+    kind: video
+    in: 413
+    out: 415
+    speed: 1
+  - id: d-finished
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: true
+    tags: []
+    origin: agent
+    kind: video
+    in: 427
+    out: 429
+    speed: 1
+  - id: outro-exploded
+    source: input/case-design.mp4
+    format: 1080p30
+    muted: true
+    tags: []
+    origin: agent
+    kind: video
+    in: 445
+    out: 447.5
+    speed: 1
+  - id: ctrl-open
+    source: input/controller-test.mp4
+    format: 1080p30
+    muted: true
+    tags: []
+    origin: agent
+    kind: video
+    in: 0
+    out: 1
+    speed: 1
+  - id: t-drive1
+    source: input/controller-test.mp4
+    format: 1080p30
+    muted: true
+    tags: []
+    origin: agent
+    kind: video
+    in: 1
+    out: 5.66
+    speed: 1
+  - id: t-hand
+    source: input/controller-test.mp4
+    format: 1080p30
+    muted: true
+    tags: []
+    origin: agent
+    kind: video
+    in: 16
+    out: 22
+    speed: 1
+  - id: t-drive2
+    source: input/controller-test.mp4
+    format: 1080p30
+    muted: true
+    tags: []
+    origin: agent
+    kind: video
+    in: 24
+    out: 25.23
+    speed: 1
+  - id: ctrl-outro
+    source: input/controller-test.mp4
+    format: 1080p30
+    muted: true
+    tags: []
+    origin: agent
+    kind: video
+    in: 28
+    out: 30
+    speed: 1
+  - id: gist-code
+    source: input/gist-code.png
+    format: 1080p30
+    muted: false
+    tags: []
+    origin: agent
+    kind: image
+    duration: 7.717
+    fit: contain
+  - id: vo
+    source: work/narration.wav
+    format: audio48k
+    muted: false
+    tags: []
+    origin: agent
+    kind: audio
+    in: 0
+    gain_db: 0
+  - id: ch-adapter
+    source: generated
+    format: 1080p30
+    muted: false
+    tags: []
+    origin: agent
+    kind: title
+    title: 01  ·  Receiver Adapter
+    duration: 3
+    background: "#101820"
+    style:
+      title_size: 96
+      subtitle_size: 48
+      color: white
+      subtitle_color: "#cccccc"
+  - id: pov-adapter
+    source: input/controller-test.mp4
+    format: 1080p30
+    muted: true
+    tags:
+      - controller
+      - track-test
+      - cockpit
+      - pov
+    origin: agent
+    kind: video
+    in: 8
+    out: 12.884
+    speed: 1
+  - id: pov-outro
+    source: input/controller-test.mp4
+    format: 1080p30
+    muted: true
+    tags:
+      - controller
+      - track-test
+      - cockpit
+      - pov
+    origin: agent
+    kind: video
+    in: 22
+    out: 26
+    speed: 1
+  - id: pov-test1
+    source: input/controller-test.mp4
+    format: 1080p30
+    muted: true
+    tags:
+      - controller
+      - track-test
+      - cockpit
+    origin: agent
+    kind: video
+    in: 17
+    out: 19
+    speed: 1
+  - id: pov-test2
+    source: input/controller-test.mp4
+    format: 1080p30
+    muted: true
+    tags:
+      - controller
+      - track-test
+      - cockpit
+    origin: agent
+    kind: video
+    in: 31
+    out: 33
+    speed: 1

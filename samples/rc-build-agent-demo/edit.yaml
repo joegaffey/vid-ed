@@ -1,0 +1,43 @@
+schema: vided.edl/3
+output:
+  format: 1080p30
+  path: out/build-and-test.mp4
+captions:
+  mode: burn
+  file: work/captions.ass
+tracks:
+  visual:
+    # --- intro: the controller build is the subject ---
+    - { id: intro-card, use: t-intro }
+    - { id: intro-pov-open, use: ctrl-open }
+    - { id: intro-pov, use: t-drive1 }
+    # --- chapter 1: receiver adapter + firmware (the core build) ---
+    - { id: ch-adapter, use: ch-adapter }
+    - { id: build-pov, use: pov-adapter }
+    - { id: build-code, use: gist-code }
+    # --- chapter 2: case design / 3table (supporting context) ---
+    - { id: ch-design, use: ch-design }
+    - { id: design-addpart, use: d-addpart }
+    - { id: design-shell, use: d-shell }
+    - { id: design-casepcb, use: d-casepcb }
+    - { id: design-lidbase, use: d-lidbase }
+    - { id: design-exploded, use: d-exploded }
+    - { id: design-side, use: d-side }
+    - { id: design-basepcb, use: d-basepcb }
+    - { id: design-cross, use: d-cross }
+    - { id: design-topdown, use: d-topdown }
+    - { id: design-openpcb, use: d-openpcb }
+    - { id: design-finished, use: d-finished }
+    # --- chapter 3: track test (one-handed) ---
+    - { id: ch-test, use: ch-test }
+    - { id: test-hand, use: t-hand }
+    - { id: test-drive1, use: pov-test1 }
+    - { id: test-drive2, use: t-drive2 }
+    - { id: test-drive3, use: pov-test2 }
+    - { id: test-outro, use: ctrl-outro }
+    # --- outro ---
+    - { id: outro-exploded, use: outro-exploded }
+    - { id: outro-pov, use: pov-outro }
+    - { id: outro-card, use: t-outro }
+  audio:
+    - { id: vo, use: vo }
