@@ -297,6 +297,22 @@ program
     });
   });
 
+program
+  .command("studio")
+  .description("start the optional local studio server (web UI)")
+  .option("--port <n>", "port to bind", parseInt)
+  .option("--host <host>", "host to bind (default 127.0.0.1)", "127.0.0.1")
+  .action(async (opts) => {
+    // Lazily imported so the server code is never loaded for other commands.
+    const { cmdStudio } = await import("./commands/studio.js");
+    await cmdStudio({
+      ...outputOptions(),
+      dir: projectDir(),
+      port: opts.port,
+      host: opts.host,
+    });
+  });
+
 program.parseAsync(process.argv).catch((err: unknown) => {
   fail(err instanceof Error ? err.message : String(err));
 });

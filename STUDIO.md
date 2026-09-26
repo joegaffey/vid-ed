@@ -2,6 +2,10 @@
 
 Status: DRAFT — plan only. Phasing (§13) is provisional pending spec review.
 
+Implementation status: **P0 done** — `vided studio` starts a local server
+(Node built-ins + existing `execa`, no new deps) that serves a static UI shell
+and exposes `/api/status`, `/api/manifest`, `/api/jobs` (+ SSE) and `/api/jobs/:id`.
+
 `vided Studio` is an optional local server + web UI for smart editing and
 fine-tuning where the agent is insufficient. The agent remains master; the CLI
 stays the source of truth. The studio is a **thin adapter**: it drives the same
