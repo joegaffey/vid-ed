@@ -10,7 +10,7 @@ import {
   MEDIA_EXTENSIONS,
   statFile,
 } from "../probe.js";
-import { buildManifest, writeAsset, writeManifest } from "../manifest.js";
+import { buildManifest, readAsset, writeAsset, writeManifest } from "../manifest.js";
 import type { AssetRecord } from "../schemas/asset.js";
 import { SCHEMA_VERSION } from "../schemas/asset.js";
 import { requireTool } from "../tools/resolve.js";
@@ -36,6 +36,28 @@ async function walk(root: string): Promise<string[]> {
   }
   await rec(root);
   return out;
+}
+
+/**
+ * Re-scanning re-probes an asset but must not discard derived or authored data
+ * (frames, transcript, annotations, tags, notes) for an unchanged file.
+ */
+export function preserveDerived(
+  existing: AssetRecord | undefined,
+  probed: AssetRecord,
+): AssetRecord {
+  if (!existing || existing.content_hash !== probed.content_hash) return probed;
+  return {
+    ...probed,
+    extracted: existing.extracted,
+    visual: existing.visual,
+    tags: existing.tags,
+    ...(existing.summary ? { summary: existing.summary } : {}),
+    ...(existing.title ? { title: existing.title } : {}),
+    ...(existing.role ? { role: existing.role } : {}),
+    ...(existing.notes ? { notes: existing.notes } : {}),
+    status: existing.status,
+  };
 }
 
 export async function cmdScan(opts: ScanOptions): Promise<void> {
@@ -76,25 +98,28 @@ export async function cmdScan(opts: ScanOptions): Promise<void> {
         }
       }
 
-      const asset: AssetRecord = {
-        schema: SCHEMA_VERSION,
-        id,
-        path: relative(paths.root, file),
-        kind,
-        content_hash: contentHash,
-        bytes: stats.bytes,
-        mtime: stats.mtime,
-        status: "probed",
-        technical,
-        extracted: { transcript: null, ocr: null, sidecar: null },
-        visual: { scenes: [], frames: [] },
-        tags: [],
-        provenance: {
-          tool: "vided",
-          version: "0.1.0",
-          generated_at: new Date().toISOString(),
+      const asset: AssetRecord = preserveDerived(
+        await readAsset(paths, id).catch(() => undefined),
+        {
+          schema: SCHEMA_VERSION,
+          id,
+          path: relative(paths.root, file),
+          kind,
+          content_hash: contentHash,
+          bytes: stats.bytes,
+          mtime: stats.mtime,
+          status: "probed",
+          technical,
+          extracted: { transcript: null, ocr: null, sidecar: null },
+          visual: { scenes: [], frames: [] },
+          tags: [],
+          provenance: {
+            tool: "vided",
+            version: "0.1.0",
+            generated_at: new Date().toISOString(),
+          },
         },
-      };
+      );
       await writeAsset(paths, asset);
       assets.push(asset);
     }
