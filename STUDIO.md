@@ -329,3 +329,20 @@ Known gaps/improvements, roughly prioritised. Not committed to a phase yet.
 **Accessibility**
 - AA contrast audit; `:focus-visible` everywhere; ARIA for the accordion and
   timeline; fully keyboard-operable editing.
+
+## Resume here (handoff)
+
+- **State:** branch `studio` @ `0c36215` (pushed; in sync with `origin/studio`).
+  `main` untouched. Working tree clean. Tests **70/70** (`npm test`; studio API
+  suite via `npm run test:studio`).
+- **Done:** P0/P1, Phases A–E, P2 (history/apply/revert/diff, watcher, staleness,
+  `STUDIO_CHANGES.md`), P4 (timeline editing) — see §13. Plan: §15 verification,
+  §16 UX backlog (next UX work lives there).
+- **Next options:** M5 (Kokoro TTS / forced alignment / preview) or §16 timeline
+  items first.
+- **Key files:** `src/server/index.ts` (routes/history/watcher), `src/server/history.ts`,
+  `src/server/staleness.ts`, `src/edl-edit.ts` (`applyEdlOps`),
+  `src/server/public/app.js` (Lit UI). Read `AGENTS.md` + this file before work.
+- **Gotchas:** UI must never show raw JSON/YAML; nothing canonical without
+  `apply` (mandatory check); `.studio/` is gitignored. In WSL start the server
+  with `setsid … &` (`pkill` hangs the shell tool).
