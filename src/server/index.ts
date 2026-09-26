@@ -11,7 +11,8 @@ import {
   ContextAssetInputSchema,
 } from "../schemas/context-input.js";
 import { loadContextInput, saveContextInput } from "../context.js";
-import { readManifest } from "../manifest.js";
+import { readManifest, makeSourceResolver } from "../manifest.js";
+import { explainEdl, loadEdlFile } from "../edl.js";
 import { JobQueue, resolveCliEntry } from "./jobs.js";
 
 /** Stages the studio may run through the CLI (plus the yt-dlp `download`). */
@@ -201,6 +202,17 @@ export async function createStudioServer(opts: StudioServerOptions): Promise<Stu
       const manifest = await readManifest(paths);
       if (!manifest) return sendJSON(res, 404, { error: "no manifest" });
       return sendJSON(res, 200, manifest);
+    }
+
+    // --- EDL / timeline --------------------------------------------------
+    if (req.method === "GET" && path === "/api/edl") {
+      const edlPath = join(paths.root, "edit.yaml");
+      if (!existsSync(edlPath)) return sendJSON(res, 200, { empty: true });
+      const loaded = await loadEdlFile(edlPath);
+      if (!loaded.ok || !loaded.edl) return sendJSON(res, 200, { empty: true, errors: loaded.errors });
+      const manifest = await readManifest(paths);
+      const explained = explainEdl(loaded.edl, makeSourceResolver(paths, manifest));
+      return sendJSON(res, 200, { file: relative(paths.root, edlPath), ...explained });
     }
 
     // --- context ---------------------------------------------------------

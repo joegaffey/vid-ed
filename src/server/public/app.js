@@ -20,6 +20,13 @@ const fmtDur = (s) => {
   return m + ":" + String(r).padStart(2, "0");
 };
 const fmtBytes = (b) => (b < 1024 ? b + " B" : b > 1048576 ? (b / 1048576).toFixed(1) + " MB" : Math.round(b / 1024) + " KB");
+const fmtSec = (s) => {
+  if (s == null) return "–";
+  const m = Math.floor(s / 60);
+  return m + ":" + (s % 60).toFixed(1).padStart(4, "0");
+};
+const NICE_STEPS = [0.5, 1, 2, 5, 10, 15, 30, 60, 120, 300, 600];
+const niceInterval = (seconds) => NICE_STEPS.find((n) => n >= seconds) ?? 600;
 
 const SECTIONS = [
   ["project", "Project"],
@@ -86,6 +93,9 @@ class VidedApp extends LitElement {
     detailTab: { state: true },
     analysisOp: { state: true },
     textContent: { state: true },
+    edl: { state: true },
+    pps: { state: true },
+    playhead: { state: true },
   };
 
   constructor() {
@@ -106,6 +116,9 @@ class VidedApp extends LitElement {
     this.detailTab = "overview";
     this.analysisOp = "sample";
     this.textContent = null;
+    this.edl = null;
+    this.pps = null;
+    this.playhead = 0;
     this._rail = Number(localStorage.getItem("vided.rail")) || 300;
     this._timeline = Number(localStorage.getItem("vided.timeline")) || 220;
     this._es = null;
@@ -130,6 +143,7 @@ class VidedApp extends LitElement {
     this.loadContext();
     this.loadOutputs();
     this.loadJobs();
+    this.loadEdl();
   }
 
   async loadStatus() {
@@ -146,6 +160,25 @@ class VidedApp extends LitElement {
   }
   async loadJobs() {
     try { this.jobs = await api.get("/api/jobs"); } catch { /* ignore */ }
+  }
+  async loadEdl() {
+    try { this.edl = await api.get("/api/edl"); } catch { this.edl = { empty: true }; }
+  }
+
+  selectTimelineItem(it) {
+    this.selection = { kind: "timelineItem", id: it.id, item: it };
+  }
+  zoomTimeline(dir) {
+    const dur = this.edl?.duration || 1;
+    const base = this.pps || Math.max(4, 900 / dur);
+    this.pps = Math.max(2, Math.min(400, dir > 0 ? base * 1.6 : base / 1.6));
+  }
+  onTimelineClick(e) {
+    const track = e.currentTarget;
+    const rect = track.getBoundingClientRect();
+    const dur = this.edl?.duration || 1;
+    const frac = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    this.playhead = Number((frac * dur).toFixed(2));
   }
 
   selectAsset(a) {
@@ -469,6 +502,7 @@ class VidedApp extends LitElement {
 
   renderDetails() {
     const sel = this.selection;
+    if (sel.kind === "timelineItem") return this.renderTimelineItem(sel.item);
     if (sel.kind !== "asset") {
       return html`<div class="empty">
         <div>Select an item</div>
@@ -624,8 +658,68 @@ class VidedApp extends LitElement {
     this.loadJobs();
   }
 
+  renderTimelineItem(it) {
+    const rows = [
+      ["Type", it.type],
+      ["ID", it.id],
+      ["Start", fmtSec(it.start)],
+      ["End", fmtSec(it.end)],
+      ["Duration", fmtSec(it.duration)],
+    ];
+    if (it.source) rows.push(["Source", it.source]);
+    if (it.title) rows.push(["Title", it.title]);
+    if (it.speed != null) rows.push(["Speed", it.speed]);
+    if (it.path) rows.push(["Path", it.path]);
+    return html`
+      <div class="detail-head">
+        <div><span class="pill">${it.type}</span> <strong>${it.id}</strong></div>
+        <div class="muted">${fmtSec(it.start)} → ${fmtSec(it.end)}</div>
+      </div>
+      <div class="detail-body">
+        <div class="kv">${rows.map(([k, v]) => html`<div class="k">${k}</div><div class="v">${v}</div>`)}</div>
+        <p class="muted">Editing timeline items comes in a later phase.</p>
+      </div>
+    `;
+  }
+
   renderTimeline() {
-    return html`<div class="tl-empty muted">Timeline — rendered from edit.yaml (next phase).</div>`;
+    const edl = this.edl;
+    if (!edl) return html`<div class="tl-empty muted">loading…</div>`;
+    if (edl.empty) return html`<div class="tl-empty muted">No edit.yaml yet — compose an EDL to see the timeline.</div>`;
+    const dur = edl.duration || 1;
+    const items = edl.clips || [];
+    const trackWidth = this.pps ? dur * this.pps + "px" : "100%";
+    const tickEvery = niceInterval(this.pps ? 90 / this.pps : dur / 10);
+    const ticks = [];
+    for (let t = 0; t <= dur + 1e-6; t += tickEvery) ticks.push(t);
+
+    return html`
+      <div class="tl-bar">
+        <span class="muted">${items.length} items · ${fmtDur(dur)} @ ${edl.output?.resolution || ""}</span>
+        <span class="spacer"></span>
+        <span class="muted mono">${fmtDur(this.playhead)}</span>
+        <button class="sm" @click=${() => this.zoomTimeline(-1)}>−</button>
+        <button class="sm" @click=${() => this.zoomTimeline(1)}>+</button>
+        <button class="sm" @click=${() => (this.pps = null)}>fit</button>
+      </div>
+      <div class="tl-scroll">
+        <div class="tl-track" style=${"width:" + trackWidth} @click=${this.onTimelineClick}>
+          <div class="tl-ruler">
+            ${ticks.map((t) => html`<div class="tl-tick" style=${"left:" + (t / dur) * 100 + "%"}><span>${fmtDur(t)}</span></div>`)}
+          </div>
+          <div class="tl-lane">
+            ${items.map((it) => html`
+              <div class="tl-item ${it.type} ${this.selection.kind === "timelineItem" && this.selection.id === it.id ? "active" : ""}"
+                style=${"left:" + (it.start / dur) * 100 + "%;width:" + (it.duration / dur) * 100 + "%"}
+                title=${it.id + " · " + it.type + " · " + fmtSec(it.start) + "–" + fmtSec(it.end) + (it.source ? " · " + it.source : "")}
+                @click=${(e) => { e.stopPropagation(); this.selectTimelineItem(it); }}>
+                ${it.id}
+              </div>`)}
+          </div>
+          <div class="tl-playhead" style=${"left:" + (this.playhead / dur) * 100 + "%"}></div>
+        </div>
+      </div>
+    `;
   }
 
   render() {
@@ -678,8 +772,22 @@ class VidedApp extends LitElement {
     .details { overflow: auto; min-width: 0; scrollbar-width: thin; scrollbar-color: #2c3542 transparent; }
     .timeline-resize { cursor: row-resize; background: var(--line); }
     .timeline-resize:hover { background: var(--accent); }
-    .timeline { border-top: 1px solid var(--line); background: var(--panel); overflow: auto; scrollbar-width: thin; scrollbar-color: #2c3542 transparent; }
+    .timeline { border-top: 1px solid var(--line); background: var(--panel); display: flex; flex-direction: column; min-height: 0; }
     .tl-empty { padding: 16px; }
+    .tl-bar { display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-bottom: 1px solid var(--line); flex: none; }
+    .tl-bar .spacer { flex: 1; }
+    .tl-scroll { flex: 1; overflow: auto; scrollbar-width: thin; scrollbar-color: #3a4553 #0f141b; }
+    .tl-track { position: relative; min-width: 100%; height: 100%; min-height: 92px; }
+    .tl-ruler { position: relative; height: 22px; border-bottom: 1px solid var(--line-soft); }
+    .tl-tick { position: absolute; top: 0; height: 22px; border-left: 1px solid var(--line-soft); padding-left: 4px; font: 10px/22px var(--mono); color: var(--muted); white-space: nowrap; }
+    .tl-lane { position: relative; height: 52px; margin: 10px 0; background: var(--bg); border-top: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); }
+    .tl-item { position: absolute; top: 4px; height: 44px; border-radius: 6px; border: 1px solid; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; padding: 4px 6px; font-size: 11px; cursor: pointer; }
+    .tl-item.clip { background: #1f6feb33; border-color: #4c8dff; }
+    .tl-item.title { background: #8957e533; border-color: #a371f7; }
+    .tl-item.slide { background: #2ea04333; border-color: #3fb950; }
+    .tl-item.still { background: #d2992233; border-color: #e3b341; }
+    .tl-item.active { outline: 2px solid var(--accent); outline-offset: 1px; }
+    .tl-playhead { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--err); pointer-events: none; }
 
     .acc { border-bottom: 1px solid var(--line); }
     .acc-head { width: 100%; text-align: left; background: transparent; border: 0; border-radius: 0; padding: 9px 12px; color: var(--text); font-weight: 600; font-size: 12px; letter-spacing: .02em; display: flex; gap: 8px; align-items: center; }

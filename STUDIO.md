@@ -35,6 +35,11 @@ runs: scan/extract-text/sample/dedupe/manifest/script/tts/captions/render),
 must-include, avoid, voice, language, pronunciation; save + build context pack),
 **Vision** (selected/annotated counts; build packet / ingest results).
 
+**Timeline — Phase E done** — the bottom timeline renders `edit.yaml` read-only
+via `GET /api/edl` (explain): ruler, a video lane with items coloured by type
+(clip/title/slide/still), playhead (click to scrub), zoom/±/fit, and click-to-
+select which syncs the Details inspector. Editing (drag/trim) is P4.
+
 `vided Studio` is an optional local server + web UI for smart editing and
 fine-tuning where the agent is insufficient. The agent remains master; the CLI
 stays the source of truth. The studio is a **thin adapter**: it drives the same
