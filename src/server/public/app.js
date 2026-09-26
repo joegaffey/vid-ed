@@ -452,6 +452,15 @@ class VidedApp extends LitElement {
     `;
   }
 
+  tabsFor(kind) {
+    const tabs = [["overview", "Overview"]];
+    if (kind === "video" || kind === "audio") tabs.push(["transcript", "Transcript"]);
+    if (kind === "video") tabs.push(["frames", "Frames"]);
+    tabs.push(["notes", "Notes"]);
+    if (kind !== "text" && kind !== "unknown") tabs.push(["process", "Process"]);
+    return tabs;
+  }
+
   renderDetails() {
     const sel = this.selection;
     if (sel.kind !== "asset") {
@@ -461,7 +470,8 @@ class VidedApp extends LitElement {
       </div>`;
     }
     const a = sel.asset;
-    const tabs = [["overview", "Overview"], ["transcript", "Transcript"], ["frames", "Frames"], ["notes", "Notes"], ["process", "Process"]];
+    const tabs = this.tabsFor(a.kind);
+    const active = tabs.some(([id]) => id === this.detailTab) ? this.detailTab : "overview";
     return html`
       <div class="detail-head">
         <div><span class="pill">${a.kind}</span> <strong>${a.path}</strong></div>
@@ -469,13 +479,13 @@ class VidedApp extends LitElement {
       </div>
       <div class="tabs">
         ${tabs.map(([id, label]) =>
-          html`<button class="tab ${this.detailTab === id ? "active" : ""}" @click=${() => (this.detailTab = id)}>${label}</button>`)}
+          html`<button class="tab ${active === id ? "active" : ""}" @click=${() => (this.detailTab = id)}>${label}</button>`)}
       </div>
       <div class="detail-body">
-        ${this.detailTab === "overview" ? this.renderInfo(a)
-          : this.detailTab === "transcript" ? this.renderTranscript(a)
-          : this.detailTab === "frames" ? this.renderFrames()
-          : this.detailTab === "notes" ? this.renderNotes(a)
+        ${active === "overview" ? this.renderInfo(a)
+          : active === "transcript" ? this.renderTranscript(a)
+          : active === "frames" ? this.renderFrames()
+          : active === "notes" ? this.renderNotes(a)
           : this.renderProcess(a)}
       </div>
     `;
@@ -503,9 +513,12 @@ class VidedApp extends LitElement {
     if (au) rows.push(["Audio", [au.codec, au.sample_rate ? au.sample_rate + " Hz" : null, au.channels ? au.channels + " ch" : null].filter(Boolean).join(" · ")]);
     if (t.creation_time) rows.push(["Created", t.creation_time]);
     rows.push(["Hash", a.content_hash ? a.content_hash.slice(0, 19) + "…" : "–"]);
+    const preview = a.kind === "text"
+      ? html`<pre class="textbox">${a.extracted?.sidecar || "(empty)"}</pre>`
+      : html`<div class="preview">${this.renderPreview(a)}</div>`;
     return html`
       <div class="info-grid">
-        <div class="preview">${this.renderPreview(a)}</div>
+        ${preview}
         <div class="kv">${rows.map(([k, val]) => html`<div class="k">${k}</div><div class="v">${val}</div>`)}</div>
       </div>
     `;
@@ -567,45 +580,58 @@ class VidedApp extends LitElement {
   }
 
   renderProcess(a) {
+    const isVideo = a.kind === "video";
+    const isAudio = a.kind === "audio";
+    const isImage = a.kind === "image";
     return html`
       <div class="params">
-        <fieldset>
-          <legend>Transcribe</legend>
-          <div class="row">
-            <input id="p_lang" placeholder="language (auto)" style="width:120px" />
-            <label class="inline"><input id="p_ocr" type="checkbox" /> OCR images</label>
-            <button @click=${() => this.runAssetStage(a, "extract-text", [
-              ...(this.renderRoot.getElementById("p_lang").value ? ["--language", this.renderRoot.getElementById("p_lang").value] : []),
-              ...(this.renderRoot.getElementById("p_ocr").checked ? ["--ocr"] : []),
-            ])}>Run</button>
-          </div>
-        </fieldset>
-        <fieldset>
-          <legend>Sample</legend>
-          <div class="row">
-            <label class="inline">threshold <input id="p_thr" type="number" step="0.05" value="0.25" style="width:70px" /></label>
-            <label class="inline">rate/min <input id="p_rate" type="number" value="30" style="width:70px" /></label>
-            <button @click=${() => this.runAssetStage(a, "sample", ["--threshold", this.renderRoot.getElementById("p_thr").value, "--rate", this.renderRoot.getElementById("p_rate").value])}>Run</button>
-          </div>
-        </fieldset>
-        <fieldset>
-          <legend>Dedupe</legend>
-          <div class="row">
-            <label class="inline">phash distance <input id="p_dist" type="number" value="6" style="width:70px" /></label>
-            <label class="inline">budget <input id="p_budget" type="number" style="width:70px" /></label>
-            <button @click=${() => this.runAssetStage(a, "dedupe", [
-              "--phash-distance", this.renderRoot.getElementById("p_dist").value,
-              ...(this.renderRoot.getElementById("p_budget").value ? ["--budget", this.renderRoot.getElementById("p_budget").value] : []),
-            ])}>Run</button>
-          </div>
-        </fieldset>
-        <fieldset>
-          <legend>Vision</legend>
-          <div class="row">
-            <button @click=${() => this.runAssetStage(a, "annotate", ["--packet-out", "work/" + a.id + ".packet.json"])}>Build packet</button>
-            <span class="muted">describe frames, then ingest results</span>
-          </div>
-        </fieldset>
+        ${isVideo || isAudio ? html`
+          <fieldset>
+            <legend>Transcribe</legend>
+            <div class="row">
+              <input id="p_lang" placeholder="language (auto)" style="width: 140px" />
+              <button @click=${() => {
+                const lang = this.renderRoot.getElementById("p_lang").value;
+                this.runAssetStage(a, "extract-text", lang ? ["--language", lang] : []);
+              }}>Run</button>
+            </div>
+          </fieldset>` : ""}
+
+        ${isImage ? html`
+          <fieldset>
+            <legend>Text (OCR)</legend>
+            <div class="row">
+              <button @click=${() => this.runAssetStage(a, "extract-text", ["--ocr"])}>Run OCR</button>
+            </div>
+          </fieldset>` : ""}
+
+        ${isVideo ? html`
+          <fieldset>
+            <legend>Sample</legend>
+            <div class="row">
+              <label class="inline">threshold <input id="p_thr" type="number" step="0.05" value="0.25" style="width: 70px" /></label>
+              <label class="inline">rate/min <input id="p_rate" type="number" value="30" style="width: 70px" /></label>
+              <button @click=${() => this.runAssetStage(a, "sample", ["--threshold", this.renderRoot.getElementById("p_thr").value, "--rate", this.renderRoot.getElementById("p_rate").value])}>Run</button>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Dedupe</legend>
+            <div class="row">
+              <label class="inline">phash distance <input id="p_dist" type="number" value="6" style="width: 70px" /></label>
+              <label class="inline">budget <input id="p_budget" type="number" style="width: 70px" /></label>
+              <button @click=${() => this.runAssetStage(a, "dedupe", [
+                "--phash-distance", this.renderRoot.getElementById("p_dist").value,
+                ...(this.renderRoot.getElementById("p_budget").value ? ["--budget", this.renderRoot.getElementById("p_budget").value] : []),
+              ])}>Run</button>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Vision</legend>
+            <div class="row">
+              <button @click=${() => this.runAssetStage(a, "annotate", ["--packet-out", "work/" + a.id + ".packet.json"])}>Build packet</button>
+              <span class="muted">describe frames, then ingest results</span>
+            </div>
+          </fieldset>` : ""}
       </div>
     `;
   }
@@ -729,6 +755,7 @@ class VidedApp extends LitElement {
     label.inline input[type="checkbox"] { width: auto; }
     .form { display: flex; flex-direction: column; }
     .preview { background: #000; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; max-width: 720px; }
+    .textbox { background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; max-height: 420px; overflow: auto; }
     .preview video, .preview img { width: 100%; display: block; max-height: 420px; object-fit: contain; }
     .frames h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 10px; }
     .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
