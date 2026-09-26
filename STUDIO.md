@@ -13,6 +13,15 @@ HTTP Range, and outputs listing/download. Context is now read by
 `manifest --context-pack` and `script` (brief, directives, per-input
 title/role/tags/notes).
 
+**UI redesign — Phase A done** — NLE-style shell: top bar (project, tool health,
+refresh), a resizable **left rail with accordion sections** (Project, Media bin,
+Analysis, Context, Vision, Output, Activity), a center **Details** view for the
+selected artefact (asset Info with a streaming preview + frame gallery), and a
+resizable bottom **Timeline** placeholder. Built with **Lit** (client bundled by
+`esbuild` via `npm run build:studio`), served statically from `dist/studio`.
+Selection model `{ kind: 'none'|'asset'|'timelineItem', id }`; pane sizes and the
+open section persist in `localStorage`.
+
 `vided Studio` is an optional local server + web UI for smart editing and
 fine-tuning where the agent is insufficient. The agent remains master; the CLI
 stays the source of truth. The studio is a **thin adapter**: it drives the same
@@ -132,23 +141,32 @@ Single source of stage metadata, used by both CLI flags and UI controls:
 
 ## 11. UI surfaces
 
-Vanilla JS + Web Components (Lit optional), no framework build.
+**Lit** components, client bundled with `esbuild` (`npm run build:studio`) and
+served statically from `dist/studio`. No framework runtime beyond Lit.
 
 **UI principle: never show raw JSON/YAML.** Artifacts are presented as
 purpose-built views (cards, tables, forms, editors). Raw file contents are
 available only behind an explicit, collapsed "technical" disclosure, never as
 the primary presentation.
 
-- **Project** — status, `doctor`, config.
-- **Media** — upload, list, probe/transcript/OCR, frames, contact sheets.
-- **Context** — global brief/structured fields + per-input metadata.
+**NLE-style shell:** top bar (project, tool health, refresh); a resizable
+**left rail with accordion sections** (one open at a time); a center **Details**
+view for the selected artefact; a resizable bottom **Timeline**. Selection is
+`{ kind: 'none'|'asset'|'timelineItem', id }`; pane sizes and the open section
+persist in `localStorage`.
+
+- **Project** — status, `doctor`, quick pipeline.
+- **Media bin** — upload (files/URL), search, asset list (click → Details).
 - **Analysis** — parameterized runs, candidate → selected frames.
+- **Context** — brief/structured fields.
 - **Vision** — frame gallery with editable descriptions/tags.
 - **Script** — narration segments (text/timing/voice), per-segment TTS preview.
-- **Edit** — structured EDL (clips/titles/slides/stills, overlays, audio,
-  captions), check/lint/explain, preview + full render.
 - **Output** — rendered files, sidecars, publish metadata.
-- **Process / Review** — diff/apply/revert, integrated into every editor.
+- **Activity** — jobs list + live log (SSE).
+- **Details** — asset tabs (Info · Transcript · Frames · Notes · Params) or
+  timeline-item editor (clip/title/slide/still).
+- **Timeline** — read-only from `edit.yaml` first, editable later (P4).
+- **Review** — diff/apply/revert, integrated into every editor (P2).
 
 ## 12. CLI impact
 

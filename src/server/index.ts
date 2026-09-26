@@ -2,7 +2,8 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 import { createReadStream, createWriteStream, existsSync } from "node:fs";
 import { mkdir, readFile, readdir, stat, writeFile } from "node:fs/promises";
 import { pipeline } from "node:stream/promises";
-import { basename, extname, join, relative, resolve, sep } from "node:path";
+import { basename, dirname, extname, join, relative, resolve, sep } from "node:path";
+import { fileURLToPath } from "node:url";
 import { execa } from "execa";
 import { loadConfig, projectPaths, type Config, type Paths } from "../config.js";
 import {
@@ -12,7 +13,6 @@ import {
 import { loadContextInput, saveContextInput } from "../context.js";
 import { readManifest } from "../manifest.js";
 import { JobQueue, resolveCliEntry } from "./jobs.js";
-import { INDEX_HTML } from "./ui.js";
 
 /** Stages the studio may run through the CLI (plus the yt-dlp `download`). */
 export const ALLOWED_OPS = new Set([
@@ -45,6 +45,11 @@ export interface StudioServer {
 }
 
 const CONTENT_TYPES: Record<string, string> = {
+  ".html": "text/html; charset=utf-8",
+  ".css": "text/css; charset=utf-8",
+  ".js": "text/javascript; charset=utf-8",
+  ".map": "application/json; charset=utf-8",
+  ".svg": "image/svg+xml",
   ".mp4": "video/mp4",
   ".webm": "video/webm",
   ".mkv": "video/x-matroska",
@@ -63,6 +68,13 @@ const CONTENT_TYPES: Record<string, string> = {
 
 function contentType(path: string): string {
   return CONTENT_TYPES[extname(path).toLowerCase()] ?? "application/octet-stream";
+}
+
+/** Built client assets: `dist/studio` (from `npm run build:studio`). */
+function resolveStudioDir(): string | undefined {
+  const here = dirname(fileURLToPath(import.meta.url));
+  const candidates = [join(here, "..", "studio"), join(here, "..", "..", "dist", "studio")];
+  return candidates.find((p) => existsSync(join(p, "index.html")));
 }
 
 function sendJSON(res: ServerResponse, status: number, data: unknown): void {
@@ -136,6 +148,7 @@ export async function createStudioServer(opts: StudioServerOptions): Promise<Stu
   const config: Config = await loadConfig(paths);
   const inputDir = join(paths.root, config.input_roots[0] ?? "input");
   const outDir = join(paths.root, "out");
+  const studioDir = resolveStudioDir();
 
   const buildCommand = (op: string, args: string[]): { bin: string; argv: string[] } => {
     if (op === "download") {
@@ -172,7 +185,10 @@ export async function createStudioServer(opts: StudioServerOptions): Promise<Stu
     const path = url.pathname;
 
     if (req.method === "GET" && (path === "/" || path === "/index.html")) {
-      return sendText(res, 200, INDEX_HTML, "text/html; charset=utf-8");
+      if (!studioDir) {
+        return sendText(res, 500, "studio assets missing — run `npm run build:studio`");
+      }
+      return serveFile(req, res, join(studioDir, "index.html"));
     }
 
     if (req.method === "GET" && path === "/api/status") {
@@ -334,6 +350,11 @@ export async function createStudioServer(opts: StudioServerOptions): Promise<Stu
         unsubscribe();
       });
       return;
+    }
+
+    if (req.method === "GET" && !path.startsWith("/api/") && studioDir) {
+      const abs = join(studioDir, path.replace(/^\/+/, ""));
+      if (withinRoot(studioDir, abs) && existsSync(abs)) return serveFile(req, res, abs);
     }
 
     sendJSON(res, 404, { error: "not found" });

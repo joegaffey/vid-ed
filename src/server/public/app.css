@@ -1,0 +1,51 @@
+:root {
+  --bg: #0b0e13;
+  --panel: #12161d;
+  --panel-2: #171c25;
+  --line: #232a35;
+  --line-soft: #1b212b;
+  --text: #e6edf3;
+  --muted: #8b97a7;
+  --accent: #4c8dff;
+  --accent-soft: #4c8dff22;
+  --ok: #3fb950;
+  --warn: #d29922;
+  --err: #f85149;
+  --radius: 8px;
+  --radius-sm: 6px;
+  --rail: 300px;
+  --timeline: 220px;
+  --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 13px/1.5 var(--font);
+  overflow: hidden;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* shared primitives used inside components via ::part or slotted content */
+.muted { color: var(--muted); }
+.mono { font-family: var(--mono); }
+.pill { padding: 1px 8px; border-radius: 999px; font-size: 11px; border: 1px solid var(--line); }
+.badge { border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; font-size: 11px; }
+.badge.ok { color: var(--ok); border-color: #238636; }
+.badge.missing { color: var(--warn); border-color: #9e6a03; }
+button { font: inherit; cursor: pointer; color: var(--text); background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 5px 10px; }
+button:hover { border-color: #39424f; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #06101f; font-weight: 600; }
+input, select, textarea { font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 5px 8px; width: 100%; }
+label { display: block; color: var(--muted); font-size: 11px; margin: 8px 0 3px; }
+table { width: 100%; border-collapse: collapse; }
+td, th { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line-soft); font-weight: 400; vertical-align: top; }
+th { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
+tr.clickable { cursor: pointer; }
+tr.clickable:hover td { background: #1a2029; }
+tr.active td { background: var(--accent-soft); }
+pre { white-space: pre-wrap; word-break: break-word; font: 11px/1.5 var(--mono); margin: 0; color: #9da7b3; }
