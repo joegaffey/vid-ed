@@ -96,26 +96,34 @@ Frame coverage is controlled by two knobs:
   asset and capped overall. `dedupe` can only reduce, so the initial rate must
   exceed the target (it warns otherwise).
 
-**Title cards** (intro / chapter pages) are first-class timeline items — use
-`title`/`subtitle`/`duration`/`background` instead of `source`:
+**Title cards** (intro / chapter pages) are generated clips — `kind: title`,
+`source: generated`, using `title`/`subtitle`/`duration`/`background`:
 
 ```yaml
-timeline:
-  - { id: intro, title: "My Project", subtitle: "An agentic edit", duration: 3, background: "#101820" }
-  - { id: chapter1, title: "Chapter 1", duration: 2.5, background: "#1b2a41" }
-  - { id: clip1, source: <asset-id>, in: 0, out: 8 }
+# clips.yaml
+clips:
+  - { id: title-intro, kind: title, source: generated, format: 1080p30, title: "My Project", subtitle: "An agentic edit", duration: 3, background: "#101820" }
+# edit.yaml
+tracks:
+  visual:
+    - { id: intro, use: title-intro }
+    - { id: clip1, use: sel-a }
 ```
 
 They're rendered as solid-colour pages via libass and concatenated inline.
 
-**Code / text slides** for walkthroughs use `slide` + `body` (`kind: mono` for a
-monospace body):
+**Code / text slides** for walkthroughs use `kind: slide` with `body`
+(`variant: mono` for a monospace body):
 
 ```yaml
-timeline:
-  - id: fw
-    slide: "loop()"
-    kind: mono
+# clips.yaml
+clips:
+  - id: slide-fw
+    kind: slide
+    source: generated
+    format: 1080p30
+    heading: "loop()"
+    variant: mono
     duration: 6
     body: |
       Joystick.setXAxis(SteeringValue);
@@ -128,9 +136,12 @@ browser screenshot); the tool just scales/crops and holds it. `zoom` crops a
 region for legibility:
 
 ```yaml
-timeline:
-  - id: gist
-    image: <image-asset-id>
+# clips.yaml
+clips:
+  - id: still-gist
+    kind: image
+    source: <image-asset-id>
+    format: 1080p30
     duration: 8
     fit: contain
     zoom: { x: 0, y: 0.4, w: 1, h: 0.34 }
@@ -219,7 +230,8 @@ Derived clips default to the **source's format** (the nearest name, never
 upscaling), so previews encode quickly. A clip whose `format` differs from the
 edit's `output.format` is flagged by `compose --lint`.
 
-Example EDL: [`examples/edit.yaml`](./examples/edit.yaml). Example narration:
+Example edit + clip pool: [`examples/edit.yaml`](./examples/edit.yaml) +
+[`examples/clips.yaml`](./examples/clips.yaml). Example narration:
 [`examples/narration.yaml`](./examples/narration.yaml).
 
 ## Commands
@@ -236,6 +248,7 @@ Global flags: `--dir <dir>`, `--human`, `--json` (default), `-q/--quiet`.
 | `dedupe` | Cluster frames by perceptual hash, select representatives |
 | `annotate` | Build a vision packet / ingest agent descriptions |
 | `manifest` | Rebuild the manifest; `--context-pack` writes the digest |
+| `clips` | Derive / validate / edit the clip pool (`clips.yaml`) |
 | `script` | Scaffold a narration script from annotated frames |
 | `tts` | Synthesise the voice-over (Piper) |
 | `captions` | Build SRT/VTT/ASS from narration or a transcript |
@@ -250,6 +263,9 @@ Run `vided <command> --help` for flags.
 ## Samples
 
 Working demos produced by the toolchain:
+
+> These were produced under **v0.1** (EDL `vided.edl/1`, no clips stage). The
+> clip model landed in **0.2**; see the `v0.1` tag for the old contract.
 
 - **`samples/rc-build-gist-demo/`** — a chaptered build-and-test cut with title
   cards, a firmware walkthrough using browser screen captures, Piper

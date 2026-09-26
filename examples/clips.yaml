@@ -1,0 +1,47 @@
+# Example clip pool (`vided.clips/1`).
+# A clip is an atomic, individually renderable unit with a `kind` and an output
+# `format` from the canonical set (see AGENTS.md). Generated kinds use
+# `source: generated`. `edit.yaml` references clips by `use:` — a clip is defined
+# ONLY here, and trimming it affects every place it is used.
+
+schema: vided.clips/1
+clips:
+  - id: sel-open
+    kind: video
+    source: <asset-id-1>
+    format: 1080p30
+    in: 0
+    out: 5
+  - id: sel-detail
+    kind: video
+    source: <asset-id-2>
+    format: 1080p30
+    in: 2
+    out: 8
+
+  # Generated kinds: no media source.
+  - { id: title-intro, kind: title, source: generated, format: 1080p30, title: "My Project", subtitle: "An agentic edit", duration: 3, background: "#101820" }
+  - { id: chapter1, kind: title, source: generated, format: 1080p30, title: "Chapter 1", subtitle: "The opening", duration: 2.5 }
+
+  - id: slide-fw
+    kind: slide
+    source: generated
+    format: 1080p30
+    heading: "loop()"
+    variant: mono
+    duration: 6
+    body: |
+      Joystick.setXAxis(SteeringValue);
+      Joystick.setYAxis(ThrottleValue);
+
+  - id: still-gist
+    kind: image
+    source: <image-asset-id>
+    format: 1080p30
+    duration: 8
+    fit: contain
+    zoom: { x: 0, y: 0.4, w: 1, h: 0.34 }
+
+  # Audio is part of a video clip unless `muted`, or unless it is sampled out
+  # into its own `audio` clip (e.g. a narration wav registered as a source).
+  - { id: vo, kind: audio, source: work/narration.wav, format: audio48k }

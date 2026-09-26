@@ -303,62 +303,30 @@ path so it is stable across re-runs.
 
 ### 6.3 `edit.yaml` (EDL) — sketch
 
+Clips (video/image/audio/title/slide) are defined in `clips.yaml`, each with a
+`kind`, a `source` (or `"generated"`) and a `format`; the timeline only
+references them by `use:`. See §5.8.
+
 ```yaml
-schema: vided.edl/1
+schema: vided.edl/3
 output:
+  format: 1080p30       # a name from the canonical set (AGENTS.md)
   path: out/final.mp4
-  resolution: 1920x1080
-  fps: 30
-  video_codec: libx264
-  audio_codec: aac
-  audio_sample_rate: 48000
-  audio_bitrate: 192k
   loudness_lufs: -14
 
-timeline:
-  # title cards are timeline items with `title` (no source)
-  - id: intro
-    title: "My Project"
-    subtitle: "An agentic edit"
-    duration: 3
-    background: "#101820"
-  - id: chapter1
-    title: "Chapter 1"
-    subtitle: "The opening"
-    duration: 2.5
-  # slides render heading + body (monospace for code) for walkthroughs
-  - id: code
-    slide: "loop()"
-    kind: mono
-    duration: 6
-    body: |
-      Joystick.setXAxis(SteeringValue);
-  # stills hold an image (e.g. a captured page) for a duration
-  - id: gist
-    image: <image-asset-id>
-    duration: 8
-    zoom: { x: 0, y: 0.4, w: 1, h: 0.34 }
-  - id: clip1
-    source: a1b2c3
-    in: 2.0
-    out: 8.5
-    transform: { scale: 1920x1080, pad: true }
-    transition_in: { type: fade, duration: 0.5 }
-  - id: broll
-    source: d4e5f6
-    in: 0.0
-    out: 6.0
-    speed: 0.5
-
-audio:
-  voiceover:
-    source: work/narration.wav
-    start: 0.0
-    gain_db: 0
-  music:
-    source: assets/bed.mp3
-    gain_db: -18
-    duck_under_voiceover: true
+tracks:
+  visual:               # sequential; every item references a clip by `use:`
+    - { id: intro, use: title-intro }     # a title clip
+    - { id: code, use: slide-loop }        # a slide clip (heading/body, variant: mono)
+    - { id: gist, use: still-gist }        # an image clip (duration/fit/zoom)
+    - id: clip1                            # a video clip
+      use: sel-a
+      transform: { scale: 1920x1080, pad: true }
+      transition_in: { type: fade, duration: 0.5 }
+    - { id: broll, use: sel-b, speed: 0.5 }
+  audio:                # free-positioned and mixed
+    - { id: vo, use: vo, offset: 0 }
+    - { id: bed, use: music, offset: 0, gain_db: -18 }
 
 captions:
   mode: soft            # soft (default) | burn (opt-in) | none

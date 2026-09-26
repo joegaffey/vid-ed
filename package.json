@@ -1,6 +1,6 @@
 {
   "name": "vided",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Agentic video editor toolset: analyse media, compose an edit, render voice-over + captions.",
   "type": "module",
   "bin": {
