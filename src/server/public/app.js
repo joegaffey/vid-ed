@@ -388,8 +388,10 @@ class VidedApp extends LitElement {
     if (t.creation_time) rows.push(["Created", t.creation_time]);
     rows.push(["Hash", a.content_hash ? a.content_hash.slice(0, 19) + "…" : "–"]);
     return html`
-      <div class="preview">${this.renderPreview(a)}</div>
-      <div class="kv">${rows.map(([k, val]) => html`<div class="k">${k}</div><div class="v">${val}</div>`)}</div>
+      <div class="info-grid">
+        <div class="preview">${this.renderPreview(a)}</div>
+        <div class="kv">${rows.map(([k, val]) => html`<div class="k">${k}</div><div class="v">${val}</div>`)}</div>
+      </div>
     `;
   }
 
@@ -592,8 +594,13 @@ class VidedApp extends LitElement {
     .tab { border: 0; border-radius: 0; background: transparent; padding: 10px 12px; color: var(--muted); border-bottom: 2px solid transparent; }
     .tab:hover { color: var(--text); background: transparent; border-color: transparent; }
     .tab.active { color: var(--text); border-bottom-color: var(--accent); }
-    .detail-body { padding: 16px; display: grid; gap: 16px; align-content: start; }
-    .kv { display: grid; grid-template-columns: 130px 1fr; gap: 5px 12px; font-size: 12px; }
+    .detail-body { padding: 16px; display: grid; gap: 16px; align-content: start; container-type: inline-size; }
+    .info-grid { display: grid; gap: 18px; grid-template-columns: 1fr; align-items: start; }
+    .info-grid .preview { max-width: none; }
+    @container (min-width: 720px) {
+      .info-grid { grid-template-columns: minmax(0, 1.6fr) minmax(220px, 1fr); }
+    }
+    .kv { display: grid; grid-template-columns: 130px 1fr; gap: 5px 12px; font-size: 12px; align-content: start; }
     .kv .k { color: var(--muted); }
     .kv .v { word-break: break-word; }
     .segments { display: flex; flex-direction: column; }
