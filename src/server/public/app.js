@@ -584,7 +584,7 @@ class VidedApp extends LitElement {
       edit("Duration (s)", "f_duration", "number", c.duration, 0.1);
     }
     if (c.tags && c.tags.length) f("Tags", c.tags.join(", "));
-    if (c.note) f("Note", c.note);
+    edit("Note", "f_note", "textarea", c.note || "");
     if (meta.title || asset?.title) f("Asset title", meta.title || asset?.title);
     if (meta.role || asset?.role) f("Asset role", meta.role || asset?.role);
     if (meta.notes || asset?.notes) f("Asset notes", meta.notes || asset?.notes);
@@ -592,14 +592,16 @@ class VidedApp extends LitElement {
 
     const readClipPatch = () => {
       const g = (id) => this.renderRoot.getElementById(id);
+      const noteEl = g("f_note");
+      const base = noteEl ? { note: noteEl.value } : {};
       if (c.kind === "video") {
-        return { in: Number(g("f_in").value), out: Number(g("f_out").value), muted: g("f_muted").checked };
+        return { ...base, in: Number(g("f_in").value), out: Number(g("f_out").value), muted: g("f_muted").checked };
       }
       if (c.kind === "audio") {
         const o = g("f_out").value;
-        return { in: Number(g("f_in").value), out: o === "" ? undefined : Number(o), gain_db: Number(g("f_gain").value) };
+        return { ...base, in: Number(g("f_in").value), out: o === "" ? undefined : Number(o), gain_db: Number(g("f_gain").value) };
       }
-      return { duration: Number(g("f_duration").value) };
+      return { ...base, duration: Number(g("f_duration").value) };
     };
 
     const src = "/api/clips/preview?id=" + encodeURIComponent(c.id);
@@ -646,7 +648,9 @@ class VidedApp extends LitElement {
                 <div class="fv">${x.edit
                   ? x.edit.type === "checkbox"
                     ? html`<input id=${x.edit.id} type="checkbox" ?checked=${x.edit.value} />`
-                    : html`<input id=${x.edit.id} type=${x.edit.type} step=${x.edit.step ?? "any"} value=${x.edit.value} />`
+                    : x.edit.type === "textarea"
+                      ? html`<textarea id=${x.edit.id} rows="3">${x.edit.value}</textarea>`
+                      : html`<input id=${x.edit.id} type=${x.edit.type} step=${x.edit.step ?? "any"} value=${x.edit.value} />`
                   : x.v}</div>`)}
             </div>
             <div class="actions">
@@ -1301,6 +1305,7 @@ class VidedApp extends LitElement {
     .fields .fv { word-break: break-word; }
     .fields input[type="number"], .fields input[type="text"] { width: 130px; }
     .fields input[type="checkbox"] { width: auto; }
+    .fields textarea { width: 100%; resize: vertical; }
     .kv .k { color: var(--muted); }
     .kv .v { word-break: break-word; }
     .segments { display: flex; flex-direction: column; }

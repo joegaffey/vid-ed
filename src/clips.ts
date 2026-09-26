@@ -181,7 +181,7 @@ export function deriveClips(
           out: c.out,
           speed: 1,
           ...(tags.length ? { tags } : {}),
-          ...(descs.length ? { note: descs.join(" ").slice(0, 240) } : {}),
+          ...(descs.length ? { note: descs.join(" ") } : {}),
           ...(c.poster !== undefined ? { poster: c.poster } : {}),
           origin: "derived",
         });
