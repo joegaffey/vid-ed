@@ -13,6 +13,7 @@ import {
 import { loadContextInput, saveContextInput } from "../context.js";
 import { readManifest, makeSourceResolver } from "../manifest.js";
 import { explainEdl, loadEdlFile } from "../edl.js";
+import { applyEdlOps, type EdlOp } from "../edl-edit.js";
 import { JobQueue, resolveCliEntry } from "./jobs.js";
 import {
   HistoryStore,
@@ -267,7 +268,19 @@ export async function createStudioServer(opts: StudioServerOptions): Promise<Stu
       if (!loaded.ok || !loaded.edl) return sendJSON(res, 200, { empty: true, errors: loaded.errors });
       const manifest = await readManifest(paths);
       const explained = explainEdl(loaded.edl, makeSourceResolver(paths, manifest));
-      return sendJSON(res, 200, { file: relative(paths.root, edlPath), ...explained });
+      return sendJSON(res, 200, { file: relative(paths.root, edlPath), edl: loaded.edl, ...explained });
+    }
+
+    if (req.method === "POST" && path === "/api/edl/edit") {
+      const edlPath = join(paths.root, "edit.yaml");
+      if (!existsSync(edlPath)) return sendJSON(res, 400, { error: "no edit.yaml to edit" });
+      const before = await readFile(edlPath, "utf8");
+      const body = (await readBody(req)) as { ops?: unknown };
+      const ops = Array.isArray(body.ops) ? (body.ops as EdlOp[]) : [];
+      const result = applyEdlOps(before, ops);
+      if (!result.ok) return sendJSON(res, 400, { error: result.error, issues: result.issues });
+      const yaml = result.yaml!;
+      return sendJSON(res, 200, { yaml, diff: diffLines(before, yaml) });
     }
 
     // --- context ---------------------------------------------------------

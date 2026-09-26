@@ -101,6 +101,7 @@ class VidedApp extends LitElement {
     diffText: { state: true },
     stale: { state: true },
     staleNodes: { state: true },
+    proposal: { state: true },
   };
 
   constructor() {
@@ -128,6 +129,7 @@ class VidedApp extends LitElement {
     this.diffText = null;
     this.stale = null;
     this.staleNodes = [];
+    this.proposal = null;
     this._rail = Number(localStorage.getItem("vided.rail")) || 300;
     this._timeline = Number(localStorage.getItem("vided.timeline")) || 220;
     this._es = null;
@@ -212,6 +214,37 @@ class VidedApp extends LitElement {
 
   selectTimelineItem(it) {
     this.selection = { kind: "timelineItem", id: it.id, item: it };
+  }
+  rawItem(id) {
+    return (this.edl?.edl?.timeline || []).find((t) => t.id === id) || {};
+  }
+  async proposeEdl(ops) {
+    const r = await api.post("/api/edl/edit", { ops });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) { this.runhint = j.error || "edit failed"; return; }
+    this.proposal = { artifact: "edit.yaml", yaml: j.yaml, diff: j.diff };
+  }
+  async applyProposal() {
+    if (!this.proposal) return;
+    const r = await api.post("/api/apply", { artifact: this.proposal.artifact, content: this.proposal.yaml, label: "studio edit" });
+    this.proposal = null;
+    this.runhint = r.ok ? "applied" : "apply failed";
+    this.refresh();
+  }
+  discardProposal() { this.proposal = null; }
+  saveTimelineItem(it) {
+    const raw = this.rawItem(it.id);
+    if (it.type === "clip") {
+      const q = (id) => Number(this.renderRoot.getElementById(id).value);
+      this.proposeEdl([
+        { op: "trim", id: it.id, in: q("ti_in"), out: q("ti_out") },
+        { op: "set", id: it.id, patch: { speed: q("ti_speed") } },
+      ]);
+    } else {
+      const d = Number(this.renderRoot.getElementById("ti_dur").value);
+      this.proposeEdl([{ op: "set", id: it.id, patch: { duration: d } }]);
+    }
+    void raw;
   }
   zoomTimeline(dir) {
     const dur = this.edl?.duration || 1;
@@ -378,6 +411,10 @@ class VidedApp extends LitElement {
                 <td>${a.kind}</td><td class="path" title=${a.path}>${a.path}</td>
                 <td class="muted">${fmtDur(a.technical?.duration_s)}</td>
                 <td class="muted">${sel ? sel + "f" : ""}</td>
+                <td>${a.kind === "video"
+                  ? html`<button class="sm secondary" title="add to timeline"
+                      @click=${(e) => { e.stopPropagation(); this.addClip(a); }}>+</button>`
+                  : ""}</td>
               </tr>`;
             })}
           </tbody></table>`}
@@ -407,6 +444,11 @@ class VidedApp extends LitElement {
     const job = await r.json();
     await this.loadJobs();
     this.streamJob(job.id);
+  }
+
+  addClip(a) {
+    const out = Math.min(5, Math.round(a.technical?.duration_s ?? 5));
+    this.proposeEdl([{ op: "add-clip", source: a.id, in: 0, out: out || 1 }]);
   }
 
   renderAnalysis() {
@@ -602,6 +644,7 @@ class VidedApp extends LitElement {
 
   renderDetails() {
     const sel = this.selection;
+    if (this.proposal) return this.renderProposal();
     if (sel.kind === "history") return this.renderHistory();
     if (sel.kind === "timelineItem") return this.renderTimelineItem(sel.item);
     if (sel.kind !== "asset") {
@@ -759,26 +802,48 @@ class VidedApp extends LitElement {
     this.loadJobs();
   }
 
+  renderProposal() {
+    const p = this.proposal;
+    return html`
+      <div class="detail-head">
+        <div><span class="pill running">proposal</span> <strong>${p.artifact}</strong></div>
+        <div class="row">
+          <button class="secondary" @click=${() => this.discardProposal()}>discard</button>
+          <button class="primary" @click=${() => this.applyProposal()}>apply</button>
+        </div>
+      </div>
+      <div class="detail-body">
+        <div class="muted">Review the change, then apply.</div>
+        <pre class="textbox">${p.diff}</pre>
+      </div>
+    `;
+  }
+
   renderTimelineItem(it) {
-    const rows = [
-      ["Type", it.type],
-      ["ID", it.id],
-      ["Start", fmtSec(it.start)],
-      ["End", fmtSec(it.end)],
-      ["Duration", fmtSec(it.duration)],
-    ];
-    if (it.source) rows.push(["Source", it.source]);
-    if (it.title) rows.push(["Title", it.title]);
-    if (it.speed != null) rows.push(["Speed", it.speed]);
-    if (it.path) rows.push(["Path", it.path]);
+    const raw = this.rawItem(it.id);
+    const isClip = it.type === "clip";
+    const rows = [["Type", it.type], ["ID", it.id], ["Source", raw.source ?? it.source ?? ""], ["Path", it.path ?? ""]];
     return html`
       <div class="detail-head">
         <div><span class="pill">${it.type}</span> <strong>${it.id}</strong></div>
-        <div class="muted">${fmtSec(it.start)} → ${fmtSec(it.end)}</div>
+        <div class="row">
+          <button class="sm secondary" title="move earlier" @click=${() => this.proposeEdl([{ op: "reorder", id: it.id, delta: -1 }])}>◀</button>
+          <button class="sm secondary" title="move later" @click=${() => this.proposeEdl([{ op: "reorder", id: it.id, delta: 1 }])}>▶</button>
+          <button class="sm secondary" @click=${() => this.proposeEdl([{ op: "remove", id: it.id }])}>remove</button>
+        </div>
       </div>
       <div class="detail-body">
+        <div class="form">
+          ${isClip
+            ? html`<div class="row">
+                <div><label>in (s)</label><input id="ti_in" type="number" step="0.1" value=${raw.in ?? 0} /></div>
+                <div><label>out (s)</label><input id="ti_out" type="number" step="0.1" value=${raw.out ?? it.duration} /></div>
+                <div><label>speed</label><input id="ti_speed" type="number" step="0.1" value=${raw.speed ?? 1} /></div>
+              </div>`
+            : html`<div><label>duration (s)</label><input id="ti_dur" type="number" step="0.1" value=${raw.duration ?? it.duration} /></div>`}
+          <div class="actions"><button class="primary" @click=${() => this.saveTimelineItem(it)}>Review change</button><span class="muted">${this.runhint}</span></div>
+        </div>
         <div class="kv">${rows.map(([k, v]) => html`<div class="k">${k}</div><div class="v">${v}</div>`)}</div>
-        <p class="muted">Editing timeline items comes in a later phase.</p>
       </div>
     `;
   }
@@ -930,7 +995,8 @@ class VidedApp extends LitElement {
     table.media td { padding: 5px 6px; }
     table.media td:nth-child(1) { width: 46px; }
     table.media td:nth-child(3) { width: 42px; text-align: right; }
-    table.media td:nth-child(4) { width: 30px; text-align: right; }
+    table.media td:nth-child(4) { width: 34px; text-align: right; }
+    table.media td:nth-child(5) { width: 30px; text-align: right; }
     td.path { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     .detail-head { padding: 14px 16px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }

@@ -49,6 +49,14 @@ select which syncs the Details inspector. Editing (drag/trim) is P4.
 (`GET /api/staleness` — mtime along the stage graph; stale nodes shown in the
 Changes section with a **re-run** action).
 
+**P4 done** — basic timeline editing. `POST /api/edl/edit` applies ops
+(`trim`/`set`/`reorder`/`remove`/`add-clip`) to the `edit.yaml` **YAML AST**
+(preserving comments/structure), validates via `EdlSchema`, and returns the YAML
++ diff; the UI shows a **proposal** (diff + apply/discard) which lands through
+the mandatory-check/`/api/apply` history flow. Details has editable clip
+(in/out/speed) and card (duration) fields, plus move/remove; the Media bin has
+**+** to add a video as a clip.
+
 `vided Studio` is an optional local server + web UI for smart editing and
 fine-tuning where the agent is insufficient. The agent remains master; the CLI
 stays the source of truth. The studio is a **thin adapter**: it drives the same
