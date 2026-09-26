@@ -106,13 +106,20 @@ if (existsSync(sourcesDir)) {
 }
 
 // --- shell --------------------------------------------------------------
-const shell = (await readFile("src/server/public/index.html", "utf8")).replace(
-  "</head>",
-  '  <link rel="icon" href="data:," />\n  <script id="vided-config" type="application/json">{ "mode": "static" }</script>\n</head>',
-);
-await writeFile(join(OUT, "index.html"), shell, "utf8");
 await cp("dist/studio/app.js", join(OUT, "app.js"));
 await cp("dist/studio/app.css", join(OUT, "app.css"));
+const [jsBuf, cssBuf] = await Promise.all([
+  readFile(join(OUT, "app.js")),
+  readFile(join(OUT, "app.css")),
+]);
+const shell = (await readFile("src/server/public/index.html", "utf8"))
+  .replace("./app.css", `./app.css?v=${hash(cssBuf)}`)
+  .replace("./app.js", `./app.js?v=${hash(jsBuf)}`)
+  .replace(
+    "</head>",
+    '  <link rel="icon" href="data:," />\n  <script id="vided-config" type="application/json">{ "mode": "static" }</script>\n</head>',
+  );
+await writeFile(join(OUT, "index.html"), shell, "utf8");
 await writeFile(join(OUT, ".nojekyll"), "", "utf8");
 
 console.log(`studio demo → ${OUT} (clips ${clips.length}, outputs ${outputs.length})`);
