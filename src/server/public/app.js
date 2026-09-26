@@ -1342,7 +1342,7 @@ class VidedApp extends LitElement {
     .textbox { background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; max-height: 420px; overflow: auto; }
     .block { margin-top: 16px; display: grid; gap: 8px; }
     .block .row strong { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
-    .preview video, .preview img { width: 100%; display: block; max-height: 420px; object-fit: contain; }
+    .preview video, .preview img { width: 100%; height: auto; display: block; max-height: 60vh; object-fit: contain; }
     .frames h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 10px; }
     .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
     .frame { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
