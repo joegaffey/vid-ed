@@ -267,8 +267,6 @@ Run `vided <command> --help` for flags.
 
 ## Samples
 
-### Current (`vided.edl/3`, clip model — 0.2)
-
 - **`samples/rc-build-agent-demo/`** — a fresh agent was given only the two
   source videos + the gist screenshot and a one-paragraph prompt, and drove the
   whole pipeline itself (`annotate` on 50 frames → `clips` →
@@ -276,17 +274,6 @@ Run `vided <command> --help` for flags.
   Published: **https://www.youtube.com/watch?v=6v21-kAtpUo** (artifacts:
   `clips.yaml`, `edit.yaml`, `narration.yaml`, `brief.md`, `context.md`/`.json`,
   `vision.*`, `captions.*`).
-
-### Legacy (v0.1 — EDL `vided.edl/1`, no clips stage)
-
-The older samples (`rc-build-gist-demo`, `rc-build-firmware-demo`,
-`rc-build-demo`, `voice-demo`, `vision-demo`, `yt-case-design`,
-`yt-controller-test`) were **removed from `main`** — they predate the clip model
-and won't parse under 0.2. They remain on the **`v0.1` git tag**. The one
-published v0.1 cut (superseded by the 0.2 demo above):
-**https://youtu.be/YWU-AIhnUwo**.
-
-
 
 ## Development
 
