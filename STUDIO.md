@@ -231,4 +231,64 @@ persist in `localStorage`.
   UI.
 - **Concurrent CLI/studio writers** → single-writer queue + `.studio/` watcher.
 - **mtime false positives/negatives** → optional hash-confirm upgrade path.
-- **No framework** → keep components small; adopt Lit if complexity grows.
+- **Client build vs CLI build** → keep `lit`/`esbuild` as devDependencies and a
+  separate `build:studio`; the CLI runtime stays Node-built-ins + `execa`.
+
+## 15. Verification & testing
+
+**Today:** unit tests for the pure logic (`HistoryStore`, `staleness`,
+`applyEdlOps`, `diffLines`, context/scan) — 68 passing. There are **no studio
+API, E2E, or UX tests yet**, and no accessibility checks. This section is the
+plan for closing that.
+
+### Layers
+
+1. **Unit** (fast, no server) — history append/dedupe/revert, staleness graph,
+   `applyEdlOps` (ops + schema rejection + comment preservation), `diffLines`,
+   context merge, stage registry. The bulk of coverage; stay hermetic.
+2. **API / integration** (in-process server, temp project) — start
+   `createStudioServer` on an ephemeral port against a fixture project and
+   assert shapes/behaviour:
+   - `GET /api/status|manifest|context|edl|history|staleness|outputs`
+   - uploads (file + URL stub), frames list, media Range (`206`)
+   - `POST /api/apply|revert|diff` and history `writer` labelling
+   - watcher: external write → `agent` version + SSE event + regenerated
+     `STUDIO_CHANGES.md`
+   - `POST /api/edl/edit` → valid YAML, minimal diff, comments preserved
+   - jobs: enqueue → status → logs → cancel (SSE frame shape)
+3. **E2E / UX** (browser, optional) — Playwright (or the agent's browser tooling)
+   driving the real UI: upload → scan → sample → dedupe → annotate → script →
+   tts → captions → render; timeline edit → proposal → apply; external-edit
+   banner; stale re-run. Runs behind `npm run test:e2e`, not in the default suite.
+4. **Agent-driven smoke** — the `AGENTS.md` command sequence doubles as an
+   acceptance test: an agent runs it end-to-end and checks exit codes + JSON.
+
+### Invariants (must always hold)
+
+- **Mandatory check:** nothing writes a canonical artifact without `apply`.
+- **Provenance:** studio-originated writes are `writer: studio`; external writes
+  `agent`; **no auto-merge** of conflicts.
+- **History** is append-only, deduped against the current version, and preserves
+  the prior version for `revert`.
+- **Staleness** only flags artifacts that exist and have a newer input.
+- **UI principle:** no raw JSON/YAML in primary views.
+
+### UX acceptance criteria
+
+- No raw JSON/YAML in primary views; file contents only behind a collapsed
+  "technical log".
+- Every panel has empty, loading and error states; actions disable while a job
+  runs and surface failures.
+- Responsive: Details stacks below a 720px container; rail + timeline are
+  resizable and persisted.
+- Accessibility (AA): contrast, visible focus rings, full keyboard operation of
+  the rail, inspector and timeline.
+- Provenance badges (studio/agent) and a **non-destructive diff** before any
+  commit.
+
+### Tooling & CI
+
+- `npm run test:studio` (unit + API, hermetic; mocked `fetch`, temp dirs) kept
+  separate from `npm test`; `npm run test:e2e` (Playwright) optional.
+- A tiny checked-in fixture project (2 clips + 1 image) for API/E2E tests.
+- FFmpeg-dependent assertions skip when `vided doctor` reports it missing.

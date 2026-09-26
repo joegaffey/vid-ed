@@ -19,6 +19,7 @@
     "dev": "tsx src/cli.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "npm run build && node --test \"dist/test/**/*.test.js\"",
+    "test:studio": "npm run build && node --test \"dist/test/studio-api.test.js\"",
     "prepare": "npm run build"
   },
   "dependencies": {
