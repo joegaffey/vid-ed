@@ -152,8 +152,11 @@ must satisfy from this file alone:
 2. Write `brief.md` (audience/tone/target length), then
    `vided manifest --context-pack work/context.md` and read it.
 3. `vided script --out narration.yaml` (scaffolds beats from described frames);
-   rewrite the prose. Then `vided tts narration.yaml` → `work/narration.wav`.
-4. `vided captions --from narration` → `work/captions.ass`.
+   rewrite the prose. Then `vided tts narration.yaml` → `work/narration.wav`
+   (+ `work/narration.timing.json`). Trim visual clips to roughly the narration
+   length — derived scene clips can be long (`clips --add` a shorter range).
+4. `vided captions --from narration --formats srt,vtt,ass` → `work/captions.ass`
+   (burn needs the `.ass`; the default is srt,vtt only).
 5. `vided clips`; add generated cards with `clips --add`, and register the
    narration as an audio clip, e.g.
    `clips --add '{"id":"vo","kind":"audio","source":"work/narration.wav","format":"audio48k"}'`.

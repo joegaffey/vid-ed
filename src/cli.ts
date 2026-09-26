@@ -289,7 +289,7 @@ program
   .option("--assets <id...>", "limit to asset ids")
   .option("--force", "regenerate derived clips (preserves authored)", false)
   .option("--check", "validate clips.yaml", false)
-  .option("--add <json>", "add a clip (JSON)")
+  .option("--add <json...>", "add clips (one or more JSON objects)")
   .option("--set <id=json...>", "patch a clip's fields")
   .option("--rm <id...>", "remove clips by id")
   .option("--merge-gap <s>", "merge transcript beats across pauses", parseFloat)

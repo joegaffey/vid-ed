@@ -15,7 +15,7 @@ export interface ClipsOptions extends OutputOptions {
   assets?: string[];
   force?: boolean;
   check?: boolean;
-  add?: string;
+  add?: string[];
   remove?: string[];
   set?: string[];
   mergeGap?: number;
@@ -82,14 +82,11 @@ export async function cmdClips(opts: ClipsOptions): Promise<void> {
   }
   let clips: ClipInput[] = existing;
 
-  if (opts.add) {
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(opts.add);
-    } catch (err) {
-      fail(`--add expects JSON: ${(err as Error).message}`);
-    }
-    clips = [...clips, ClipsSchema.parse({ schema: "vided.clips/1", clips: [parsed] }).clips[0]!];
+  // Mutate in a predictable order: remove, then set, then add (so an add is
+  // never clobbered by a co-supplied remove).
+  if (opts.remove?.length) {
+    const rm = new Set(opts.remove);
+    clips = clips.filter((c) => !rm.has(c.id));
   }
   if (opts.set) {
     for (const spec of opts.set) {
@@ -106,12 +103,19 @@ export async function cmdClips(opts: ClipsOptions): Promise<void> {
       if (!found) fail(`No clip "${id}" to set.`);
     }
   }
-  if (opts.remove?.length) {
-    const rm = new Set(opts.remove);
-    clips = clips.filter((c) => !rm.has(c.id));
+  if (opts.add?.length) {
+    for (const spec of opts.add) {
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(spec);
+      } catch (err) {
+        fail(`--add expects JSON: ${(err as Error).message}`);
+      }
+      clips = [...clips, ClipsSchema.parse({ schema: "vided.clips/1", clips: [parsed] }).clips[0]!];
+    }
   }
 
-  const mutating = Boolean(opts.add || opts.set || opts.remove?.length);
+  const mutating = Boolean(opts.add?.length || opts.set || opts.remove?.length);
   if (!mutating) {
     if (!hasPlaceableMedia(manifest)) {
       emit({ ok: true, clips: 0, out: outPath }, () => "No placeable media — nothing to derive.", opts);
