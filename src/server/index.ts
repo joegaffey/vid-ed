@@ -10,7 +10,7 @@ import {
   ContextInputSchema,
   ContextAssetInputSchema,
 } from "../schemas/context-input.js";
-import { loadContextInput, saveContextInput } from "../context.js";
+import { loadBrief, loadContextInput, saveBrief, saveContextInput } from "../context.js";
 import { readManifest, makeSourceResolver } from "../manifest.js";
 import { clipsById, loadClips } from "../clips.js";
 import { CLIPS_FILE } from "../clips.js";
@@ -340,14 +340,21 @@ export async function createStudioServer(opts: StudioServerOptions): Promise<Stu
     }
     if (req.method === "GET" && path === "/api/context") {
       const context = (await loadContextInput(paths)) ?? ContextInputSchema.parse({});
-      return sendJSON(res, 200, context);
+      const brief = await loadBrief(paths);
+      return sendJSON(res, 200, { ...context, brief: brief ?? "", brief_source: brief ? "brief.md" : null });
     }
     if (req.method === "PUT" && path === "/api/context") {
-      const body = await readBody(req);
-      const parsed = ContextInputSchema.safeParse(body);
+      const body = (await readBody(req)) as Record<string, unknown>;
+      const { brief, ...rest } = body;
+      const parsed = ContextInputSchema.safeParse(rest);
       if (!parsed.success) return sendJSON(res, 400, { error: parsed.error.issues.map((i) => i.message) });
+      if (typeof brief === "string") await saveBrief(paths, brief);
       await saveContextInput(paths, parsed.data);
-      return sendJSON(res, 200, parsed.data);
+      return sendJSON(res, 200, {
+        ...parsed.data,
+        brief: typeof brief === "string" ? brief.trim() : "",
+        brief_source: typeof brief === "string" && brief.trim() ? "brief.md" : null,
+      });
     }
     const assetCtx = /^\/api\/context\/assets\/(.+)$/.exec(path);
     if (assetCtx && req.method === "PUT") {

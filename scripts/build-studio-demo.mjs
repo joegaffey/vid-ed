@@ -44,7 +44,8 @@ await writeJSON("status", {
 });
 await writeJSON("manifest", manifest);
 await writeJSON("clips", { file: "clips.yaml", clips, formats: Object.keys(KNOWN_FORMATS) });
-await writeJSON("context", {});
+const brief = existsSync(join(SAMPLE, "brief.md")) ? await read("brief.md") : "";
+await writeJSON("context", { brief, brief_source: brief ? "brief.md" : null });
 await writeJSON("jobs", []);
 await writeJSON("staleness", []);
 

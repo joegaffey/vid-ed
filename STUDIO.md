@@ -12,8 +12,8 @@ and exposes `/api/status`, `/api/manifest`, `/api/jobs` (+ SSE) and `/api/jobs/:
 context editing (`context.yaml` + per-input metadata), parameterized stage runs,
 frame gallery (`/api/assets/:id/frames`, `/api/frames/...`), media serving with
 HTTP Range, and outputs listing/download. Context is now read by
-`manifest --context-pack` and `script` (brief, directives, per-input
-title/role/tags/notes).
+`manifest --context-pack` and `script` (the brief from `brief.md`, directives,
+per-input title/role/tags/notes).
 
 **UI redesign — Phase A done** — NLE-style shell: top bar (project, tool health,
 refresh), a resizable **left rail with accordion sections** (Project, Media bin,
@@ -34,8 +34,9 @@ role/tags/notes → `context.yaml`). Raw CLI output stays behind a collapsed
 
 **Sections — Phase D done** — **Analysis** (project-wide parameterized stage
 runs: scan/extract-text/sample/dedupe/manifest/script/tts/captions/render),
-**Context** (full `context.yaml`: brief, audience, tone, target duration,
-must-include, avoid, voice, language, pronunciation; save + build context pack),
+**Context** (`brief.md` (the brief) plus `context.yaml`: audience, tone, target
+duration, must-include, avoid, voice, language, pronunciation; save + build
+context pack),
 **Vision** (selected/annotated counts; build packet / ingest results).
 
 **Timeline — Phase E done** — the bottom timeline renders `edit.yaml` read-only
@@ -96,9 +97,11 @@ server.
 
 ## 4. Context model
 
-- **`context.yaml`** (`vided.context.input/1`): prose `brief` plus
+- **`brief.md`** (project root) is the **single source** of the project brief
+  (prose). The Context panel reads and writes it.
+- **`context.yaml`** (`vided.context.input/1`): the structured fields —
   `audience, tone, target_duration_s, must_include, avoid, pronunciation, voice,
-  language`. `brief.md` remains a fallback for existing projects.
+  language`. It has no `brief` field.
 - **Per-input metadata:** `context.yaml` `assets:` map (path-keyed) for
   `title/role/tags/notes`.
 - **Sidecars next to media:** `<media>.md` (notes), `<media>.srt|.vtt|.txt`
@@ -217,7 +220,8 @@ one at a time.
   trim, add to timeline; edits land as a proposal → apply.
 - **Analysis** — parameterized stage runs (`STAGE_PARAMS`), candidate → selected
   frames.
-- **Context** — brief/structured fields; save + build context pack.
+- **Context** — the brief (`brief.md`) plus the structured fields; save + build
+  context pack.
 - **Vision** — selected/annotated counts; Build packet / Ingest results.
   Descriptions are read-only here (per-asset frames live in Details → Frames).
 - **Captions** — captions mode/file/export, written to `edit.yaml` via a

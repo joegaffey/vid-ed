@@ -978,7 +978,8 @@ class VidedApp extends LitElement {
     if (!c) return html`<p class="muted">No context.</p>`;
     const pron = Object.entries(c.pronunciation || {}).map(([k, v]) => k + ": " + v).join("\n");
     return html`
-      <label>Brief</label><textarea id="cx_brief" rows="4">${c.brief || ""}</textarea>
+      <label>Brief <span class="muted">(brief.md)</span></label>
+      <textarea id="cx_brief" rows="4">${c.brief || ""}</textarea>
       <label>Audience</label><input id="cx_audience" .value=${c.audience || ""} />
       <label>Tone</label><input id="cx_tone" .value=${c.tone || ""} />
       <label>Target duration (s)</label><input id="cx_target" type="number" .value=${c.target_duration_s || ""} />
@@ -1024,7 +1025,7 @@ class VidedApp extends LitElement {
       pronunciation,
     };
     const r = await api.put("api/context", body);
-    this.runhint = r.ok ? "context saved" : "context save failed";
+    this.runhint = r.ok ? "brief.md + context.yaml saved" : "context save failed";
     await this.loadContext();
   }
 

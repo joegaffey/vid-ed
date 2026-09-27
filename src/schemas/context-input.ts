@@ -11,7 +11,8 @@ export const ContextAssetInputSchema = z.object({
 
 export const ContextInputSchema = z.object({
   schema: z.literal(CONTEXT_INPUT_VERSION).default(CONTEXT_INPUT_VERSION),
-  brief: z.string().optional(),
+  // The project brief lives in `brief.md` (the single source); structured
+  // context fields live here.
   audience: z.string().optional(),
   tone: z.string().optional(),
   target_duration_s: z.number().positive().optional(),

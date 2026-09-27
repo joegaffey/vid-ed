@@ -9,7 +9,7 @@ async function fixture(): Promise<string> {
   const root = await mkdtemp(join(tmpdir(), "vided-api-"));
   await mkdir(join(root, ".vided"), { recursive: true });
   await writeFile(join(root, ".vided", "config.json"), "{}\n");
-  await writeFile(join(root, "context.yaml"), "schema: vided.context.input/1\nbrief: hello\n");
+  await writeFile(join(root, "context.yaml"), "schema: vided.context.input/1\ntone: warm\n");
   await writeFile(
     join(root, "clips.yaml"),
     'schema: vided.clips/1\nclips:\n  - { id: c1, kind: video, source: clipA, format: "720p30", in: 0, out: 4 }\n',
@@ -55,7 +55,7 @@ test("studio API: history, apply, diff, revert, edl edit, staleness", async () =
     const applied = (await (
       await post(base, "/api/apply", {
         artifact: "context.yaml",
-        content: "schema: vided.context.input/1\nbrief: changed\n",
+        content: "schema: vided.context.input/1\ntone: cool\n",
         label: "test",
       })
     ).json()) as { ok?: boolean };
@@ -73,14 +73,14 @@ test("studio API: history, apply, diff, revert, edl edit, staleness", async () =
       await post(base, "/api/diff", { artifact: "context.yaml", hash: versions.versions[0]!.hash })
     ).json()) as { changed?: boolean; diff?: string };
     assert.equal(diff.changed, true);
-    assert.ok(String(diff.diff).includes("brief:"));
+    assert.ok(String(diff.diff).includes("tone:"));
 
     // revert to the first version
     const reverted = (await (
       await post(base, "/api/revert", { artifact: "context.yaml", hash: versions.versions[0]!.hash })
     ).json()) as { ok?: boolean };
     assert.equal(reverted.ok, true);
-    assert.ok((await readFile(join(root, "context.yaml"), "utf8")).includes("hello"));
+    assert.ok((await readFile(join(root, "context.yaml"), "utf8")).includes("warm"));
 
     // EDL edit (set placement) returns structure-preserving YAML
     const edl = (await (
@@ -121,6 +121,32 @@ test("studio API: external edit is recorded as writer agent", async () => {
     assert.equal(h.versions.at(-1)!.writer, "agent");
     const notice = await readFile(join(root, ".vided", "STUDIO_CHANGES.md"), "utf8");
     assert.ok(!notice.includes("narration.yaml")); // agent wrote it, so no studio entry
+  } finally {
+    await server.close();
+  }
+});
+
+test("studio API: the brief lives in brief.md", async () => {
+  const root = await fixture();
+  await writeFile(join(root, "brief.md"), "hello\n");
+  const server = await startServer(root);
+  const base = server.url;
+  try {
+    const before = (await getJSON(base + "/api/context")) as { brief: string; brief_source: string | null };
+    assert.equal(before.brief, "hello");
+    assert.equal(before.brief_source, "brief.md");
+
+    const res = await fetch(base + "/api/context", {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ ...before, brief: "new brief" }),
+    });
+    assert.equal(res.status, 200);
+    assert.ok((await readFile(join(root, "brief.md"), "utf8")).includes("new brief"));
+
+    const after = (await getJSON(base + "/api/context")) as { brief: string; brief_source: string | null };
+    assert.equal(after.brief, "new brief");
+    assert.equal(after.brief_source, "brief.md");
   } finally {
     await server.close();
   }

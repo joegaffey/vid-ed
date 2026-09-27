@@ -158,8 +158,9 @@ path so it is stable across re-runs.
 - Produce a distilled **context pack** (`context.md` and `context.json`) sized
   for an agent's context window: per-asset summary, transcript (trimmed),
   scene list, selected frames with descriptions, and tags. No raw media blobs.
-- Fold in human/agent-supplied context: a project-level `brief.md` (audience,
-  tone, target length, must-include) and per-input sidecars
+- Fold in human/agent-supplied context: a project-level `brief.md` (the single
+  source of the brief; audience, tone, target length, must-include; editable in
+  the studio) and per-input sidecars
   (`<media>.md`, `<base>.notes.md`) as per-asset `notes`. This is the durable
   landing place for context gathered through agent conversation — no UI or
   extra schema needed to capture it.

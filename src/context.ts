@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { readFile, writeFile } from "node:fs/promises";
+import { readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { parse as parseYaml, stringify as toYaml } from "yaml";
 import type { Paths } from "./config.js";
@@ -14,6 +14,7 @@ import type { Clip } from "./schemas/clips.js";
 
 export const CONTEXT_VERSION = "vided.context/1";
 export const CONTEXT_INPUT_FILE = "context.yaml";
+export const BRIEF_FILE = "brief.md";
 
 /** Structured input context: `context.yaml` at the root or in `.vided/`. */
 export async function loadContextInput(paths: Paths): Promise<ContextInput | undefined> {
@@ -29,6 +30,22 @@ export async function loadContextInput(paths: Paths): Promise<ContextInput | und
 export async function saveContextInput(paths: Paths, input: ContextInput): Promise<string> {
   const p = join(paths.root, CONTEXT_INPUT_FILE);
   await writeFile(p, toYaml(ContextInputSchema.parse(input)), "utf8");
+  return p;
+}
+
+/** The single source of the project brief is `brief.md` (root or `.vided/`). */
+export function briefPath(paths: Paths): string {
+  return join(paths.root, BRIEF_FILE);
+}
+
+export async function saveBrief(paths: Paths, text: string): Promise<string | undefined> {
+  const p = briefPath(paths);
+  const trimmed = text.trim();
+  if (!trimmed) {
+    if (existsSync(p)) await rm(p, { force: true });
+    return undefined;
+  }
+  await writeFile(p, text.endsWith("\n") ? text : text + "\n", "utf8");
   return p;
 }
 
@@ -85,11 +102,9 @@ export interface ContextJson {
   assets: ContextAsset[];
 }
 
-/** Project-level brief: `context.yaml` brief, then `brief.md`. */
+/** Project-level brief; `brief.md` (root, else `.vided/`) is the single source. */
 export async function loadBrief(paths: Paths): Promise<string | undefined> {
-  const context = await loadContextInput(paths);
-  if (context?.brief?.trim()) return context.brief.trim();
-  for (const p of [join(paths.root, "brief.md"), join(paths.dir, "brief.md")]) {
+  for (const p of [join(paths.root, BRIEF_FILE), join(paths.dir, BRIEF_FILE)]) {
     if (existsSync(p)) {
       const text = (await readFile(p, "utf8")).trim();
       if (text) return text;

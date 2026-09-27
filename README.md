@@ -201,8 +201,9 @@ supply it is through the agent — just tell it audience, tone, target length,
 must-includes, and per-clip notes. The agent persists that to files so it
 survives the session:
 
-- **`brief.md`** (project root) — overall context: audience, tone, target
-  duration, must-include/avoid, pronunciation.
+- **`brief.md`** (project root) — the single source for the project brief:
+  audience, tone, target duration, must-include/avoid, pronunciation. A human can
+  edit the same file in the studio's **Context** panel.
 - **Per-input sidecars** next to the media — `<media>.md`, e.g.
   `input/clip01.mp4.md`, for clip-specific notes ("use the first 6s", speaker,
   role).
