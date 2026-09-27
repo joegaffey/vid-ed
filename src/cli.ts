@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { createRequire } from "node:module";
 import { Command } from "commander";
 import { cmdInit } from "./commands/init.js";
 import { cmdDoctor } from "./commands/doctor.js";
@@ -19,12 +20,14 @@ import { cmdScript } from "./commands/script.js";
 import type { OutputOptions } from "./ui.js";
 import { fail } from "./ui.js";
 
+const { version } = createRequire(import.meta.url)("../package.json") as { version: string };
+
 const program = new Command();
 
 program
   .name("vided")
   .description("Agentic video editor toolset")
-  .version("0.1.0")
+  .version(version)
   .option("--human", "human-readable output (default is JSON)", false)
   .option("--json", "JSON output (default)", true)
   .option("-q, --quiet", "suppress output", false)
