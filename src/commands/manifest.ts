@@ -17,7 +17,9 @@ export async function cmdManifest(opts: ManifestOptions): Promise<void> {
   const paths = projectPaths(opts.dir);
   const config = await loadConfig(paths);
   const assets = await readAllAssets(paths);
-  if (!assets.length) fail("No assets found. Run `vided scan` first.");
+  // A context pack can be built before any media is scanned (brief + directives
+  // are independent of assets); a plain manifest rebuild still needs assets.
+  if (!assets.length && !opts.contextPack) fail("No assets found. Run `vided scan` first.");
   const manifest = await refreshManifest(paths, config, assets);
 
   const result: Record<string, unknown> = {
