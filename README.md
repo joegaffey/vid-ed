@@ -12,13 +12,25 @@ Typical ask: **"Make a narrated video from these clips."** See
 [`AGENTS.md`](./AGENTS.md) for the ordered workflow, starter prompts and the
 vision (frame description) step, and the worked example below for a full prompt.
 
-```
-ANALYZE (cached) -> MANIFEST -> CLIPS -> COMPOSE (agent) -> RENDER (ffmpeg)
-scan / extract-text / sample / dedupe / annotate
-                                clips.yaml pool of source clips
-                                           agent reads manifest + context pack
-                                           and writes edit.yaml referencing clips
-                                                          edit.yaml -> ffmpeg -> video
+```mermaid
+flowchart TD
+    MEDIA["input/ — video · audio · images"]
+
+    subgraph ANALYZE["ANALYZE · cached by content hash"]
+        direction LR
+        SCAN["scan"] --> TEXT["extract-text"] --> SAMPLE["sample"] --> DEDUPE["dedupe"] --> ANNOTATE["annotate"]
+    end
+
+    subgraph ARTIFACTS["generated artifacts"]
+        direction LR
+        MANIFEST[".vided/manifest.json"] --> CLIPS["clips.yaml · clip pool"] --> CONTEXT["context pack (.md + .json)"]
+    end
+
+    COMPOSE["COMPOSE · agent<br/>reads the pack, writes edit.yaml"]
+    RENDER["RENDER · ffmpeg"]
+    OUT["out/final.mp4<br/>+ caption sidecars"]
+
+    MEDIA --> ANALYZE --> ARTIFACTS --> COMPOSE --> RENDER --> OUT
 ```
 
 See [`SPEC.md`](./SPEC.md) for the full design and [`AGENTS.md`](./AGENTS.md)
