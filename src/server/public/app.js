@@ -188,6 +188,7 @@ class VidedApp extends LitElement {
     diffText: { state: true },
     stale: { state: true },
     staleNodes: { state: true },
+    demoBanner: { state: true },
     proposal: { state: true },
     renderMeta: { state: true },
   };
@@ -221,6 +222,7 @@ class VidedApp extends LitElement {
     this.diffText = null;
     this.stale = null;
     this.staleNodes = [];
+    this.demoBanner = localStorage.getItem("vided.demoBanner") !== "0";
     this.proposal = null;
     this.renderMeta = null;
     this._rail = Number(localStorage.getItem("vided.rail")) || 300;
@@ -419,6 +421,9 @@ class VidedApp extends LitElement {
     }
   }
   onMasterTime(e) {
+    // The playhead scrubs the video; a paused video must not drive the playhead
+    // (a freshly-loaded <video> emits timeupdate at 0, which would snap it back).
+    if (e.target.paused) return;
     const t = Number((e.target.currentTime || 0).toFixed(2));
     if (t !== this.playhead) this.playhead = t;
   }
@@ -1477,6 +1482,13 @@ class VidedApp extends LitElement {
 
   render() {
     return html`
+      ${DEMO && this.demoBanner
+        ? html`<div class="demo-banner">
+            <span>🎬 Read-only demo — this is a static snapshot; editing, uploads and rendering are disabled.</span>
+            <button class="demo-close" title="Dismiss" aria-label="Dismiss" @click=${() => this.dismissDemoBanner()}>✕</button>
+          </div>`
+        : ""}
+      <div class="shell">
       <header>
         <div class="brand">vid-ed <span class="muted">studio</span></div>
         <div class="proj muted">${this.status ? "project: " + this.status.project : ""}</div>
@@ -1510,20 +1522,27 @@ class VidedApp extends LitElement {
 
       <div class="timeline-resize" @pointerdown=${this.startTimelineDrag}></div>
       <footer class="timeline">${this.renderTimeline()}</footer>
+      </div>
       ${this.stale
         ? html`<div class="banner">
             ⚠️ <b>${this.stale}</b> changed on disk (agent) ·
             <button class="sm" @click=${() => { this.stale = null; this.refresh(); }}>reload</button>
           </div>`
         : ""}
-      ${DEMO
-        ? html`<div class="banner">🎬 Read-only demo — this is a static snapshot; editing, uploads and rendering are disabled.</div>`
-        : ""}
     `;
   }
 
+  dismissDemoBanner() {
+    this.demoBanner = false;
+    try { localStorage.setItem("vided.demoBanner", "0"); } catch { /* ignore */ }
+  }
+
   static styles = [base, css`
-    :host { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: 44px 1fr 4px var(--timeline); height: 100vh; width: 100%; overflow: hidden; }
+    :host { display: flex; flex-direction: column; height: 100vh; width: 100%; overflow: hidden; }
+    .shell { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: 44px 1fr 4px var(--timeline); flex: 1; min-height: 0; }
+    .demo-banner { flex: none; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 6px 12px; background: var(--panel-3); border-bottom: 1px solid var(--warn); color: var(--text); font-size: 13px; }
+    .demo-close { flex: none; border: 1px solid var(--line-strong); background: var(--panel-2); color: var(--muted); border-radius: 6px; padding: 2px 8px; cursor: pointer; line-height: 1.2; }
+    .demo-close:hover { color: var(--text); border-color: var(--accent); }
     header { display: flex; align-items: center; gap: 12px; padding: 0 14px; border-bottom: 1px solid var(--line); background: var(--panel); }
     .brand { font-weight: 700; }
     .brand .muted { font-weight: 400; }
