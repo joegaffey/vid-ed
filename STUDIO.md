@@ -1,6 +1,8 @@
-# STUDIO.md — vid-ed Studio (proposed)
+# STUDIO.md — vid-ed Studio
 
-Status: DRAFT — plan only. Phasing (§13) is provisional pending spec review.
+Status: **implemented, experimental.** P0/P1/P2/P4 and UI Phases A–E are done
+(§13); **P3** (narration editor) and **P5** (vision description editing) are
+**not**. The UI and on-disk behaviour may still change.
 
 Implementation status: **P0 done** — `vided studio` starts a local server
 (Node built-ins + existing `execa`, no new deps) that serves a static UI shell
@@ -15,9 +17,10 @@ title/role/tags/notes).
 
 **UI redesign — Phase A done** — NLE-style shell: top bar (project, tool health,
 refresh), a resizable **left rail with accordion sections** (Project, Media bin,
-Analysis, Context, Vision, Output, Activity), a center **Details** view for the
-selected artefact (asset Overview with a streaming preview + frame gallery), and a
-resizable bottom **Timeline** placeholder. Built with **Lit** (client bundled by
+Clips, Analysis, Context, Vision, Captions, Output, Changes, Activity), a center
+**Details** view for the selected artefact (asset Overview with a streaming
+preview + frame gallery), and a resizable bottom **Timeline** (built out in
+Phase E). Built with **Lit** (client bundled by
 `esbuild` via `npm run build:studio`), served statically from `dist/studio`.
 Selection model `{ kind: 'none'|'asset'|'timelineItem', id }`; pane sizes and the
 open section persist in `localStorage`.
@@ -41,7 +44,8 @@ via `GET /api/edl` (explain): ruler, a video lane with items coloured by type
 select which syncs the Details inspector. Editing (drag/trim) is P4.
 
 **P2 done** — per-artifact history in `.studio/history/<artifact>.json`
-(array, deduped), `GET /api/history[/:artifact]`, `POST /api/apply|revert|diff`
+(`{ artifact, versions }`, deduped), `GET /api/history[/:artifact]`,
+`POST /api/apply|revert|diff`
 (mandatory-check writes), a 2s watcher that records external edits as
 `writer: agent` (studio-run jobs as `writer: studio`), the
 `.vided/STUDIO_CHANGES.md` notification file, an SSE change stream
@@ -153,13 +157,13 @@ UI forms onto the registry shape below is a planned refactor:
 - **Staleness:** **mtime-based along the registry graph** — artifact A is stale
   if any registry-declared input has `mtime > A.ts`. Studio-only; never surfaced
   by the CLI.
-- **Watcher:** `fs.watch` with a **2s polling fallback**; on change append a
+- **Watcher:** a **2s polling interval** (no `fs.watch`); on change append a
   `writer: "agent"` version and recompute staleness.
 
 ## 9. Storage layout
 
-- **`.studio/`** (top level, gitignored, skipped by `scan`): `history/`,
-  `drafts/`, watcher state. Off-limits to the agent.
+- **`.studio/`** (top level, gitignored): `history/` (the only thing written
+  today). Off-limits to the agent.
 - **Agent-space notification file:** `.vided/STUDIO_CHANGES.md`, maintained by
   the studio. It lists artifacts whose **latest writer is `studio`**, with the
   last-changed time; when the agent later writes an artifact, its entry is
@@ -168,19 +172,24 @@ UI forms onto the registry shape below is a planned refactor:
 
 ## 10. API surface
 
-- `GET /api/status|manifest|context`; `PUT /api/context`,
-  `PUT /api/context/assets/:id`
-- `POST /api/uploads` (files + URLs via optional `yt-dlp`); `POST /api/scan`
-- `POST /api/jobs` `{ op, args }`, `GET /api/jobs`, `GET /api/jobs/:id`,
-  `GET /api/jobs/:id/events` (SSE), `DELETE /api/jobs/:id`
-- `GET /api/assets/:id/frames`, `GET|PUT /api/assets/:id/transcript`,
-  `POST /api/assets/:id/reset`
+- `GET /api/status|manifest|edl|clips|context|context-pack|changes|staleness`
+- `PUT /api/context`; `PUT /api/context/assets/:key`
+- `POST /api/uploads` (files, raw body); `POST /api/uploads/url` (URL via
+  optional `yt-dlp`)
+- `POST /api/clips/edit`; `POST /api/edl/edit` (ops → YAML + diff)
+- `POST /api/apply|revert|diff`; `GET /api/history/:artifact`
+- `POST /api/jobs` `{ op, args }`; `GET /api/jobs`; `GET /api/jobs/:id`;
+  `GET /api/jobs/:id/events` (SSE); `DELETE /api/jobs/:id` (cancel)
+- `GET /api/assets/:id/frames`; `GET /api/frames/:assetId/:file`
 - `GET /api/media/:assetId` (HTTP Range)
-- `GET /api/history/:artifact`, `POST /api/diff`, `POST /api/apply`,
-  `POST /api/revert`
-- `GET|PUT /api/narration`, `POST /api/narration/:i/preview`;
-  `GET|PUT /api/edl`, `POST /api/edl/check|lint|explain`, `POST /api/render`
-- `GET /api/outputs`, `GET /api/outputs/:file`
+- `GET /api/outputs` (alias `/api/renders`); `GET /api/outputs/:file`;
+  `GET /api/render-info/:file`
+- `GET /api/events` (SSE — jobs, watcher and staleness)
+
+Every stage run (`scan`, `render`, …) goes through `POST /api/jobs`; there are
+no per-stage routes. **Not implemented yet:** per-asset transcript/reset,
+narration editing (P3), and `edl/check|lint|explain` (validation happens inside
+`edl/edit` and the jobs).
 
 ## 11. UI surfaces
 
@@ -198,27 +207,40 @@ view for the selected artefact; a resizable bottom **Timeline**. Selection is
 `{ kind: 'none'|'asset'|'timelineItem', id }`; pane sizes and the open section
 persist in `localStorage`.
 
+The rail's sections are, in order: **Project · Media bin · Clips · Analysis ·
+Context · Vision · Captions · Output · Changes · Activity**. An accordion opens
+one at a time.
+
 - **Project** — status, `doctor`, quick pipeline.
 - **Media bin** — upload (files/URL), search, asset list (click → Details).
-- **Analysis** — parameterized runs, candidate → selected frames.
-- **Context** — brief/structured fields.
-- **Vision** — frame gallery with editable descriptions/tags.
-- **Script** — narration segments (text/timing/voice), per-segment TTS preview.
-- **Output** — rendered files, sidecars, publish metadata.
+- **Clips** — the clip pool (`clips.yaml`): per-clip preview at its own format,
+  trim, add to timeline; edits land as a proposal → apply.
+- **Analysis** — parameterized stage runs (`STAGE_PARAMS`), candidate → selected
+  frames.
+- **Context** — brief/structured fields; save + build context pack.
+- **Vision** — selected/annotated counts; Build packet / Ingest results.
+  Descriptions are read-only here (per-asset frames live in Details → Frames).
+- **Captions** — captions mode/file/export, written to `edit.yaml` via a
+  proposal (full narration editing is P3, not done).
+- **Output** — rendered files, sidecars, render info.
+- **Changes** — history, proposals/diff/apply/revert, and stale nodes with a
+  re-run action.
 - **Activity** — jobs list + live log (SSE).
 - **Details** — asset tabs (kind-aware: Overview · Transcript · Frames · Notes;
-  actions colocated with their output) or timeline-item editor
-  (clip/title/slide/still).
-- **Timeline** — read-only from `edit.yaml` first, editable later (P4).
-- **Review** — diff/apply/revert, integrated into every editor (P2).
+  actions colocated with their output), the clip inspector, or the timeline-item
+  editor (clip/title/slide/still). Diffs/apply/revert render inline here as a
+  proposal (P2), not as a separate panel.
+- **Timeline** — from `edit.yaml`: ruler, video lane (items coloured by type) and
+  an audio lane, playhead (click/drag to scrub the rendered master), zoom (−/+,
+  fit) and keyboard transport; selectable, and editable via proposals (P4 done).
 - **Help** — every major panel (rail sections, Details tabs, Timeline) has a
   `?` button opening an anchored, non-modal help popover (native `popover`, so
   click-away/`Esc` dismiss; `HELP` map in `app.js`).
 
 ## 12. CLI impact
 
-- New: `vided studio` (lazy-imported so existing commands never load server
-  deps), optional `studio` config fields.
+- New: `vided studio [--port <n>] [--host <host>]` (lazy-imported so existing
+  commands never load server deps). No `studio` config fields exist yet.
 - Unchanged: all existing commands' JSON, flags and exit codes.
 - `.studio/` is additive; the agent-space notification file is runtime-generated.
 - No `vided changes` command (replaced by the notification file).
@@ -231,9 +253,13 @@ persist in `localStorage`.
   outputs.
 - **P2** — history/proposals/diff/apply/revert + staleness + watcher +
   notification file.
-- **P3** — narration editor (per-segment TTS preview), captions.
-- **P4** — structured EDL editor + preview/full render.
-- **P5** — vision description editing; publish metadata.
+- **P3 — not done** — narration editor (per-segment TTS preview). The captions
+  mode/file editor under **Captions** is implemented, but there are no narration
+  endpoints or per-segment preview.
+- **P4 — done** — structured EDL/timeline editing (proposal → apply) and
+  single-clip preview (`GET /api/clips/preview`); render via the job queue.
+- **P5 — not done** — vision description editing (descriptions are read-only in
+  the UI); publish metadata.
 - **Later** — core-function refactor for progress/cancel; optional MCP.
 
 ## 14. Risks
@@ -259,7 +285,7 @@ that.
 
 1. **Unit** (fast, no server) — history append/dedupe/revert, staleness graph,
    `applyEdlOps` (ops + schema rejection + comment preservation), `diffLines`,
-   context merge, stage registry. The bulk of coverage; stay hermetic.
+   context merge. The bulk of coverage; stay hermetic.
 2. **API / integration** (in-process server, temp project) — start
    `createStudioServer` on an ephemeral port against a fixture project and
    assert shapes/behaviour:
@@ -302,9 +328,12 @@ that.
 
 ### Tooling & CI
 
-- `npm run test:studio` (unit + API, hermetic; mocked `fetch`, temp dirs) kept
-  separate from `npm test`; `npm run test:e2e` (Playwright) optional.
-- A tiny checked-in fixture project (2 clips + 1 image) for API/E2E tests.
+- `npm run test:studio` runs the studio **API suite**
+  (`dist/test/studio-api.test.js`) against a temp project; it is separate from
+  `npm test` but the API tests are also included there.
+- Fixtures are built in temp dirs (`fixture()` in `src/test/studio-api.test.ts`);
+  there is **no checked-in fixture project yet**.
+- `npm run test:e2e` (Playwright) is **not wired up**.
 - FFmpeg-dependent assertions skip when `vided doctor` reports it missing.
 
 ## 16. UX backlog
@@ -312,13 +341,12 @@ that.
 Known gaps/improvements, roughly prioritised. Not committed to a phase yet.
 
 **Timeline (highest impact)**
-- Program monitor: scrub the playhead to preview (source clip or a preview render).
-- Drag-to-reorder items; trim handles on clip edges; snap to neighbours/grid.
-- Drag an asset from the Media bin onto the timeline.
-- Wheel zoom + horizontal pan; persist zoom per project; keyboard transport
-  (space, ←/→, Home/End).
-- Show gaps/overlaps and a per-item tooltip; clearer clip labels (basename, not
-  id).
+- Drag-to-reorder on the timeline and trim handles on clip edges (trim/reorder
+  are field-based today); snap to neighbours/grid.
+- Drag an asset from the Media bin onto the timeline (a `+` button adds it today).
+- Wheel zoom + horizontal pan; persist zoom per project. (Playhead scrub of the
+  rendered master, ±/fit zoom and keyboard transport are done.)
+- Show gaps/overlaps and a per-item tooltip (clip labels already show basenames).
 
 **Media bin**
 - Thumbnails (a selected frame) instead of text-only rows; multi-select.
@@ -346,11 +374,10 @@ Known gaps/improvements, roughly prioritised. Not committed to a phase yet.
 
 ## Resume here (handoff)
 
-- **State:** `main` @ `e1a872e` (2026-09-27), working tree clean, in sync with
-  `origin/main`. The studio line has been **merged to `main`**; the local
-  `studio` branch is stale (22 commits behind) and can be deleted. Tests
-  **70/70** (`npm test`); typecheck clean; `npm run build:studio` builds the Lit
-  client into `dist/studio`.
+- **State:** `main` (2026-09-27), in sync with `origin/main`. The studio line
+  is **merged to `main`**; the local `studio` branch is stale (22 commits
+  behind) and can be deleted. Tests **70/70** (`npm test`); typecheck clean;
+  `npm run build:studio` builds the Lit client into `dist/studio`.
 - **Done:** P0/P1, Phases A–E, P2 (history/apply/revert/diff, watcher, staleness,
   `STUDIO_CHANGES.md`), P4 (timeline editing) — see §13. Plan: §15 verification,
   §16 UX backlog (next UX work lives there).
