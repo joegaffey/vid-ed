@@ -1,6 +1,8 @@
 # vided — Agentic Video Editor Toolset
 
-Status: DRAFT (initial spec)
+Status: DRAFT (initial spec). Implementation: M0–M4 complete plus the `clips`
+pool (`vided.clips/1`) and the optional studio; see [`README.md`](./README.md)
+and [`AGENTS.md`](./AGENTS.md) for the current surface.
 Audience: implementers + CLI AI agents (opencode, Kiro, Claude Code)
 
 ## 1. Summary
@@ -56,7 +58,9 @@ hash, so re-running the pipeline never pays twice for unchanged inputs.
 
 ## 3. Non-goals (v1)
 
-- GUI / NLE timeline interaction.
+- GUI / NLE timeline interaction in the **core baseline**. An optional,
+  experimental local studio (`vided studio`) lives outside it — see
+  [`STUDIO.md`](./STUDIO.md).
 - Real-time preview or streaming.
 - Generative video synthesis.
 - Automatic music composition (only mixing/ducking of provided beds).
@@ -282,7 +286,7 @@ path so it is stable across re-runs.
   "title": "Intro shot",
   "role": "intro",
   "notes": "Use the first 6 seconds; ignore the camera shake.",
-  "provenance": { "tool": "vided", "version": "0.1.0",
+  "provenance": { "tool": "vided", "version": "0.2.0",
                   "generated_at": "2026-09-25T16:05:00Z" }
 }
 ```
@@ -355,29 +359,33 @@ overlays:
     style: { size: 44, color: "#ffffff", box: true, box_color: "#000000cc", outline: 0 }
 ```
 
-## 7. CLI surface (proposed)
+## 7. CLI surface
+
+Global flags: `--dir <dir>`, `--json` (default), `--human`, `-q/--quiet`.
 
 ```
-vided init [--dir .] [--profile default]
+vided init [--project <name>] [-i <dir>...] [--force]
 vided doctor [--install-missing]
-vided scan --input <dir>... [--fast-hash]
-vided extract-text [--assets <id>...] [--whisper-model large-v3] [--ocr]
-vided sample [--rate 30] [--every 2s] [--threshold 0.25] [--max-width 512]
-vided dedupe [--phash-dist 6] [--budget <n>] [--total-budget <n>]
-vided annotate --packet-out vision.json [--ingest vision-results.json]
-vided manifest [--context-pack context.md]
-vided script --out narration.yaml [--gap 0.3] [--voice <id>]
-vided compose --check|--explain|--lint edit.yaml
-vided tts --script narration.yaml --voice en_US-amy --engine piper
-vided captions --from narration|transcript --formats srt,vtt
-vided render edit.yaml [--preview] [--dry-run]
-vided models [--install piper|voice|all] [--voice <id>] [--list]
+vided scan [-i <dir>...] [--fast-hash]
+vided status
+vided extract-text [--assets <id>...] [--model <path>] [--language <lang>] [--ocr] [--force]
+vided sample [--assets <id>...] [--rate <n>] [--every <s>] [--threshold <n>] [--max-width <px>] [--force]
+vided dedupe [--assets <id>...] [--phash-distance <n>] [--budget <n>] [--total-budget <n>] [--force]
+vided annotate [--packet-out <file>] [--ingest <file>] [--assets <id>...] [--window <s>]
+vided manifest [--context-pack <file>] [--max-chars <n>]
+vided clips [--out <file>] [--assets <id>...] [--force] [--check] [--add <json...>] [--set <id=json...>] [--rm <id>...]
+vided script --out <file> [--assets <id>...] [--gap <s>] [--voice <name>]
+vided compose <file> [--check] [--explain] [--lint]
+vided tts <script> [--voice <name>] [--engine <engine>] [--output <path>] [--force]
+vided captions --from narration|transcript [--asset <id>] [--timing <path>] [--formats srt,vtt,ass] [--out <path>] [--width <px>] [--height <px>]
+vided render [file] [--clip <id>] [--preview] [--dry-run] [--output <path>]
+vided models [--install piper|voice|all] [--voice <id>] [--list] [--force]
 vided voices [query]
-vided status [--json]
-vided clean [--cache|--frames|--all]
+vided studio [--port <n>] [--host <host>]
 ```
 
-All commands support `--json`, `--quiet`, and `--dry-run` where meaningful.
+`--dry-run` is meaningful on `render`. An early draft listed a `vided clean`
+command; it is **not implemented**.
 
 ## 8. Tooling recommendations
 
@@ -393,11 +401,11 @@ portable.
 | Probe / edit / mux | **ffmpeg + ffprobe** (system or `ffmpeg-static`) | required core; invoke via `child_process.spawn`, not a wrapper lib |
 | Process runner     | `execa`                                   | streaming stdout/stderr, cancellation, timeouts |
 | TTS                | **Piper** binary (fast, tiny, many voices) | **`kokoro-js`** (ONNX, in-process) for noticeably better quality; **Chatterbox**/**XTTS** via Python sidecar for cloning (check licence); `espeak-ng` fallback |
-| Transcription      | **whisper.cpp** via `smart-whisper` (napi) or `nodejs-whisper` | word timestamps required for captions; `@huggingface/transformers` (ONNX Whisper) as a pure-JS fallback |
+| Transcription      | **whisper.cpp** binary via `src/tools/resolve.ts` | word timestamps required for captions; `@huggingface/transformers` (ONNX Whisper) as a pure-JS fallback |
 | Scene detection    | **ffmpeg `scene` filter**                  | optional `PySceneDetect` sidecar for adaptive/fade-aware detection |
 | Frame extraction   | **ffmpeg** -> JPEG                         | `sharp` for downscale/crop if not done in ffmpeg |
-| Frame hashing      | **`imghash`** (pHash/dHash)               | `sharp` for decode/normalise before hashing |
-| Semantic dedupe    | **CLIP via `@huggingface/transformers`**  | optional; only if pHash is insufficient |
+| Frame hashing      | **in-house pHash/dHash** (`src/hash.ts`, DCT over `sharp`-decoded frames) | `imghash` as an alternative; `sharp` normalises before hashing |
+| Semantic dedupe    | *(none — pHash/dHash only)*               | optional CLIP via `@huggingface/transformers`, only if pHash is insufficient |
 | OCR                | **`tesseract.js`** (WASM, no install)     | PaddleOCR Python sidecar for higher accuracy |
 | Forced alignment   | whisper word timestamps                    | `aeneas` sidecar when aligning existing text to audio |
 | Caption rendering  | **libass via ffmpeg `ass` filter**         | `drawtext` for simple cases |
@@ -444,32 +452,48 @@ make Python a baseline dependency.
 - Large derived artifacts (audio wavs, frame images) are stored on disk, not in
   the manifest; the manifest stores paths + hashes.
 
-## 10. Proposed repository layout
+## 10. Repository layout
 
 ```
 vid-ed/
   SPEC.md
-  AGENTS.md                 # agent workflow instructions (generated/curated)
+  STUDIO.md                 # optional studio (local server + web UI)
+  AGENTS.md                 # agent-facing usage guide
+  DEVELOPMENT.md            # contributor guide (architecture, layout, build)
+  README.md
   package.json
   tsconfig.json
   src/
     cli.ts                  # command dispatch, JSON I/O
-    tools/resolve.ts        # locate ffmpeg/whisper/piper binaries + versions
-    probe.ts                # ffprobe + hashing
-    text.ts                 # whisper / ocr / sidecar extraction
+    commands/               # one file per CLI command
+    tools/resolve.ts        # locate/version ffmpeg/whisper/piper binaries
+    probe.ts                # ffprobe + hashing + kind detection
+    av.ts                   # ffmpeg/ffprobe helpers
+    hash.ts                 # pHash/dHash
+    text.ts                 # whisper / OCR / sidecar extraction
     frames.ts               # scene detect + sampling
     dedupe.ts               # phash clustering + budget
-    manifest.ts             # contract assembly + context pack
+    clips.ts                # derive the clip pool
+    clips-edit.ts           # add/set/rm on clips.yaml
+    manifest.ts             # contract assembly + source resolution
+    context.ts              # context-pack builder
     edl.ts                  # schema validate / explain / lint
+    edl-edit.ts             # AST-preserving edit.yaml ops
+    preview.ts              # single-clip preview render
+    render.ts               # EDL -> ffmpeg graph
     tts.ts                  # engine adapters (piper, kokoro, ...)
     captions.ts             # cue building + srt/vtt/ass writers
-    render.ts               # EDL -> ffmpeg graph
     cache.ts                # content-addressed store
+    config.ts               # project config + paths
+    ui.ts                   # human/JSON output helpers
+    models.ts               # install piper binary + voices
     schemas/                # zod schemas -> generated JSON Schemas
+    server/                 # optional studio: routes, jobs, history, staleness, UI
+    test/                   # node:test suites
+  scripts/                  # studio client + static-demo builds (esbuild)
+  examples/                 # sample edit/clips/narration
+  samples/                  # worked demo projects
   mcp/                      # future/optional MCP server (thin wrapper)
-  bin/vided                 # thin executable entry
-  test/
-  examples/
 ```
 
 Language note: **TypeScript on Node.js** was chosen for its fit with agent
@@ -525,6 +549,9 @@ out). See §13.
   - **Acceptance** — packet contains only selected frames; ingest is
     idempotent; context pack stays within budget and includes descriptions +
     transcript; cost numbers match the manifest.
+- **Clips + Studio** — *done, unscheduled in the original list.* The `clips`
+  pool (`vided.clips/1`) sits between manifest and compose, and the optional
+  local studio (`vided studio`) is available; see [`STUDIO.md`](./STUDIO.md).
 - **M5** — Kokoro adapter (`kokoro-js`), forced alignment, preview mode,
   examples.
 - **Future (unscheduled)** — optional thin MCP server exposing typed tools for
@@ -535,18 +562,19 @@ out). See §13.
 1. ~~Primary implementation language?~~ **Resolved: Node.js + TypeScript**, with
    ffmpeg/whisper.cpp/piper as native binaries. Python only as an optional
    sidecar (faster-whisper / PySceneDetect / PaddleOCR).
-2. Default TTS: Piper (speed/footprint) or Kokoro (quality)? Ship both, but
-   which is the documented default?
+2. ~~Default TTS: Piper or Kokoro?~~ **Resolved: Piper is the documented
+   default** (`tts --engine piper`); Kokoro remains the M5 upgrade.
 3. Should `render` prefer a single giant ffmpeg pass or intermediate files for
    debuggability? (Proposal: intermediates behind `--debug`, single pass by
    default.)
-4. Vision annotation protocol: synchronous agent round-trip (`annotate`
-   packet) vs. an agent-agnostic JSON contract the agent fills however it can?
+4. ~~Vision annotation protocol?~~ **Resolved: the packet round-trip** —
+   `annotate --packet-out` / `--ingest`, keyed by frame path (§5.6).
 5. Caption timing source of truth when narration and source speech disagree —
    prefer narration timing (deterministic) or align to source?
 6. Distribution: npm package (`npx vided`), standalone binary (Node SEA /
    `bun build --compile`), or container?
-7. Do we need multi-track/audio-ducking in v1, or defer music beds to v2?
+7. ~~Multi-track/audio-ducking in v1?~~ **Resolved: in scope** — `render`
+   handles an audio mix with ducking (`sidechaincompress`) and `loudnorm`.
 8. Binary resolution policy: prefer system `ffmpeg`/`whisper.cpp`/`piper` on
    `PATH`, or always use pinned bundled/downloaded versions for reproducibility?
 9. ~~MCP server in scope?~~ **Resolved: not committed.** The JSON CLI is the

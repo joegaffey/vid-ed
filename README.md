@@ -201,7 +201,7 @@ file and re-run those commands — no rescan or UI needed.
 
 ## Contracts
 
-Three versioned schemas are the source of truth (zod, in `src/schemas/`):
+Four versioned schemas are the source of truth (zod, in `src/schemas/`):
 
 - **`vided.asset/1`** / **`vided.manifest/1`** — probe + extracted text + frames
   + annotations. Written by the analyze stages; read by the agent.
@@ -306,7 +306,8 @@ npm run typecheck
 npm test                  # node --test
 ```
 
-Layout and rules are in [`AGENTS.md`](./AGENTS.md). All heavy work is delegated
+Layout and contributor rules are in [`DEVELOPMENT.md`](./DEVELOPMENT.md); the
+agent-facing usage guide is [`AGENTS.md`](./AGENTS.md). All heavy work is delegated
 to native binaries (ffmpeg, whisper.cpp, Piper); the host language stays
 non-load-bearing and Python is not a baseline dependency.
 
@@ -314,5 +315,6 @@ non-load-bearing and Python is not a baseline dependency.
 
 M0–M4 complete: probe/analysis, frame sampling + dedupe, EDL compose/render,
 Piper TTS + captions, and the vision annotation round-trip with context pack.
-M5 (Kokoro TTS, forced alignment, preview) is planned. An MCP server is a
-possible future feature, not committed.
+The `clips` pool (`vided.clips/1`) and an experimental local studio
+(`vided studio`) are also in place. M5 (Kokoro TTS, forced alignment, preview)
+is planned. An MCP server is a possible future feature, not committed.

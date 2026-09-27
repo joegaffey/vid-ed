@@ -101,23 +101,30 @@ server.
   (authored transcript).
 - **Precedence: latest wins** (newest writer/mtime:
   edited > provided/sidecar > generated).
-- **Consumers:** `tts` applies `pronunciation`; `compose --lint` warns when
-  `target_duration_s` is exceeded; `must_include`/`avoid` are advisory in the
-  context pack.
+- **Consumers:** `target_duration_s`, `must_include`, `avoid` and
+  `pronunciation` are surfaced to the agent as directives in the context pack
+  (`src/context.ts`). The CLI does not currently enforce them: `compose --lint`
+  does not check `target_duration_s`, and `tts` does not apply
+  `pronunciation`.
 
-## 5. Stage registry (`src/stages.ts`)
+## 5. Stage metadata
 
-Single source of stage metadata, used by both CLI flags and UI controls:
+There is no single shared registry module yet; stage metadata lives in three
+places:
+
+- `ALLOWED_OPS` (`src/server/index.ts`) — the stages the studio may run.
+- `STAGE_PARAMS` (`src/server/public/app.js`) — the Analysis panel's parameter
+  forms.
+- `src/server/staleness.ts` — the `reads`/`writes` graph used for staleness.
+
+CLI flags are still hand-written in `src/cli.ts`. Folding the CLI flags and the
+UI forms onto the registry shape below is a planned refactor:
 
 ```ts
 { op, label, scope: "project" | "asset",
   params: [{ name, type, default, enum?, min?, max? }],
   reads: [...], writes: [...], forceable: boolean }
 ```
-
-- CLI flags derive from it (behaviour-preserving refactor).
-- The UI renders forms from it.
-- `reads`/`writes` also define the staleness graph.
 
 ## 6. Processing controls
 
@@ -131,9 +138,10 @@ Single source of stage metadata, used by both CLI flags and UI controls:
 
 - Every studio-originated change is a **proposal**; **Apply** is required before
   a canonical artifact is written.
-- **History:** `.studio/history/<artifact>.json` — a JSON **array** of
-  whole-artifact versions, **deduped** by content hash.
-- **Entry:** `{ ts, writer, hash, content, stage?, params?, label? }`.
+- **History:** `.studio/history/<artifact>.json` — `{ artifact, versions: [...] }`
+  of whole-artifact versions, **deduped** (an append identical to the current
+  version is a no-op).
+- **Entry:** `{ ts, writer, hash, content, label?, params? }`.
 - Operations: diff any two versions, **restore** (append-only), discard.
 - **No auto-merge:** an external change over unsaved edits → notify + diff +
   manual choice.
@@ -240,9 +248,12 @@ persist in `localStorage`.
 ## 15. Verification & testing
 
 **Today:** unit tests for the pure logic (`HistoryStore`, `staleness`,
-`applyEdlOps`, `diffLines`, context/scan) — 68 passing. There are **no studio
-API, E2E, or UX tests yet**, and no accessibility checks. This section is the
-plan for closing that.
+`applyEdlOps`, `diffLines`, context/scan) plus an in-process **studio API**
+suite (`src/test/studio-api.test.ts`, covering history/apply/diff/revert, EDL
+edits, staleness and the external-edit watcher) — **70 passing** (`npm test`;
+the API suite also runs via `npm run test:studio`). There are still **no E2E or
+UX tests** and no accessibility checks. This section is the plan for closing
+that.
 
 ### Layers
 
@@ -335,17 +346,23 @@ Known gaps/improvements, roughly prioritised. Not committed to a phase yet.
 
 ## Resume here (handoff)
 
-- **State:** branch `studio` @ `0c36215` (pushed; in sync with `origin/studio`).
-  `main` untouched. Working tree clean. Tests **70/70** (`npm test`; studio API
-  suite via `npm run test:studio`).
+- **State:** `main` @ `e1a872e` (2026-09-27), working tree clean, in sync with
+  `origin/main`. The studio line has been **merged to `main`**; the local
+  `studio` branch is stale (22 commits behind) and can be deleted. Tests
+  **70/70** (`npm test`); typecheck clean; `npm run build:studio` builds the Lit
+  client into `dist/studio`.
 - **Done:** P0/P1, Phases A–E, P2 (history/apply/revert/diff, watcher, staleness,
   `STUDIO_CHANGES.md`), P4 (timeline editing) — see §13. Plan: §15 verification,
   §16 UX backlog (next UX work lives there).
+- **Recently landed:** timeline reacts to zoom; playhead scrubs the rendered
+  master; captions panel + timeline audio lane; `compose --explain` reports audio
+  length and whether it fits.
 - **Next options:** M5 (Kokoro TTS / forced alignment / preview) or §16 timeline
   items first.
-- **Key files:** `src/server/index.ts` (routes/history/watcher), `src/server/history.ts`,
-  `src/server/staleness.ts`, `src/edl-edit.ts` (`applyEdlOps`),
-  `src/server/public/app.js` (Lit UI). Read `AGENTS.md` + this file before work.
+- **Key files:** `src/server/index.ts` (routes/history/watcher),
+  `src/server/history.ts`, `src/server/staleness.ts`, `src/edl-edit.ts`
+  (`applyEdlOps`), `src/server/public/app.js` (Lit UI). Read
+  [`DEVELOPMENT.md`](./DEVELOPMENT.md) + this file before work.
 - **Gotchas:** UI must never show raw JSON/YAML; nothing canonical without
   `apply` (mandatory check); `.studio/` is gitignored. In WSL start the server
   with `setsid … &` (`pkill` hangs the shell tool).
