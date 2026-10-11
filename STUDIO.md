@@ -1,8 +1,8 @@
 # STUDIO.md — vid-ed Studio
 
-Status: **implemented, experimental.** P0/P1/P2/P4 and UI Phases A–E are done
-(§13); **P3** (narration editor) and **P5** (vision description editing) are
-**not**. The UI and on-disk behaviour may still change.
+Status: **implemented, experimental.** P0/P1/P2/P3/P4 and UI Phases A–E are done
+(§13); **P5** (vision description editing) is **not**. The UI and on-disk
+behaviour may still change.
 
 Implementation status: **P0 done** — `vided studio` starts a local server
 (Node built-ins + existing `execa`, no new deps) that serves a static UI shell
@@ -239,7 +239,7 @@ one at a time.
 - **Vision** — selected/annotated counts; Build packet / Ingest results.
   Descriptions are read-only here (per-asset frames live in Details → Frames).
 - **Captions** — captions mode/file/export, written to `edit.yaml` via a
-  proposal (full narration editing is P3, not done).
+  proposal (the narration script itself is edited in the **Narration** panel).
 - **Output** — rendered files, sidecars, render info.
 - **Changes** — history, proposals/diff/apply/revert, and stale nodes with a
   re-run action.
@@ -272,9 +272,10 @@ one at a time.
   outputs.
 - **P2** — history/proposals/diff/apply/revert + staleness + watcher +
   notification file.
-- **P3 — not done** — narration editor (per-segment TTS preview). The captions
-  mode/file editor under **Captions** is implemented, but there are no narration
-  endpoints or per-segment preview.
+- **P3 — done** — narration editor: `GET`/`PUT /api/narration`, a **Narration**
+  list (Voice/Engine + one row per segment) with a per-segment editor in the
+  right pane, plus **Generate voice** (`tts`) / **Captions** / **Decompose →
+  clips** (per-segment `vo-<id>` clips on `a1`, #9).
 - **P4 — done** — structured EDL/timeline editing (proposal → apply) and
   single-clip preview (`GET /api/clips/preview`); render via the job queue.
 - **P5 — not done** — vision description editing (descriptions are read-only in
@@ -391,20 +392,36 @@ Known gaps/improvements, roughly prioritised. Not committed to a phase yet.
 - AA contrast audit; `:focus-visible` everywhere; ARIA for the accordion and
   timeline; fully keyboard-operable editing.
 
+**Narration & multi-track (edl/4)** — added 2026-10-11
+- Narrate **Save** currently writes immediately; switch narration (and the
+  context pack) to the **proposal → diff → Apply** flow used by `edit.yaml` /
+  `clips.yaml` (§7), for review parity.
+- **Cross-highlight timeline ↔ narration:** selecting a `vo-<id>` clip on `a1`
+  selects/scrolls to that segment in the Narration list, and vice versa.
+- **`Decompose → clips`** is a background job: give it a clear status/toast,
+  warn that it replaces the single `vo` clip, and auto-reveal the `a1` lane.
+- **Timeline height from track count** (or collapsible lanes) — 4+ tracks is
+  cramped in the fixed-height timeline.
+- Make the **"N stale" header badge** link to **Changes** (it's inert today).
+- **Empty Details** state → project summary / next-step hints instead of a bare
+  "Select an item".
+
 ## Resume here (handoff)
 
-- **State:** `main` (2026-09-27), in sync with `origin/main`. The studio line
-  is **merged to `main`**; the local `studio` branch is stale (22 commits
-  behind) and can be deleted. Tests **70/70** (`npm test`); typecheck clean;
-  `npm run build:studio` builds the Lit client into `dist/studio`.
+- **State:** `main` (2026-10-11), in sync with `origin/main` (released **v0.3.0**,
+  `vided.edl/4`). Tests **79/79** (`npm test`); typecheck clean; `npm run
+  build:studio` builds the Lit client into `dist/studio`.
 - **Done:** P0/P1, Phases A–E, P2 (history/apply/revert/diff, watcher, staleness,
   `STUDIO_CHANGES.md`), P4 (timeline editing) — see §13. Plan: §15 verification,
   §16 UX backlog (next UX work lives there).
-- **Recently landed:** timeline reacts to zoom; playhead scrubs the rendered
-  master; captions panel + timeline audio lane; `compose --explain` reports audio
-  length and whether it fits.
-- **Next options:** M5 (Kokoro TTS / forced alignment / preview) or §16 timeline
-  items first.
+- **Recently landed:** multi-lane timeline for `edl/4` (absolute starts, N video/
+  audio tracks); editors open in the right pane while lists stay in the rail;
+  editable, versioned **context pack**; **Narration** panel (list + per-segment
+  editor) with `tts`/`captions`/**Decompose → clips**; per-segment `vo-<id>`
+  decomposition; collapsible Clips groups; demo emits `api/narration`.
+- **Next options:** the §16 **Narration & multi-track** items (proposal flow,
+  timeline↔narration cross-highlight), then P5 (vision description editing) or
+  M5 (Kokoro / forced alignment / preview).
 - **Key files:** `src/server/index.ts` (routes/history/watcher),
   `src/server/history.ts`, `src/server/staleness.ts`, `src/edl-edit.ts`
   (`applyEdlOps`), `src/server/public/app.js` (Lit UI). Read
