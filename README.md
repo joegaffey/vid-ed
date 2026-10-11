@@ -315,8 +315,9 @@ Expect rough edges — the UI and its on-disk behavior may change.
 - **`samples/rc-build-agent-demo/`** — a fresh agent was given only the two
   source videos + the gist screenshot and a one-paragraph prompt, and drove the
   whole pipeline itself (`annotate` on 20 frames → `clips` →
-  `script`/`tts`/`captions` → `compose` → `render`) into a code-forward cut.
-  Published: **https://www.youtube.com/watch?v=6v21-kAtpUo** (artifacts:
+  `script`/`tts`/`captions` → `compose` → `render`). The committed artifacts are
+  the current **code-forward** cut (`vided.edl/4`, 141s); the earlier published
+  demo (74s) is at <https://www.youtube.com/watch?v=6v21-kAtpUo> (artifacts:
   `clips.yaml`, `edit.yaml`, `narration.yaml`, `brief.md`, `context.md`/`.json`,
   `vision.*`, `captions.*`).
 
