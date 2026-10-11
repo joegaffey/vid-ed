@@ -1111,6 +1111,8 @@ class VidedApp extends LitElement {
         <button class="sm" ?disabled=${DEMO} @click=${this.addNarrationSegment}>+ segment</button>
         <button class="sm" ?disabled=${DEMO} @click=${() => this.runStage("tts", ["narration.yaml"])}>Generate voice</button>
         <button class="sm" ?disabled=${DEMO} @click=${() => this.runStage("captions", ["--from", "narration", "--formats", "srt,vtt,ass"])}>Captions</button>
+        <button class="sm secondary" ?disabled=${DEMO} title="one vo-<id> audio clip per segment, placed on the a1 track"
+          @click=${() => this.runStage("clips", ["--from-narration", "work/narration.timing.json", "--edl", "edit.yaml"])}>Decompose → clips</button>
       </div>
       <span class="muted" style="font-size:11px">${this.runhint}</span>`;
   }

@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { mkdir, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, writeFile } from "node:fs/promises";
 import { dirname, isAbsolute, join } from "node:path";
 import { execa } from "execa";
 import { Cache, cacheKey } from "./cache.js";
@@ -156,9 +156,14 @@ export async function synthesizeNarration(
 
   const sequence: string[] = [];
   const segments: TimingSegment[] = [];
+  // Per-segment wavs are also kept under work/narration/ so each beat can become
+  // its own audio clip (see `vided clips --from-narration`).
+  const narrationDir = join(paths.root, "work", "narration");
+  await mkdir(narrationDir, { recursive: true });
   let cursor = 0;
   for (let i = 0; i < script.segments.length; i++) {
     const seg = script.segments[i]!;
+    const id = seg.id ?? `s${i}`;
     if (seg.start !== undefined && seg.start > cursor + 0.001) {
       const lead = await generateSilence(config, seg.start - cursor, format, cache);
       sequence.push(lead);
@@ -168,12 +173,15 @@ export async function synthesizeNarration(
     const end = start + durations[i]!;
     sequence.push(segmentWavs[i]!);
     cursor = end;
+    const safe = id.replace(/[^\w.-]+/g, "_");
+    await copyFile(segmentWavs[i]!, join(narrationDir, `${safe}.wav`));
     segments.push({
-      id: seg.id ?? `s${i}`,
+      id,
       text: seg.text,
       start: Number(start.toFixed(3)),
       end: Number(end.toFixed(3)),
       gap_after: seg.gap_after,
+      audio: `work/narration/${safe}.wav`,
     });
     if (seg.gap_after > 0) {
       const gap = await generateSilence(config, seg.gap_after, format, cache);

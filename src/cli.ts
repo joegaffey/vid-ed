@@ -298,6 +298,8 @@ program
   .option("--merge-gap <s>", "merge transcript beats across pauses", parseFloat)
   .option("--frame-gap <s>", "group frames within this gap", parseFloat)
   .option("--pad <s>", "pad frame clusters", parseFloat)
+  .option("--from-narration <file>", "decompose a narration.timing.json into vo-<id> audio clips")
+  .option("--edl <file>", "with --from-narration, also upsert the clips on the a1 track of this edit.yaml")
   .action(async (opts) => {
     await cmdClips({
       ...outputOptions(),
@@ -312,6 +314,8 @@ program
       mergeGap: opts.mergeGap,
       frameGap: opts.frameGap,
       pad: opts.pad,
+      fromNarration: opts.fromNarration,
+      edl: opts.edl,
     });
   });
 

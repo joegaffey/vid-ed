@@ -24,6 +24,8 @@ export const TimingSegmentSchema = z.object({
   start: z.number(),
   end: z.number(),
   gap_after: z.number(),
+  /** Project-relative wav for this segment (written by `tts`), for per-segment clips. */
+  audio: z.string().optional(),
 });
 
 export const NarrationTimingSchema = z.object({

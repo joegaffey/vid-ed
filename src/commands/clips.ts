@@ -1,11 +1,22 @@
 import { existsSync } from "node:fs";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, isAbsolute, join } from "node:path";
-import { stringify as toYaml } from "yaml";
-import { projectPaths } from "../config.js";
+import { parse as parseYaml, stringify as toYaml } from "yaml";
+import { projectPaths, type Paths } from "../config.js";
 import { makeSourceResolver, readManifest } from "../manifest.js";
-import { CLIPS_FILE, deriveClips, hasPlaceableMedia, loadClips } from "../clips.js";
+import {
+  CLIPS_FILE,
+  clipsById,
+  clipsFromNarration,
+  deriveClips,
+  hasPlaceableMedia,
+  isNarrationClipId,
+  loadClips,
+  narrationPlacements,
+} from "../clips.js";
+import { applyEdlOps, type EdlOp } from "../edl-edit.js";
 import { ClipsSchema, GENERATED_SOURCE, type Clip, type ClipInput } from "../schemas/clips.js";
+import { NarrationTimingSchema, type NarrationTiming } from "../schemas/narration.js";
 import type { OutputOptions } from "../ui.js";
 import { emit, fail } from "../ui.js";
 
@@ -21,6 +32,46 @@ export interface ClipsOptions extends OutputOptions {
   mergeGap?: number;
   frameGap?: number;
   pad?: number;
+  fromNarration?: string;
+  edl?: string;
+}
+
+/** Absolute-ise a project-relative media path. */
+function absIn(root: string, p: string): string {
+  return isAbsolute(p) ? p : join(root, p);
+}
+
+/** Idempotently upsert the narration `a1` placements into an edit.yaml. */
+async function patchEdlNarration(
+  paths: Paths,
+  edlFile: string,
+  timing: NarrationTiming,
+  singleVoIds: Set<string>,
+): Promise<{ ok: boolean; out?: string; error?: string }> {
+  const edlPath = isAbsolute(edlFile) ? edlFile : join(paths.root, edlFile);
+  if (!existsSync(edlPath)) return { ok: false, error: `edit file not found: ${edlFile}` };
+  const before = await readFile(edlPath, "utf8");
+  const js = parseYaml(before) as { tracks?: Array<{ items?: Array<{ id?: string; use?: string }> }> } | null;
+  const clips = clipsById((await loadClips(paths))?.clips);
+  const concat = absIn(paths.root, timing.audio);
+  const stale = (js?.tracks ?? [])
+    .flatMap((t) => t.items ?? [])
+    .filter((i) => {
+      if (typeof i.id !== "string") return false;
+      if (isNarrationClipId(i.id) || singleVoIds.has(i.id)) return true;
+      // the old single "whole narration" placement (points at the concatenated wav)
+      const clip = i.use ? clips.get(i.use) : undefined;
+      return clip?.kind === "audio" && absIn(paths.root, clip.source) === concat;
+    })
+    .map((i) => i.id as string);
+  const ops: EdlOp[] = [
+    ...stale.map((id): EdlOp => ({ op: "remove", id })),
+    ...narrationPlacements(timing).map((p): EdlOp => ({ op: "add", track: "a1", kind: "audio", id: p.id, use: p.use, start: p.start })),
+  ];
+  const result = applyEdlOps(before, ops);
+  if (!result.ok) return { ok: false, error: result.error ?? "edit failed" };
+  await writeFile(edlPath, result.yaml!, "utf8");
+  return { ok: true, out: edlPath };
 }
 
 function validate(
@@ -115,7 +166,28 @@ export async function cmdClips(opts: ClipsOptions): Promise<void> {
     }
   }
 
-  const mutating = Boolean(opts.add?.length || opts.set || opts.remove?.length);
+  let narration: NarrationTiming | undefined;
+  let singleVoIds = new Set<string>();
+  if (opts.fromNarration) {
+    const tp = isAbsolute(opts.fromNarration) ? opts.fromNarration : join(paths.root, opts.fromNarration);
+    if (!existsSync(tp)) fail(`Narration timing not found: ${opts.fromNarration}. Run \`vided tts\` first.`);
+    narration = NarrationTimingSchema.parse(JSON.parse(await readFile(tp, "utf8")));
+    const generated = clipsFromNarration(narration);
+    if (!generated.length) {
+      fail(`No per-segment audio in ${opts.fromNarration} — re-run \`vided tts\` (it writes work/narration/<id>.wav).`);
+    }
+    // The old "whole narration" clip (points at the concatenated wav) is replaced.
+    const concat = absIn(paths.root, narration.audio);
+    singleVoIds = new Set(
+      clips.filter((c) => c.kind === "audio" && absIn(paths.root, c.source) === concat).map((c) => c.id),
+    );
+    clips = [
+      ...clips.filter((c) => !isNarrationClipId(c.id) && !singleVoIds.has(c.id)),
+      ...generated,
+    ];
+  }
+
+  const mutating = Boolean(opts.add?.length || opts.set || opts.remove?.length || opts.fromNarration);
   if (!mutating) {
     if (!hasPlaceableMedia(manifest)) {
       emit({ ok: true, clips: 0, out: outPath }, () => "No placeable media — nothing to derive.", opts);
@@ -150,13 +222,21 @@ export async function cmdClips(opts: ClipsOptions): Promise<void> {
   ].join("\n");
   await writeFile(outPath, header + toYaml(parsed), "utf8");
 
+  let placed: { out: string; items: number } | undefined;
+  if (narration && opts.edl) {
+    const patched = await patchEdlNarration(paths, opts.edl, narration, singleVoIds);
+    if (!patched.ok || !patched.out) fail(`Could not scaffold ${opts.edl}: ${patched.error}`);
+    placed = { out: patched.out, items: narrationPlacements(narration).length };
+  }
+
   const { errors, warnings } = validate(parsed.clips, resolve);
   emit(
-    { ok: errors.length === 0, out: outPath, clips: parsed.clips.length, errors, warnings },
+    { ok: errors.length === 0, out: outPath, clips: parsed.clips.length, ...(placed ? { edl: placed.out, narration_items: placed.items } : {}), errors, warnings },
     () => {
       const lines = [`Wrote ${parsed.clips.length} clips -> ${outPath}`];
+      if (placed) lines.push(`Placed ${placed.items} narration clips on "a1" -> ${placed.out}`);
       for (const e of errors) lines.push(`error: ${e}`);
-      for (const w of warnings) lines.push(`warn:  ${w}`);
+      for (const w of warnings) lines.push(`warning: ${w}`);
       return lines.join("\n");
     },
     opts,
