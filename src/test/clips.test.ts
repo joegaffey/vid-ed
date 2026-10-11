@@ -104,31 +104,39 @@ const POOL = ClipsSchema.parse({
 const pool = new Map(POOL.map((c) => [c.id, c]));
 
 test("resolveEdl binds refs and validates kind↔track", () => {
-  const r = loadEdlFromString(`schema: vided.edl/3
+  const r = loadEdlFromString(`schema: vided.edl/4
 tracks:
-  visual:
-    - { id: v, use: v1 }
-  audio:
-    - { id: m, use: a1, offset: 2 }
+  - id: v1
+    kind: video
+    items:
+      - { id: v, use: v1, start: 0 }
+  - id: a1
+    kind: audio
+    items:
+      - { id: m, use: a1, start: 2 }
 `);
   assert.equal(r.ok, true);
   const res = resolveEdl(r.edl!, pool);
   assert.equal(res.ok, true);
-  assert.equal(res.resolved!.visual[0]!.clip.source, "a.mp4");
-  assert.equal(res.resolved!.audio[0]!.offset, 2);
+  assert.equal(res.resolved!.tracks.find((t) => t.kind === "video")!.items[0]!.clip.source, "a.mp4");
+  assert.equal(res.resolved!.tracks.find((t) => t.kind === "audio")!.items[0]!.start, 2);
 });
 
 test("resolveEdl errors on unknown refs and wrong-track kinds", () => {
-  const r = loadEdlFromString(`schema: vided.edl/3
+  const r = loadEdlFromString(`schema: vided.edl/4
 tracks:
-  visual:
-    - { id: v, use: a1 }
-  audio:
-    - { id: m, use: nope }
+  - id: v1
+    kind: video
+    items:
+      - { id: v, use: a1, start: 0 }
+  - id: a1
+    kind: audio
+    items:
+      - { id: m, use: nope, start: 0 }
 `);
   assert.equal(r.ok, true);
   const res = resolveEdl(r.edl!, pool);
   assert.equal(res.ok, false);
-  assert.ok(res.errors.some((e) => e.includes("visual track needs")));
+  assert.ok(res.errors.some((e) => e.includes("video track needs")));
   assert.ok(res.errors.some((e) => e.includes("unknown clip")));
 });

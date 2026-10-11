@@ -2,16 +2,22 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { applyEdlOps } from "../edl-edit.js";
 
-const EDL = `schema: vided.edl/3
+const EDL = `schema: vided.edl/4
 # a comment that should survive
 tracks:
-  visual:
-    - id: a
-      use: c1
-    - id: b
-      use: c2
-      speed: 2
-  audio: []
+  - id: v1
+    kind: video
+    items:
+      - id: a
+        use: c1
+        start: 0
+      - id: b
+        use: c2
+        start: 1
+        speed: 2
+  - id: a1
+    kind: audio
+    items: []
 `;
 
 test("set updates a placement and preserves comments", () => {
@@ -32,7 +38,7 @@ test("reorder moves an item and remove deletes it", () => {
 });
 
 test("add appends a placement referencing a clip", () => {
-  const r = applyEdlOps(EDL, [{ op: "add", use: "c3", id: "c" }]);
+  const r = applyEdlOps(EDL, [{ op: "add", use: "c3", id: "c", start: 4 }]);
   assert.equal(r.ok, true);
   assert.ok(r.yaml!.includes("use: c3"));
 });

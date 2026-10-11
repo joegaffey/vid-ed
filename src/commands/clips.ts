@@ -145,7 +145,7 @@ export async function cmdClips(opts: ClipsOptions): Promise<void> {
   const header = [
     "# vided clips — the pool every edit composes from.",
     "# Each clip declares an output `format` from the canonical set (see AGENTS.md).",
-    "# kind: video | image | audio | title | slide; generated kinds use source: generated.",
+    "# kind: video | image | audio | title | slide | text; generated kinds use source: generated.",
     "",
   ].join("\n");
   await writeFile(outPath, header + toYaml(parsed), "utf8");

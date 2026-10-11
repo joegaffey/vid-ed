@@ -16,7 +16,7 @@ async function fixture(): Promise<string> {
   );
   await writeFile(
     join(root, "edit.yaml"),
-    'schema: vided.edl/3\ntracks:\n  visual:\n    - { id: a, use: c1 }\n  audio: []\n',
+    'schema: vided.edl/4\ntracks:\n  - id: v1\n    kind: video\n    items:\n      - { id: a, use: c1, start: 0 }\n',
   );
   return root;
 }

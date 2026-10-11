@@ -31,9 +31,10 @@ phase:
 ```
 
 `clips.yaml` is the pool every edit composes from: each **clip** is an atomic,
-individually renderable unit with a `kind` (video/image/audio/title/slide) and
-an output `format`. `edit.yaml` (`vided.edl/3`) references clips by `use:` on a
-`tracks.visual` / `tracks.audio` pair. See §5.8.
+individually renderable unit with a `kind` (video/image/audio/title/slide/text)
+and an output `format`. `edit.yaml` (`vided.edl/4`) is an ordered list of
+`tracks`, each item placed at an absolute `start` and referencing a clip by
+`use:`. See §5.8 and §5.9; the full model is in [`SPEC-v4.md`](./SPEC-v4.md).
 
 Expensive steps (transcription, vision annotation, TTS) are cached by content
 hash, so re-running the pipeline never pays twice for unchanged inputs.
@@ -187,12 +188,13 @@ path so it is stable across re-runs.
 
 ### 5.9 `compose` — agent writes the edit script
 - The agent reads the manifest/context pack (incl. `clips.yaml`) and writes
-  `edit.yaml` (`vided.edl/3`): `tracks.visual` and `tracks.audio` reference
-  clips by `use:` (definitions live only in `clips.yaml`). The visual track is
-  sequential; the audio track is free-positioned (`offset`) and mixed. Reusing a
-  clip is just referencing it again; placement modifiers (`speed`, `transform`,
-  transitions, `gain_db`) stay on the track item. `resolveEdl` binds references
-  and validates kind↔track.
+  `edit.yaml` (`vided.edl/4`): an ordered list of `tracks` (video/audio) whose
+  items reference clips by `use:` at an absolute `start` (definitions live only
+  in `clips.yaml`). Later video tracks composite on top; audio tracks are mixed.
+  A track's first item may omit `start` (defaults to 0). Reusing a clip is just
+  referencing it again; placement modifiers (`speed`, `transform`, `position`,
+  `opacity`, transitions, `gain_db`) stay on the track item. `resolveEdl` binds
+  references and validates kind↔track.
 - `vided compose --check` validates and resolves against the pool.
 - `vided compose --explain` renders a human/agent-readable timeline summary
   (durations, overruns, audio counts) without touching media.
@@ -214,8 +216,9 @@ path so it is stable across re-runs.
 - Translate the EDL into an ffmpeg `filter_complex` graph (single pass where
   possible; intermediate files when the graph is too large).
 - Operations: trim, concat, scale/pad, crop, overlay image, `drawtext`,
-  transitions (`xfade`), speed (`setpts`/`atempo`), audio `amix`, music ducking
-  (`sidechaincompress`), loudness normalisation (`loudnorm`).
+  transitions (`xfade`), speed (`setpts`/`atempo`), audio `amix`, loudness
+  normalisation (`loudnorm`). Music ducking (`sidechaincompress`) is **not yet
+  implemented** (tracked for a future release; see `SPEC-v4.md` §14).
 - Title cards (intro / chapter pages) are generated as solid-colour sources
   rendered with libass (`color=...` + `ass=...`) and concatenated inline — no
   external image assets required. Slides (`slide` + `body`, `kind: mono`)
@@ -308,57 +311,48 @@ path so it is stable across re-runs.
 
 ### 6.3 `edit.yaml` (EDL) — sketch
 
-Clips (video/image/audio/title/slide) are defined in `clips.yaml`, each with a
-`kind`, a `source` (or `"generated"`) and a `format`; the timeline only
-references them by `use:`. See §5.8.
+Clips (video/image/audio/title/slide/text) are defined in `clips.yaml`, each
+with a `kind`, a `source` (or `"generated"`) and a `format`; the timeline only
+references them by `use:`. See §5.8; the model is specified in
+[`SPEC-v4.md`](./SPEC-v4.md).
 
 ```yaml
-schema: vided.edl/3
+schema: vided.edl/4
 output:
   format: 1080p30       # a name from the canonical set (AGENTS.md)
   path: out/final.mp4
   loudness_lufs: -14
+  # duration: 75        # optional; default = max item end
 
-tracks:
-  visual:               # sequential; every item references a clip by `use:`
-    - { id: intro, use: title-intro }     # a title clip
-    - { id: code, use: slide-loop }        # a slide clip (heading/body, variant: mono)
-    - { id: gist, use: still-gist }        # an image clip (duration/fit/zoom)
-    - id: clip1                            # a video clip
-      use: sel-a
-      transform: { scale: 1920x1080, pad: true }
-      transition_in: { type: fade, duration: 0.5 }
-    - { id: broll, use: sel-b, speed: 0.5 }
-  audio:                # free-positioned and mixed
-    - { id: vo, use: vo, offset: 0 }
-    - { id: bed, use: music, offset: 0, gain_db: -18 }
+tracks:                 # ordered: later video tracks composite on top
+  - id: v1
+    kind: video
+    items:
+      - { id: intro, use: title-intro, start: 0 }     # a title clip
+      - { id: code, use: slide-loop, start: 3 }        # a slide clip (variant: mono)
+      - { id: gist, use: still-gist, start: 9 }        # an image clip (fit/zoom)
+      - { id: clip1, use: sel-a, start: 17, transform: { scale: 1920x1080, pad: true },
+          transition_in: { type: fade, duration: 0.5 } }
+      - { id: broll, use: sel-b, start: 22, speed: 0.5 }
+  - id: v2                # overlays are just a video layer (text renders transparent)
+    kind: video
+    items:
+      - { id: logo, use: logo, start: 0, position: top-right, opacity: 0.9 }
+      - { id: ch1, use: label-ch1, start: 1 }
+  - id: a1                # audio tracks are mixed
+    kind: audio
+    items:
+      - { id: vo, use: vo, start: 0 }
+      - { id: bed, use: music, start: 0, gain_db: -18 }
 
 captions:
   mode: soft            # soft (default) | burn (opt-in) | none
   style: { font: "Inter", size: 42, position: bottom, margin_v: 64 }
-  sources: [narration, transcript]
   export: [srt, vtt]
-
-overlays:
-  - type: image
-    source: assets/logo.png
-    start: 0.0
-    end: 4.0
-    position: top-right
-    opacity: 0.9
-  - type: text
-    text: "Chapter 1"
-    start: 1.0
-    end: 3.5
-    style: { size: 64, color: "#ffffff" }
-  # readable over busy footage: a semi-opaque background box
-  - type: text
-    text: "Without a tool, the graph renders EMPTY"
-    start: 58
-    end: 67.5
-    position: bottom
-    style: { size: 44, color: "#ffffff", box: true, box_color: "#000000cc", outline: 0 }
 ```
+
+Per-item placement props: `start`, `speed`, `transform`, `position`, `opacity`,
+`transition_in/out` (video); `start`, `gain_db`, `fade_in/out` (audio).
 
 ## 7. CLI surface
 
@@ -574,8 +568,10 @@ out). See §13.
    prefer narration timing (deterministic) or align to source?
 6. Distribution: npm package (`npx vided`), standalone binary (Node SEA /
    `bun build --compile`), or container?
-7. ~~Multi-track/audio-ducking in v1?~~ **Resolved: in scope** — `render`
-   handles an audio mix with ducking (`sidechaincompress`) and `loudnorm`.
+7. ~~Multi-track/audio-ducking in v1?~~ **Partially resolved:** `render` handles
+   a multi-track audio mix with `loudnorm`; automatic ducking
+   (`sidechaincompress`) is **not implemented** and is deferred (see
+   `SPEC-v4.md` §14).
 8. Binary resolution policy: prefer system `ffmpeg`/`whisper.cpp`/`piper` on
    `PATH`, or always use pinned bundled/downloaded versions for reproducibility?
 9. ~~MCP server in scope?~~ **Resolved: not committed.** The JSON CLI is the

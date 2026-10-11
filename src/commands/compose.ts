@@ -61,15 +61,17 @@ export async function cmdCompose(opts: ComposeOptions): Promise<void> {
     if (out.explain) {
       const ex = out.explain as ReturnType<typeof explainEdl>;
       lines.push(`timeline: ${ex.clip_count} clips, ${ex.duration}s @ ${ex.output.format}`);
-      for (const c of ex.clips) {
-        lines.push(`  ${c.start}s -> ${c.end}s  ${c.id} (${c.kind}: ${c.source} [${c.format}])`);
+      for (const t of ex.tracks) {
+        lines.push(`  track ${t.id} (${t.kind}):`);
+        for (const c of t.items) {
+          lines.push(`    ${c.start}s -> ${c.end}s  ${c.id} (${c.kind}: ${c.source} [${c.format}])`);
+        }
       }
       const a = ex.audio;
       lines.push(
         `audio: clips=${a.clips} attached=${a.attached}` +
           (a.end !== undefined ? ` · ends ${a.end}s (${a.fits ? "fits" : "runs past"} ${ex.duration}s)` : ""),
       );
-      lines.push(`overlays: ${ex.overlays.total}`);
     }
     if (out.lint) {
       const l = out.lint as { errors: unknown[]; warnings: unknown[] };
