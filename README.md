@@ -202,8 +202,8 @@ The agent then scanned the media, sampled/deduped and described frames,
 captured the gist page with the browser, wrote `edit.yaml` + `narration.yaml`,
 and ran `tts` → `captions` → `render`.
 
-Published result: **<https://www.youtube.com/watch?v=6v21-kAtpUo>** — *"RC
-Controller Build: 3D Case, Arduino Firmware, and Track Test"* (74s).
+Published result: **<https://youtu.be/WLxy06PhaVM>** — *"RC Controller Build:
+3D Case, Arduino Firmware and Track Test"* (141s).
 
 ## Adding context
 
@@ -322,10 +322,9 @@ Expect rough edges — the UI and its on-disk behavior may change.
   source videos + the gist screenshot and a one-paragraph prompt, and drove the
   whole pipeline itself (`annotate` on 20 frames → `clips` →
   `script`/`tts`/`captions` → `compose` → `render`). The committed artifacts are
-  the current **code-forward** cut (`vided.edl/4`, 141s); the earlier published
-  demo (74s) is at <https://www.youtube.com/watch?v=6v21-kAtpUo> (artifacts:
-  `clips.yaml`, `edit.yaml`, `narration.yaml`, `brief.md`, `context.md`/`.json`,
-  `vision.*`, `captions.*`).
+  the **code-forward** cut (`vided.edl/4`, 141s), published (unlisted) at
+  <https://youtu.be/WLxy06PhaVM> (artifacts: `clips.yaml`, `edit.yaml`,
+  `narration.yaml`, `brief.md`, `context.md`/`.json`, `vision.*`, `captions.*`).
 
 ## Development
 
