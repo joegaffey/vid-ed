@@ -228,7 +228,7 @@ path so it is stable across re-runs.
   exported slides enter the timeline: the **harness/agent captures the image**
   (e.g. a browser screenshot of a gist page); the tool only scales/crops and
   holds it. `zoom` crops a region for legibility.
-- Text overlays use per-event ASS styles, so each can differ. `style.box: true`
+- Text clips use per-event ASS styles, so each can differ. `style.box: true`
   draws a background box (libass `BorderStyle=3`) using `box_color`
   (`#rrggbb[aa]` or `&Haabbggrr`); `outline`/`shadow` are configurable. This
   keeps labels readable over busy screen-capture footage.

@@ -14,6 +14,7 @@ import { buildManifest, readAsset, writeAsset, writeManifest } from "../manifest
 import type { AssetRecord } from "../schemas/asset.js";
 import { SCHEMA_VERSION } from "../schemas/asset.js";
 import { requireTool } from "../tools/resolve.js";
+import { VERSION } from "../version.js";
 import type { OutputOptions } from "../ui.js";
 import { emit } from "../ui.js";
 
@@ -115,7 +116,7 @@ export async function cmdScan(opts: ScanOptions): Promise<void> {
           tags: [],
           provenance: {
             tool: "vided",
-            version: "0.1.0",
+            version: VERSION,
             generated_at: new Date().toISOString(),
           },
         },
