@@ -186,8 +186,10 @@ export function buildRenderPlan(edl: ResolvedEdl, opts: BuildOptions): RenderPla
               ? `0x${clip.background.slice(1)}`
               : clip.background;
         const parts = [`color=c=${bg}:s=${W}x${H}:r=${fps}:d=${dur}`];
-        if (clip.kind === "text") parts.push("format=rgba");
-        parts.push(`ass=${safe}`);
+        // A transparent text layer must process the alpha channel, or libass
+        // draws nothing onto the fully-transparent frame.
+        if (clip.kind === "text") parts.push("format=rgba", `ass=${safe}:alpha=1`);
+        else parts.push(`ass=${safe}`);
         if (tin?.type === "fade") parts.push(`fade=t=in:st=0:d=${tin.duration}`);
         if (tout?.type === "fade") parts.push(`fade=t=out:st=${Math.max(0, dur - tout.duration)}:d=${tout.duration}`);
         parts.push(`setpts=PTS-STARTPTS${shift}`, "setsar=1");
