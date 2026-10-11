@@ -302,7 +302,10 @@ reads/writes the project files.
 - Build the client once (`npm run build:studio`), then `vided studio` and open
   the printed URL.
 - **Static demo (read-only):** https://joegaffey.com/vid-ed/ — a snapshot of the
-  sample project with editing, jobs and uploads disabled.
+  sample project with editing, jobs and uploads disabled. Build it locally with
+  `npm run build:studio && npm run build:studio-demo`, then `npm run serve:demo`
+  (use this, not `python -m http.server` — the browser needs HTTP `Range` to seek
+  the master video).
 
 Expect rough edges — the UI and its on-disk behavior may change.
 
@@ -311,8 +314,8 @@ Expect rough edges — the UI and its on-disk behavior may change.
 
 - **`samples/rc-build-agent-demo/`** — a fresh agent was given only the two
   source videos + the gist screenshot and a one-paragraph prompt, and drove the
-  whole pipeline itself (`annotate` on 50 frames → `clips` →
-  `script`/`tts`/`captions` → `compose` → `render`).
+  whole pipeline itself (`annotate` on 20 frames → `clips` →
+  `script`/`tts`/`captions` → `compose` → `render`) into a code-forward cut.
   Published: **https://www.youtube.com/watch?v=6v21-kAtpUo** (artifacts:
   `clips.yaml`, `edit.yaml`, `narration.yaml`, `brief.md`, `context.md`/`.json`,
   `vision.*`, `captions.*`).
