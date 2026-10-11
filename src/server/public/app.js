@@ -52,6 +52,7 @@ const SECTIONS = [
   ["analysis", "Analysis"],
   ["context", "Context"],
   ["vision", "Vision"],
+  ["narration", "Narration"],
   ["captions", "Captions"],
   ["output", "Output"],
   ["changes", "Changes"],
@@ -60,7 +61,7 @@ const SECTIONS = [
 
 // Sections that are editors/forms (open in the right pane on selection); the
 // rest are lists/navigators and stay inline in the left rail.
-const EDITOR_SECTIONS = new Set(["analysis", "context", "vision", "captions"]);
+const EDITOR_SECTIONS = new Set(["analysis", "context", "vision", "narration", "captions"]);
 
 // Short in-UI explanations for each major panel (the "?" popups).
 const HELP = {
@@ -206,6 +207,7 @@ class VidedApp extends LitElement {
     this.clipsError = null;
     this.context = null;
     this.contextPack = null;
+    this.narration = null;
     this.outputs = [];
     this.jobs = [];
     this.selection = { kind: "none" };
@@ -269,6 +271,7 @@ class VidedApp extends LitElement {
     this.loadClips();
     this.loadContext();
     this.loadContextPack();
+    this.loadNarration();
     this.loadOutputs();
     this.loadJobs();
     this.loadEdl();
@@ -298,6 +301,9 @@ class VidedApp extends LitElement {
   }
   async loadContextPack() {
     try { this.contextPack = await api.get("api/context-pack"); } catch { this.contextPack = null; }
+  }
+  async loadNarration() {
+    try { this.narration = await api.get("api/narration"); } catch { this.narration = null; }
   }
   async loadOutputs() {
     try { this.outputs = await api.get("api/renders"); } catch { this.outputs = []; }
@@ -554,6 +560,7 @@ class VidedApp extends LitElement {
       case "analysis": return this.renderAnalysis();
       case "context": return this.renderContext();
       case "vision": return this.renderVision();
+      case "narration": return this.renderNarration();
       case "captions": return this.renderCaptions();
       case "output": return this.renderOutput();
       case "changes": return this.renderChanges();
@@ -1070,6 +1077,69 @@ class VidedApp extends LitElement {
     if (DEMO) return this.demoBlocked();
     if (this.contextPack?.exists && !window.confirm("Rebuild the context pack? This overwrites any edits you've made here.")) return;
     this.runStage("manifest", ["--context-pack", "work/context.md"]);
+  }
+
+  renderNarration() {
+    const n = this.narration;
+    if (!n) return html`<p class="muted">loading…</p>`;
+    if (!n.exists) {
+      return html`
+        <div class="grouphead">Narration script</div>
+        <p class="muted">No <code>narration.yaml</code> yet — run the <b>script</b> stage to scaffold one from the annotated frames, or write one by hand.</p>
+        <div class="actions">
+          <button class="primary" ?disabled=${DEMO} @click=${() => this.runStage("script", ["--out", "narration.yaml"])}>Scaffold from frames</button>
+          <span class="muted">${this.runhint}</span>
+        </div>`;
+    }
+    if (n.error) {
+      return html`
+        <div class="grouphead">Narration script</div>
+        <p class="muted"><code>${n.file}</code> could not be parsed: ${(n.issues || []).join("; ")}</p>`;
+    }
+    const timing = new Map((n.timing || []).map((s) => [s.id, s]));
+    return html`
+      <div class="grouphead">Narration script <span class="muted">(narration.yaml · ${n.segments.length} segments)</span></div>
+      <div class="row">
+        <div style="flex:1"><label>Voice</label><input id="nr_voice" .value=${n.voice || ""} /></div>
+        <div style="flex:1"><label>Engine</label><input id="nr_engine" .value=${n.engine || ""} /></div>
+      </div>
+      ${n.segments.map((s, i) => {
+        const t = timing.get(s.id || `s${i}`);
+        return html`
+          <div class="nr-seg">
+            <div class="row">
+              <div style="flex:0 0 180px"><label>id</label><input class="nr-id" .value=${s.id || ""} /></div>
+              <div style="flex:0 0 140px"><label>gap after (s)</label><input class="nr-gap" type="number" step="0.05" .value=${s.gap_after ?? 0.4} /></div>
+              ${t ? html`<div class="muted" style="align-self:flex-end;font-size:11px">${t.start.toFixed(1)}–${t.end.toFixed(1)}s</div>` : ""}
+            </div>
+            <textarea class="nr-text" rows="2" ?disabled=${DEMO}>${s.text}</textarea>
+          </div>`;
+      })}
+      <div class="actions">
+        <button class="primary" ?disabled=${DEMO} @click=${this.saveNarration}>Save narration</button>
+        <button ?disabled=${DEMO} @click=${() => this.runStage("tts", ["narration.yaml"])}>Generate voice</button>
+        <button ?disabled=${DEMO} @click=${() => this.runStage("captions", ["--from", "narration", "--formats", "srt,vtt,ass"])}>Captions</button>
+        <span class="muted">${this.runhint}</span>
+      </div>`;
+  }
+  async saveNarration() {
+    if (DEMO) return this.demoBlocked();
+    const root = this.renderRoot;
+    const segments = [...root.querySelectorAll(".nr-seg")].map((el) => {
+      const id = (el.querySelector(".nr-id")?.value || "").trim();
+      const gap = Number(el.querySelector(".nr-gap")?.value ?? 0);
+      const text = el.querySelector(".nr-text")?.value ?? "";
+      return { ...(id ? { id } : {}), text, gap_after: Number.isFinite(gap) ? gap : 0.4 };
+    });
+    const r = await api.put("api/narration", {
+      voice: (root.getElementById("nr_voice")?.value || "").trim() || undefined,
+      engine: (root.getElementById("nr_engine")?.value || "").trim() || undefined,
+      segments,
+    });
+    const j = await r.json().catch(() => ({}));
+    this.runhint = r.ok ? "narration.yaml saved" : (j.error || "narration save failed");
+    await this.loadNarration();
+    await this.loadHistory();
   }
 
   renderChanges() {
@@ -1596,6 +1666,8 @@ class VidedApp extends LitElement {
     .details { overflow: auto; min-width: 0; scrollbar-width: thin; scrollbar-color: #2c3542 transparent; }
     .section-editor { padding: 8px 16px 20px; max-width: 980px; }
     .section-editor textarea { width: 100%; }
+    .nr-seg { border-top: 1px solid var(--line-soft); padding: 8px 0; }
+    .nr-seg textarea { width: 100%; }
     .timeline-resize { cursor: row-resize; background: var(--line); }
     .timeline-resize:hover { background: var(--accent); }
     .timeline { border-top: 1px solid var(--line); background: var(--panel); display: flex; flex-direction: column; min-height: 0; }

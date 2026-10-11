@@ -5,7 +5,9 @@ import { pipeline } from "node:stream/promises";
 import { basename, dirname, extname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execa } from "execa";
+import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 import { loadConfig, projectPaths, type Config, type Paths } from "../config.js";
+import { NarrationScriptSchema } from "../schemas/narration.js";
 import {
   ContextInputSchema,
   ContextAssetInputSchema,
@@ -351,6 +353,58 @@ export async function createStudioServer(opts: StudioServerOptions): Promise<Stu
       } catch (err) {
         return sendJSON(res, 500, { error: (err as Error).message });
       }
+    }
+
+    // --- narration -------------------------------------------------------
+    if (req.method === "GET" && path === "/api/narration") {
+      const narrPath = join(paths.root, "narration.yaml");
+      if (!existsSync(narrPath)) return sendJSON(res, 200, { exists: false, file: "narration.yaml", segments: [] });
+      const raw = await readFile(narrPath, "utf8");
+      const parsed = NarrationScriptSchema.safeParse(parseYaml(raw));
+      if (!parsed.success) {
+        return sendJSON(res, 200, {
+          exists: true,
+          file: "narration.yaml",
+          error: "invalid narration.yaml",
+          issues: parsed.error.issues.map((i) => i.message),
+          segments: [],
+        });
+      }
+      let timing: unknown;
+      try {
+        const tp = join(paths.root, "work", "narration.timing.json");
+        if (existsSync(tp)) timing = (JSON.parse(await readFile(tp, "utf8")) as { segments?: unknown }).segments;
+      } catch {
+        /* ignore */
+      }
+      return sendJSON(res, 200, {
+        exists: true,
+        file: "narration.yaml",
+        voice: parsed.data.voice,
+        engine: parsed.data.engine,
+        segments: parsed.data.segments,
+        ...(timing ? { timing } : {}),
+      });
+    }
+
+    if (req.method === "PUT" && path === "/api/narration") {
+      const body = (await readBody(req)) as { voice?: unknown; engine?: unknown; segments?: unknown };
+      const parsed = NarrationScriptSchema.safeParse({
+        schema: "vided.narration/1",
+        ...(typeof body.voice === "string" && body.voice ? { voice: body.voice } : {}),
+        ...(typeof body.engine === "string" && body.engine ? { engine: body.engine } : {}),
+        segments: body.segments,
+      });
+      if (!parsed.success) {
+        return sendJSON(res, 400, { error: parsed.error.issues.map((i) => `${i.path.join(".") || "(root)"}: ${i.message}`) });
+      }
+      const yamlText = stringifyYaml(parsed.data);
+      await writeFile(join(paths.root, "narration.yaml"), yamlText, "utf8");
+      lastSeen.set("narration.yaml", contentHash(yamlText));
+      const v = await history.append("narration.yaml", { content: yamlText, writer: "studio", label: "narration edit" });
+      await writeStudioChanges(paths.root, history);
+      emitEvent({ type: "changed", artifact: "narration.yaml", writer: "studio", ts: v.ts });
+      return sendJSON(res, 200, { ok: true, ts: v.ts, hash: v.hash });
     }
 
     // --- context ---------------------------------------------------------

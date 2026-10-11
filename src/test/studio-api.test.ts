@@ -125,6 +125,20 @@ test("studio API: history, apply, diff, revert, edl edit, staleness", async () =
     assert.ok(pack.markdown.includes("hello world"));
     const changesPack = (await getJSON(base + "/api/changes")) as Array<{ artifact: string; writer: string }>;
     assert.ok(changesPack.find((c) => c.artifact === "work/context.md" && c.writer === "studio"));
+
+    // narration script is editable + versioned (narration.yaml)
+    assert.equal(((await getJSON(base + "/api/narration")) as { exists: boolean }).exists, false);
+    const putNarr = await fetch(base + "/api/narration", {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ voice: "en_US-amy-medium", segments: [{ id: "s1", text: "hello", gap_after: 0.2 }] }),
+    });
+    assert.equal(putNarr.status, 200);
+    const narr = (await getJSON(base + "/api/narration")) as { exists: boolean; segments: Array<{ id: string; text: string }> };
+    assert.equal(narr.exists, true);
+    assert.equal(narr.segments[0]!.text, "hello");
+    const changesNarr = (await getJSON(base + "/api/changes")) as Array<{ artifact: string; writer: string }>;
+    assert.ok(changesNarr.find((c) => c.artifact === "narration.yaml" && c.writer === "studio"));
   } finally {
     await server.close();
   }
