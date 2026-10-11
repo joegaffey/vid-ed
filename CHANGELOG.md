@@ -6,6 +6,22 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- **Narration decomposition** — `vided tts` writes per-segment wavs
+  (`work/narration/<id>.wav`) and records each in `narration.timing.json`;
+  `vided clips --from-narration <timing.json> [--edl edit.yaml]` emits one
+  `vo-<id>` audio clip per segment and places each on the `a1` track at its
+  absolute `start` (idempotent; replaces the single `work/narration.wav` clip).
+- **Studio: Narration panel** — a `narration.yaml` list in the rail; click a
+  segment to edit it on the right; **Generate voice** (`tts`), **Captions**, and
+  **Decompose → clips**. (`#8`)
+- **Studio: editable context pack** — the generated `work/context.md` is an
+  editable, versioned artifact in the Context panel (`#7`).
+- **Studio layout** — editors/forms (Analysis, Context, Vision, Captions) open in
+  the right pane; lists/pools (Media bin, Clips, Output, Changes, Activity)
+  stay in the left rail.
+
 ## [0.3.0] - 2026-10-11
 
 ### Changed

@@ -1,6 +1,14 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { deriveClips, hasPlaceableMedia, nearestFormat } from "../clips.js";
+import {
+  clipsFromNarration,
+  deriveClips,
+  hasPlaceableMedia,
+  isNarrationClipId,
+  narrationPlacements,
+  nearestFormat,
+} from "../clips.js";
+import { NarrationTimingSchema } from "../schemas/narration.js";
 import { loadEdlFromString, resolveEdl } from "../edl.js";
 import { clipId, ClipsSchema, KNOWN_FORMATS } from "../schemas/clips.js";
 import type { Manifest } from "../schemas/manifest.js";
@@ -120,6 +128,26 @@ tracks:
   assert.equal(res.ok, true);
   assert.equal(res.resolved!.tracks.find((t) => t.kind === "video")!.items[0]!.clip.source, "a.mp4");
   assert.equal(res.resolved!.tracks.find((t) => t.kind === "audio")!.items[0]!.start, 2);
+});
+
+test("clipsFromNarration decomposes segments with audio", () => {
+  const timing = NarrationTimingSchema.parse({
+    schema: "vided.narration.timing/1",
+    engine: "piper",
+    audio: "work/narration.wav",
+    duration: 6,
+    segments: [
+      { id: "intro", text: "a", start: 0, end: 2, gap_after: 0.3, audio: "work/narration/intro.wav" },
+      { id: "body", text: "b", start: 2.3, end: 5, gap_after: 0, audio: "work/narration/body.wav" },
+      { id: "noaudio", text: "c", start: 5, end: 6, gap_after: 0 },
+    ],
+  });
+  const clips = ClipsSchema.parse({ schema: "vided.clips/1", clips: clipsFromNarration(timing) }).clips;
+  assert.deepEqual(clips.map((c) => c.id), ["vo-intro", "vo-body"]);
+  assert.equal((clips[0] as { duration: number }).duration, 2);
+  assert.equal((clips[0] as { source: string }).source, "work/narration/intro.wav");
+  assert.deepEqual(narrationPlacements(timing).map((p) => [p.id, p.start]), [["vo-intro", 0], ["vo-body", 2.3]]);
+  assert.ok(isNarrationClipId("vo-intro") && !isNarrationClipId("sel-a"));
 });
 
 test("resolveEdl errors on unknown refs and wrong-track kinds", () => {

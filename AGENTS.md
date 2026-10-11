@@ -143,6 +143,7 @@ analyse).
 vided script --out narration.yaml     # scaffolds beats from described frames
 #   ... rewrite the prose ...
 vided tts narration.yaml              # Piper -> work/narration.wav + work/narration.timing.json
+vided clips --from-narration work/narration.timing.json --edl edit.yaml  # vo-<id> clips on a1
 vided captions --from narration --formats srt,vtt,ass   # -> work/captions.{srt,vtt,ass}
 ```
 
@@ -152,11 +153,17 @@ range). Captions are **soft by default** (srt/vtt sidecars attached as a
 toggleable track); burn-in needs the `.ass` and is opt-in with
 `captions.mode: burn`.
 
-Register the narration as an audio clip with its duration (from `tts`) so the
-fit check works, e.g.
+`tts` also writes **per-segment wavs** (`work/narration/<id>.wav`) and records
+each segment's path, `start`/`end` in `work/narration.timing.json`.
+`clips --from-narration` **decomposes** them: one `vo-<id>` audio clip per segment
+plus a `tracks.audio` item at its absolute `start` (gaps become silence),
+replacing the single `work/narration.wav` clip. It is idempotent (re-run after a
+re-synthesis) and only touches the `a1` track / `vo-*` clips.
+
+Alternatively place the whole narration as one clip: register it with its
+duration (from `tts`) so the fit check works, e.g.
 `clips --add '{"id":"vo","kind":"audio","source":"work/narration.wav","format":"audio48k","duration":42.5}'`,
-then place it on the audio track
-(`- { id: a1, kind: audio, items: [{ id: vo, use: vo, start: 0 }] }`) and set
+then `- { id: vo, use: vo, start: 0 }` on the audio track, and set
 `captions: { mode: burn, file: work/captions.ass }`.
 
 `vided compose edit.yaml --check --lint --explain` — `--explain` reports the
