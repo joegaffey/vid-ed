@@ -147,6 +147,11 @@ vided clips --from-narration work/narration.timing.json --edl edit.yaml  # vo-<i
 vided captions --from narration --formats srt,vtt,ass   # -> work/captions.{srt,vtt,ass}
 ```
 
+Author narration **one beat per line** — a segment should be a sentence or a
+single idea, not a paragraph. Each segment is the unit that becomes its own
+`vo-<id>` clip and its own timeline anchor, so short beats give finer sync and
+localized re-synthesis (reword one line without shifting the rest).
+
 `script` scaffolds one segment per annotated frame; trim visual clips to roughly
 the narration length — derived scene clips can be long (`clips --add` a shorter
 range). Captions are **soft by default** (srt/vtt sidecars attached as a

@@ -64,7 +64,7 @@ hash, so re-running the pipeline never pays twice for unchanged inputs.
   [`STUDIO.md`](./STUDIO.md).
 - Real-time preview or streaming.
 - Generative video synthesis.
-- Automatic music composition (only mixing/ducking of provided beds).
+- Automatic music composition (only mixing of provided beds).
 - Cloud-required workflows (all defaults must run offline).
 
 ## 4. Design principles
@@ -217,8 +217,8 @@ path so it is stable across re-runs.
   possible; intermediate files when the graph is too large).
 - Operations: trim, composite/overlay placement, scale/pad, crop, overlays, `drawtext`,
   transitions (`xfade`), speed (`setpts`/`atempo`), audio `amix`, loudness
-  normalisation (`loudnorm`). Music ducking (`sidechaincompress`) is **not yet
-  implemented** (tracked for a future release).
+  normalisation (`loudnorm`). Automatic music ducking (`sidechaincompress`) is
+  **not planned** — a music bed is mixed with `loudnorm` and per-clip `gain_db`.
 - Title cards (intro / chapter pages) are generated as solid-colour sources
   rendered with libass (`color=...` + `ass=...`) and placed on a video track — no
   external image assets required. Slides (`slide` + `body`, `kind: mono`)
@@ -567,9 +567,9 @@ out). See §13.
    prefer narration timing (deterministic) or align to source?
 6. Distribution: npm package (`npx vided`), standalone binary (Node SEA /
    `bun build --compile`), or container?
-7. ~~Multi-track/audio-ducking in v1?~~ **Partially resolved:** `render` handles
-   a multi-track audio mix with `loudnorm`; automatic ducking
-   (`sidechaincompress`) is **not implemented** and is deferred.
+7. ~~Multi-track/audio-ducking in v1?~~ **Resolved: not planned.** `render`
+   mixes multiple audio tracks with `loudnorm`; automatic ducking
+   (`sidechaincompress`) is out of scope (per-clip `gain_db` covers manual dips).
 8. Binary resolution policy: prefer system `ffmpeg`/`whisper.cpp`/`piper` on
    `PATH`, or always use pinned bundled/downloaded versions for reproducibility?
 9. ~~MCP server in scope?~~ **Resolved: not committed.** The JSON CLI is the
