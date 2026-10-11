@@ -96,6 +96,10 @@ function resolveStudioDir(): string | undefined {
 }
 
 function sendJSON(res: ServerResponse, status: number, data: unknown): void {
+  // Guard against a second response (e.g. an error thrown after a streamed file
+  // already sent headers) — writing again throws ERR_HTTP_HEADERS_SENT and kills
+  // the whole server.
+  if (res.headersSent) return;
   res.writeHead(status, { "content-type": "application/json; charset=utf-8" });
   res.end(JSON.stringify(data, null, 2));
 }
@@ -132,6 +136,18 @@ async function serveFile(req: IncomingMessage, res: ServerResponse, abs: string)
   const type = contentType(abs);
   const range = req.headers.range;
   const m = range ? /bytes=(\d*)-(\d*)/.exec(range) : null;
+  const pipe = (stream: ReturnType<typeof createReadStream>): void => {
+    // Never let a stream error (file removed mid-flight, client aborted) bubble
+    // up and take down the server.
+    stream.on("error", () => {
+      try {
+        res.destroy();
+      } catch {
+        /* ignore */
+      }
+    });
+    stream.pipe(res);
+  };
   if (m) {
     const start = m[1] ? Number(m[1]) : 0;
     const end = m[2] ? Number(m[2]) : st.size - 1;
@@ -141,11 +157,11 @@ async function serveFile(req: IncomingMessage, res: ServerResponse, abs: string)
       "content-range": `bytes ${start}-${end}/${st.size}`,
       "content-length": end - start + 1,
     });
-    createReadStream(abs, { start, end }).pipe(res);
+    pipe(createReadStream(abs, { start, end }));
     return;
   }
   res.writeHead(200, { "content-type": type, "content-length": st.size, "accept-ranges": "bytes" });
-  createReadStream(abs).pipe(res);
+  pipe(createReadStream(abs));
 }
 
 async function runCliOnce(root: string, args: string[]): Promise<{ ok: boolean; data?: unknown; error?: string }> {
@@ -241,6 +257,16 @@ export async function createStudioServer(opts: StudioServerOptions): Promise<Stu
 
   const server = createServer((req, res) => {
     handle(req, res).catch((err: unknown) => {
+      if (res.headersSent) {
+        // A response (or its stream) already started; just drop the connection
+        // rather than attempting a second set of headers.
+        try {
+          res.destroy();
+        } catch {
+          /* ignore */
+        }
+        return;
+      }
       sendJSON(res, 500, { error: err instanceof Error ? err.message : String(err) });
     });
   });

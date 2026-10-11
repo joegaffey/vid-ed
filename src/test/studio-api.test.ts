@@ -110,6 +110,12 @@ test("studio API: history, apply, diff, revert, edl edit, staleness", async () =
 
     // staleness responds
     assert.ok(Array.isArray(await getJSON(base + "/api/staleness")));
+
+    // a clip-preview request must never take the server down (double-response guard)
+    const pv = await fetch(base + "/api/clips/preview?id=c1");
+    assert.ok([200, 404, 500].includes(pv.status));
+    await pv.arrayBuffer().catch(() => {});
+    assert.ok(Array.isArray(await getJSON(base + "/api/jobs")));
   } finally {
     await server.close();
   }
