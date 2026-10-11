@@ -212,6 +212,7 @@ class VidedApp extends LitElement {
     this.jobs = [];
     this.selection = { kind: "none" };
     this.open = localStorage.getItem("vided.open") || "media";
+    this.clipCollapsed = new Set((localStorage.getItem("vided.clipgroups") || "").split(",").filter(Boolean));
     this.frames = null;
     this.log = "";
     this.logJob = null;
@@ -663,9 +664,12 @@ class VidedApp extends LitElement {
       ${kinds.map((k) => {
         const list = clips.filter((c) => c.kind === k);
         if (!list.length) return "";
+        const collapsed = this.clipCollapsed.has(k);
         return html`
-          <div class="grouphead">${k} · ${list.length}</div>
-          <table class="clips"><tbody>
+          <button class="grouphead toggle" @click=${() => this.toggleClipGroup(k)}>
+            <span class="chev">${collapsed ? "▸" : "▾"}</span>${k} · ${list.length}
+          </button>
+          ${collapsed ? "" : html`<table class="clips"><tbody>
             ${list.map((c) => {
               const active = this.selection.kind === "clip" && this.selection.id === c.id;
               const ctx = [c.tags && c.tags.length ? c.tags.join(" ") : "", c.note || ""].filter(Boolean).join(" — ");
@@ -681,8 +685,15 @@ class VidedApp extends LitElement {
                   @click=${(e) => { e.stopPropagation(); this.addPlacement(c); }}>+</button></td>
               </tr>`;
             })}
-          </tbody></table>`;
+          </tbody></table>`}
+        `;
       })}`;
+  }
+  toggleClipGroup(k) {
+    if (this.clipCollapsed.has(k)) this.clipCollapsed.delete(k);
+    else this.clipCollapsed.add(k);
+    localStorage.setItem("vided.clipgroups", [...this.clipCollapsed].join(","));
+    this.requestUpdate();
   }
   clipLabel(c) {
     const base = (c.source || "").split(/[\/\\]/).pop() || c.source;
@@ -1767,6 +1778,8 @@ class VidedApp extends LitElement {
     .urlrow input { flex: 1; }
     table.media { table-layout: fixed; }
     .grouphead { margin: 10px 0 4px; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+    .grouphead.toggle { display: flex; align-items: center; gap: 6px; width: 100%; border: 0; background: transparent; cursor: pointer; padding: 4px 0; text-align: left; }
+    .grouphead.toggle:hover { color: var(--text); }
     table.clips { table-layout: fixed; }
     table.clips td { padding: 4px 6px; }
     table.clips td:nth-child(2) { width: 72px; }

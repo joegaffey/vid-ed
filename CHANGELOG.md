@@ -18,6 +18,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   **Decompose → clips**. (`#8`)
 - **Studio: editable context pack** — the generated `work/context.md` is an
   editable, versioned artifact in the Context panel (`#7`).
+- **Studio: collapsible Clips groups** — the Clips pool's `video`/`image`/`audio`/
+  … groups collapse/expand (state remembered), so long pools stay manageable.
 - **Studio layout** — editors/forms (Analysis, Context, Vision, Captions) open in
   the right pane; lists/pools (Media bin, Clips, Output, Changes, Activity)
   stay in the left rail.
