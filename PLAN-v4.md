@@ -1,8 +1,7 @@
 # PLAN-v4 — implementing the absolute multi-track timeline
 
-Status: DRAFT (plan). Target: [`SPEC-v4.md`](./SPEC-v4.md) (`vided.edl/4`).
-Baseline: `main` at the commit that adds `SPEC-v4.md`; current model is
-`vided.edl/3` + `vided.clips/1`.
+Status: DONE except release. Target: [`SPEC-v4.md`](./SPEC-v4.md)
+(`vided.edl/4`). Baseline was `vided.edl/3` + `vided.clips/1` (now removed).
 Audience: implementers.
 
 ## Strategy
@@ -71,8 +70,8 @@ migration is lossless for the fixture.
 - Audio path (`src/render.ts:235`): `offset` → `start`; otherwise unchanged
   (`atrim`/`afade`/`volume`/`aresample`/`adelay`, then the master chain).
 - Gaps render black/silence; `output.duration` default = max end.
-- Tests: `--dry-run` snapshot tests; **parity test** — an `edl/3` clip sequence
-  and its migrated v4 render the same plan.
+- Tests: unit assertions on the generated filter; **real-render check** with a
+  two-track edit (composite, transparent text, gaps, stereo mix).
 
 **Exit:** v4 fixtures render correctly for `render` and `--preview`;
 `render --clip <id>` unaffected.

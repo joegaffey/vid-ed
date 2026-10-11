@@ -42,9 +42,9 @@ With narration, between `clips` and `compose`:
 
 ## Clips and edit
 
-Every clip has a `kind` (video/image/audio/title/slide), a `source` (or
-`"generated"` for title/slide) and a `format` from: 1080p30, 1080p60, 720p30,
-540p30, 480p30, 360p30, vertical1080p30, square1080p30, audio48k.
+Every clip has a `kind` (video/image/audio/title/slide/text), a `source` (or
+`"generated"` for title/slide/text) and a `format` from: 1080p30, 1080p60,
+720p30, 540p30, 480p30, 360p30, vertical1080p30, square1080p30, audio48k.
 
     # clips.yaml
     schema: vided.clips/1
@@ -52,14 +52,22 @@ Every clip has a `kind` (video/image/audio/title/slide), a `source` (or
       - { id: sel-a, kind: video, source: input/a.mp4, format: 1080p30, in: 0, out: 4 }
       - { id: title-open, kind: title, source: generated, format: 1080p30, title: "Demo", duration: 3 }
 
-    # edit.yaml
-    schema: vided.edl/3
+    # edit.yaml  (vided.edl/4 — an ordered list of tracks)
+    schema: vided.edl/4
     output: { format: 1080p30, path: out/final.mp4 }
-    tracks:
-      visual:
-        - { id: intro, use: title-open }
-        - { id: a, use: sel-a }
-      audio: []
+    tracks:                       # later video tracks composite on top
+      - id: v1
+        kind: video
+        items:
+          - { id: intro, use: title-open, start: 0 }
+          - { id: a, use: sel-a, start: 3 }
+      - id: a1
+        kind: audio
+        items: []
+
+Every item has an absolute `start` in seconds; a track's first item may omit it
+(defaults to 0). Uncovered time renders black (video) / silence (audio); `text`
+clips render transparent.
 
 Gather context through conversation and persist it to `brief.md` + per-input
 sidecars. `vided <command> --help` lists flags; all commands emit JSON.

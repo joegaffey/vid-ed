@@ -91,7 +91,7 @@ M0 complete: `init`, `doctor`, `scan`, `status`.
 M1 complete: `extract-text` (whisper.cpp + sidecar + optional OCR),
 `sample` (ffmpeg scene detection + initial sample rate), `dedupe` (pHash
 clustering + cross-asset dedupe + density-based vision budget).
-M2 complete: `compose` (EDL check/explain/lint) and `render` (trim/concat,
+M2 complete: `compose` (EDL check/explain/lint) and `render` (trim/composite,
 image + text layers (incl. transparent `text` clips) via libass, audio mix + loudnorm,
 `--dry-run`/`--preview`).
 M3 complete: `tts` (Piper narration -> work/narration.wav + timing) and

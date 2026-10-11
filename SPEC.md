@@ -215,12 +215,12 @@ path so it is stable across re-runs.
 ### 5.11 `render` — execute the EDL
 - Translate the EDL into an ffmpeg `filter_complex` graph (single pass where
   possible; intermediate files when the graph is too large).
-- Operations: trim, concat, scale/pad, crop, overlay image, `drawtext`,
+- Operations: trim, composite/overlay placement, scale/pad, crop, overlays, `drawtext`,
   transitions (`xfade`), speed (`setpts`/`atempo`), audio `amix`, loudness
   normalisation (`loudnorm`). Music ducking (`sidechaincompress`) is **not yet
   implemented** (tracked for a future release; see `SPEC-v4.md` §14).
 - Title cards (intro / chapter pages) are generated as solid-colour sources
-  rendered with libass (`color=...` + `ass=...`) and concatenated inline — no
+  rendered with libass (`color=...` + `ass=...`) and placed on a video track — no
   external image assets required. Slides (`slide` + `body`, `kind: mono`)
   reuse the same path with a top-left, monospace body for code walkthroughs.
 - Stills (`image` + `duration`, optional `fit`/`zoom`) hold an image for a
@@ -520,7 +520,7 @@ out). See §13.
 - **M0** — Node/TS skeleton, `init`/`doctor`/`scan`/`status`, manifest with
   probe data.
 - **M1** — `extract-text` (whisper.cpp) + `sample` + `dedupe`, frame cache.
-- **M2** — `compose` (schema + explain/lint) and `render` for trim/concat/
+- **M2** — `compose` (schema + explain/lint) and `render` for trim/composite/
   overlay/mix.
 - **M3** — `tts` (Piper) + `captions` (SRT/VTT/ASS) + caption burn-in.
 - **M4 — vision annotation + context pack + cost reporting.** Goal: let the
