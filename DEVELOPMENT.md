@@ -105,8 +105,7 @@ from annotated frames), and cost reporting in `status`.
 Clips stage: `vided clips` derives `clips.yaml` (`vided.clips/1`) — the pool
 every edit composes from. The edit schema is `vided.edl/4`: an ordered list of
 `tracks` (video/audio) whose items reference clips by `use:` at an absolute
-`start`; trimming a clip in `clips.yaml` affects everywhere it is used. See
-[`SPEC-v4.md`](./SPEC-v4.md).
+`start`; trimming a clip in `clips.yaml` affects everywhere it is used.
 
 Studio (optional, experimental): `vided studio` starts a local web UI — a thin
 adapter over the same CLI and artifacts (job queue, history/proposals, staleness,

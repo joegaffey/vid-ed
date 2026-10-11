@@ -34,7 +34,7 @@ phase:
 individually renderable unit with a `kind` (video/image/audio/title/slide/text)
 and an output `format`. `edit.yaml` (`vided.edl/4`) is an ordered list of
 `tracks`, each item placed at an absolute `start` and referencing a clip by
-`use:`. See §5.8 and §5.9; the full model is in [`SPEC-v4.md`](./SPEC-v4.md).
+`use:`. See §5.8 and §5.9.
 
 Expensive steps (transcription, vision annotation, TTS) are cached by content
 hash, so re-running the pipeline never pays twice for unchanged inputs.
@@ -218,7 +218,7 @@ path so it is stable across re-runs.
 - Operations: trim, composite/overlay placement, scale/pad, crop, overlays, `drawtext`,
   transitions (`xfade`), speed (`setpts`/`atempo`), audio `amix`, loudness
   normalisation (`loudnorm`). Music ducking (`sidechaincompress`) is **not yet
-  implemented** (tracked for a future release; see `SPEC-v4.md` §14).
+  implemented** (tracked for a future release).
 - Title cards (intro / chapter pages) are generated as solid-colour sources
   rendered with libass (`color=...` + `ass=...`) and placed on a video track — no
   external image assets required. Slides (`slide` + `body`, `kind: mono`)
@@ -313,8 +313,7 @@ path so it is stable across re-runs.
 
 Clips (video/image/audio/title/slide/text) are defined in `clips.yaml`, each
 with a `kind`, a `source` (or `"generated"`) and a `format`; the timeline only
-references them by `use:`. See §5.8; the model is specified in
-[`SPEC-v4.md`](./SPEC-v4.md).
+references them by `use:`. See §5.8 and §5.9.
 
 ```yaml
 schema: vided.edl/4
@@ -570,8 +569,7 @@ out). See §13.
    `bun build --compile`), or container?
 7. ~~Multi-track/audio-ducking in v1?~~ **Partially resolved:** `render` handles
    a multi-track audio mix with `loudnorm`; automatic ducking
-   (`sidechaincompress`) is **not implemented** and is deferred (see
-   `SPEC-v4.md` §14).
+   (`sidechaincompress`) is **not implemented** and is deferred.
 8. Binary resolution policy: prefer system `ffmpeg`/`whisper.cpp`/`piper` on
    `PATH`, or always use pinned bundled/downloaded versions for reproducibility?
 9. ~~MCP server in scope?~~ **Resolved: not committed.** The JSON CLI is the

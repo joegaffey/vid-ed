@@ -36,7 +36,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   Gaps render black/silence; `output.duration` sets an explicit timeline length.
 - `overlays` is removed — image and text elements are simply items on a video
   track. Same-track items must not overlap (`compose --lint` errors).
-- Docs, examples and the checked-in sample are ported to v4 (see `SPEC-v4.md`).
+- Docs, examples and the checked-in sample are ported to v4.
 
 ### Added
 
