@@ -303,7 +303,7 @@ class VidedApp extends LitElement {
     try { this.contextPack = await api.get("api/context-pack"); } catch { this.contextPack = null; }
   }
   async loadNarration() {
-    try { this.narration = await api.get("api/narration"); } catch { this.narration = null; }
+    try { this.narration = await api.get("api/narration"); } catch { this.narration = { exists: false, segments: [] }; }
   }
   async loadOutputs() {
     try { this.outputs = await api.get("api/renders"); } catch { this.outputs = []; }

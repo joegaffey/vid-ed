@@ -5,6 +5,7 @@ import { dirname, join } from "node:path";
 import { parse as parseYaml } from "yaml";
 import { ClipsSchema, KNOWN_FORMATS } from "../dist/schemas/clips.js";
 import { EdlSchema } from "../dist/schemas/edl.js";
+import { NarrationScriptSchema } from "../dist/schemas/narration.js";
 import { explainEdl, resolveEdl } from "../dist/edl.js";
 
 /**
@@ -54,6 +55,22 @@ await writeJSON("context-pack", { exists: true, file: "context.md", markdown: ct
 
 const resolved = resolveEdl(edl, new Map(clips.map((c) => [c.id, c])));
 if (resolved.resolved) await writeJSON("edl", { file: "edit.yaml", edl, ...explainEdl(resolved.resolved) });
+
+// narration script (for the Narration panel)
+if (existsSync(join(SAMPLE, "narration.yaml"))) {
+  const narr = NarrationScriptSchema.safeParse(parseYaml(await read("narration.yaml")));
+  let timing;
+  const tp = join(SAMPLE, "narration.timing.json");
+  if (existsSync(tp)) timing = JSON.parse(await readFile(tp, "utf8")).segments;
+  await writeJSON("narration", {
+    exists: true,
+    file: "narration.yaml",
+    ...(narr.success ? { voice: narr.data.voice, engine: narr.data.engine, segments: narr.data.segments } : { segments: [], error: "invalid narration.yaml" }),
+    ...(timing ? { timing } : {}),
+  });
+} else {
+  await writeJSON("narration", { exists: false, file: "narration.yaml", segments: [] });
+}
 
 // outputs = the committed demo render(s)
 const outFiles = existsSync(join(SAMPLE, "media/outputs")) ? await readdir(join(SAMPLE, "media/outputs")) : [];
