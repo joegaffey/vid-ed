@@ -36,7 +36,8 @@ role/tags/notes → `context.yaml`). Raw CLI output stays behind a collapsed
 runs: scan/extract-text/sample/dedupe/manifest/script/tts/captions/render),
 **Context** (`brief.md` (the brief) plus `context.yaml`: audience, tone, target
 duration, must-include, avoid, voice, language, pronunciation; save + build
-context pack),
+context pack; the generated pack `work/context.md` is editable and versioned —
+Edit → Save context pack, and "Build context pack" warns before overwriting),
 **Vision** (selected/annotated counts; build packet / ingest results).
 
 **Timeline — Phase E done; multi-track (edl/4) done** — the bottom timeline

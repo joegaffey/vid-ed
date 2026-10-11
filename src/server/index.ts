@@ -525,7 +525,9 @@ export async function createStudioServer(opts: StudioServerOptions): Promise<Stu
       if (!TRACKED_ARTIFACTS.includes(body.artifact)) {
         return sendJSON(res, 400, { error: `unknown artifact "${body.artifact}"` });
       }
-      await writeFile(artifactPath(body.artifact), body.content, "utf8");
+      const dest = artifactPath(body.artifact);
+      await mkdir(dirname(dest), { recursive: true });
+      await writeFile(dest, body.content, "utf8");
       lastSeen.set(body.artifact, contentHash(body.content));
       const v = await history.append(body.artifact, {
         content: body.content,
@@ -545,7 +547,9 @@ export async function createStudioServer(opts: StudioServerOptions): Promise<Stu
       const h = await history.read(body.artifact);
       const v = h.versions.find((x) => x.hash === body.hash);
       if (!v) return sendJSON(res, 404, { error: "no such version" });
-      await writeFile(artifactPath(body.artifact), v.content, "utf8");
+      const dest = artifactPath(body.artifact);
+      await mkdir(dirname(dest), { recursive: true });
+      await writeFile(dest, v.content, "utf8");
       lastSeen.set(body.artifact, contentHash(v.content));
       const nv = await history.append(body.artifact, {
         content: v.content,

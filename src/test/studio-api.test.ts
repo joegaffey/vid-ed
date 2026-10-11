@@ -116,6 +116,15 @@ test("studio API: history, apply, diff, revert, edl edit, staleness", async () =
     assert.ok([200, 404, 500].includes(pv.status));
     await pv.arrayBuffer().catch(() => {});
     assert.ok(Array.isArray(await getJSON(base + "/api/jobs")));
+
+    // the context pack is an editable, versioned artifact (work/context.md)
+    const appliedPack = await post(base, "/api/apply", { artifact: "work/context.md", content: "# pack\nhello world\n", label: "test" });
+    assert.equal(appliedPack.status, 200);
+    const pack = (await getJSON(base + "/api/context-pack")) as { exists: boolean; markdown: string };
+    assert.equal(pack.exists, true);
+    assert.ok(pack.markdown.includes("hello world"));
+    const changesPack = (await getJSON(base + "/api/changes")) as Array<{ artifact: string; writer: string }>;
+    assert.ok(changesPack.find((c) => c.artifact === "work/context.md" && c.writer === "studio"));
   } finally {
     await server.close();
   }

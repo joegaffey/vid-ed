@@ -1010,15 +1010,17 @@ class VidedApp extends LitElement {
       <textarea id="cx_pron" rows="3">${pron}</textarea>
       <div class="actions">
         <button class="primary" @click=${this.saveContext}>Save</button>
-        <button @click=${() => this.runStage("manifest", ["--context-pack", "work/context.md"])}>Build context pack</button>
+        <button @click=${this.buildContextPack}>Build context pack</button>
         <span class="muted">${this.runhint}</span>
       </div>
-      <div class="grouphead">Generated context pack</div>
+      <div class="grouphead">Context pack <span class="muted">(work/context.md — what the agent reads)</span></div>
       ${this.contextPack?.exists
-        ? html`<details class="logbox" open>
-            <summary>${this.contextPack.file} · ${this.contextPack.chars} chars (what the agent reads)</summary>
-            <pre class="textbox">${this.contextPack.markdown}</pre>
-          </details>`
+        ? html`
+            <textarea id="cx_pack" rows="14" ?disabled=${DEMO}>${this.contextPack.markdown}</textarea>
+            <div class="actions">
+              <button class="primary" ?disabled=${DEMO} @click=${this.saveContextPack}>Save context pack</button>
+              <span class="muted">${this.contextPack.chars} chars · edits are versioned (see Changes); “Build context pack” overwrites them.</span>
+            </div>`
         : html`<p class="muted">Not built yet — click <b>Build context pack</b>.</p>`}
     `;
   }
@@ -1044,6 +1046,19 @@ class VidedApp extends LitElement {
     const r = await api.put("api/context", body);
     this.runhint = r.ok ? "brief.md + context.yaml saved" : "context save failed";
     await this.loadContext();
+  }
+  async saveContextPack() {
+    if (DEMO) return this.demoBlocked();
+    const el = this.renderRoot.getElementById("cx_pack");
+    const r = await api.post("api/apply", { artifact: "work/context.md", content: el.value, label: "context pack" });
+    this.runhint = r.ok ? "context pack saved" : "context pack save failed";
+    await this.loadContextPack();
+    await this.loadHistory();
+  }
+  buildContextPack() {
+    if (DEMO) return this.demoBlocked();
+    if (this.contextPack?.exists && !window.confirm("Rebuild the context pack? This overwrites any edits you've made here.")) return;
+    this.runStage("manifest", ["--context-pack", "work/context.md"]);
   }
 
   renderChanges() {
