@@ -622,16 +622,6 @@ clips:
       y: 0.28
       w: 0.72
       h: 0.57
-  - id: vo
-    source: work/narration.wav
-    format: audio48k
-    muted: false
-    tags: []
-    origin: agent
-    kind: audio
-    in: 0
-    duration: 139.368
-    gain_db: 0
   - id: c-hero
     source: input/controller-test.mp4
     format: 1080p30
@@ -722,3 +712,163 @@ clips:
       subtitle_size: 48
       color: white
       subtitle_color: "#cccccc"
+  - id: vo-intro
+    source: work/narration/intro.wav
+    format: audio48k
+    muted: false
+    tags: []
+    origin: agent
+    kind: audio
+    in: 0
+    duration: 10.579
+    gain_db: 0
+  - id: vo-cock-pit
+    source: work/narration/cock-pit.wav
+    format: audio48k
+    muted: false
+    tags: []
+    origin: agent
+    kind: audio
+    in: 0
+    duration: 10.394
+    gain_db: 0
+  - id: vo-code-intro
+    source: work/narration/code-intro.wav
+    format: audio48k
+    muted: false
+    tags: []
+    origin: agent
+    kind: audio
+    in: 0
+    duration: 8.898
+    gain_db: 0
+  - id: vo-code-include
+    source: work/narration/code-include.wav
+    format: audio48k
+    muted: false
+    tags: []
+    origin: agent
+    kind: audio
+    in: 0
+    duration: 9.639
+    gain_db: 0
+  - id: vo-code-pins
+    source: work/narration/code-pins.wav
+    format: audio48k
+    muted: false
+    tags: []
+    origin: agent
+    kind: audio
+    in: 0
+    duration: 5.97
+    gain_db: 0
+  - id: vo-code-setup
+    source: work/narration/code-setup.wav
+    format: audio48k
+    muted: false
+    tags: []
+    origin: agent
+    kind: audio
+    in: 0
+    duration: 7.608
+    gain_db: 0
+  - id: vo-code-ranges
+    source: work/narration/code-ranges.wav
+    format: audio48k
+    muted: false
+    tags: []
+    origin: agent
+    kind: audio
+    in: 0
+    duration: 8.721
+    gain_db: 0
+  - id: vo-code-ranges2
+    source: work/narration/code-ranges2.wav
+    format: audio48k
+    muted: false
+    tags: []
+    origin: agent
+    kind: audio
+    in: 0
+    duration: 10.731
+    gain_db: 0
+  - id: vo-code-loop
+    source: work/narration/code-loop.wav
+    format: audio48k
+    muted: false
+    tags: []
+    origin: agent
+    kind: audio
+    in: 0
+    duration: 8.698
+    gain_db: 0
+  - id: vo-code-map
+    source: work/narration/code-map.wav
+    format: audio48k
+    muted: false
+    tags: []
+    origin: agent
+    kind: audio
+    in: 0
+    duration: 9.038
+    gain_db: 0
+  - id: vo-case-intro
+    source: work/narration/case-intro.wav
+    format: audio48k
+    muted: false
+    tags: []
+    origin: agent
+    kind: audio
+    in: 0
+    duration: 6.736
+    gain_db: 0
+  - id: vo-case-build
+    source: work/narration/case-build.wav
+    format: audio48k
+    muted: false
+    tags: []
+    origin: agent
+    kind: audio
+    in: 0
+    duration: 7.875
+    gain_db: 0
+  - id: vo-case-detail
+    source: work/narration/case-detail.wav
+    format: audio48k
+    muted: false
+    tags: []
+    origin: agent
+    kind: audio
+    in: 0
+    duration: 7.154
+    gain_db: 0
+  - id: vo-test
+    source: work/narration/test.wav
+    format: audio48k
+    muted: false
+    tags: []
+    origin: agent
+    kind: audio
+    in: 0
+    duration: 12.906
+    gain_db: 0
+  - id: vo-outro
+    source: work/narration/outro.wav
+    format: audio48k
+    muted: false
+    tags: []
+    origin: agent
+    kind: audio
+    in: 0
+    duration: 7.596
+    gain_db: 0
+  - id: vo-thanks
+    source: work/narration/thanks.wav
+    format: audio48k
+    muted: false
+    tags: []
+    origin: agent
+    kind: audio
+    in: 0
+    duration: 1.675
+    gain_db: 0

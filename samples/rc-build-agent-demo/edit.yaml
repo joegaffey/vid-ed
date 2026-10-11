@@ -46,9 +46,54 @@ tracks:
   - id: a1
     kind: audio
     items:
-      - id: vo
-        use: vo
+      - id: vo-intro
+        use: vo-intro
         start: 0
+      - id: vo-cock-pit
+        use: vo-cock-pit
+        start: 10.929
+      - id: vo-code-intro
+        use: vo-code-intro
+        start: 21.723
+      - id: vo-code-include
+        use: vo-code-include
+        start: 30.971
+      - id: vo-code-pins
+        use: vo-code-pins
+        start: 40.91
+      - id: vo-code-setup
+        use: vo-code-setup
+        start: 47.18
+      - id: vo-code-ranges
+        use: vo-code-ranges
+        start: 55.088
+      - id: vo-code-ranges2
+        use: vo-code-ranges2
+        start: 64.109
+      - id: vo-code-loop
+        use: vo-code-loop
+        start: 75.24
+      - id: vo-code-map
+        use: vo-code-map
+        start: 84.238
+      - id: vo-case-intro
+        use: vo-case-intro
+        start: 93.676
+      - id: vo-case-build
+        use: vo-case-build
+        start: 100.712
+      - id: vo-case-detail
+        use: vo-case-detail
+        start: 108.887
+      - id: vo-test
+        use: vo-test
+        start: 116.441
+      - id: vo-outro
+        use: vo-outro
+        start: 129.747
+      - id: vo-thanks
+        use: vo-thanks
+        start: 137.693
 captions:
   mode: soft
   file: work/captions.srt
