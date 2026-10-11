@@ -1,6 +1,6 @@
 # vided clips — the pool every edit composes from.
 # Each clip declares an output `format` from the canonical set (see AGENTS.md).
-# kind: video | image | audio | title | slide; generated kinds use source: generated.
+# kind: video | image | audio | title | slide | text; generated kinds use source: generated.
 schema: vided.clips/1
 clips:
   - id: sel-case-design-0-1000

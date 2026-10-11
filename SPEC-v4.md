@@ -191,13 +191,12 @@ video layer. v4 folds it:
 
 - **image overlay** → an `image` clip placed on a video track with `start`,
   `opacity`, `position`, `transform`.
-- **text overlay** → introduce a **`text` generated clip kind** (sibling of
+- **text overlay** → a **`text` generated clip kind** (sibling of
   `title`/`slide`): `{ kind: text, source: generated, text, style, duration }`,
   placed on a video track with `start`. Text becomes a reusable, placeable unit
   instead of an overlay-only concept.
 
-A compatibility reader converts `edl/3` overlays to v4 items on an implicit
-`overlays` video track (§9).
+There is **no compatibility reader** — `edl/3` is removed outright (see §9).
 
 ## 7. Renderer (`src/render.ts`)
 
@@ -304,19 +303,19 @@ Open:
 
 ## 15. Milestones / acceptance
 
-- **V4a — model + reader**: `src/schemas/edl.ts` gains `vided.edl/4`; `resolveEdl`
-  + `--explain`/`--lint` on the new shape; `edl/3` compat converter.
+- **V4a — model**: `src/schemas/edl.ts` becomes `vided.edl/4` in place (no
+  converter); `resolveEdl` + `--explain`/`--lint` on the new shape.
 - **V4b — renderer**: placement-based video compositor + audio mix; `--dry-run`
-  snapshots updated; parity test vs an `edl/3` equivalent.
-- **V4c — overlays fold**: `text` clip kind; migrate `overlays`; retire the
-  overlay render path.
+  plans; verified with a real `vided render`.
+- **V4c — overlays fold**: `text` clip kind; `overlays` removed; the overlay
+  render path retired.
 - **V4d — docs/examples/studio**: port examples, sample, docs; multi-lane studio
   timeline.
 
-Acceptance:
+Acceptance (met):
 
-- An `edl/3` edit migrates to `edl/4` and renders byte-comparable (modulo
-  encoding) output.
+- The `edl/4` renderer produces correct output (verified on ffmpeg 6.1.1:
+  multi-track composite, transparent text, black gaps, stereo mix).
 - Narration decomposition produces `vo-<id>` clips + `a1` items at absolute
   starts; re-wording one sentence moves only that item.
 - `--lint` flags same-track overlaps and gaps; `--explain` reports per-track
