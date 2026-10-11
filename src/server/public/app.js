@@ -61,7 +61,7 @@ const SECTIONS = [
 
 // Sections that are editors/forms (open in the right pane on selection); the
 // rest are lists/navigators and stay inline in the left rail.
-const EDITOR_SECTIONS = new Set(["analysis", "context", "vision", "narration", "captions"]);
+const EDITOR_SECTIONS = new Set(["analysis", "context", "vision", "captions"]);
 
 // Short in-UI explanations for each major panel (the "?" popups).
 const HELP = {
@@ -560,7 +560,7 @@ class VidedApp extends LitElement {
       case "analysis": return this.renderAnalysis();
       case "context": return this.renderContext();
       case "vision": return this.renderVision();
-      case "narration": return this.renderNarration();
+      case "narration": return this.renderNarrationList();
       case "captions": return this.renderCaptions();
       case "output": return this.renderOutput();
       case "changes": return this.renderChanges();
@@ -1079,67 +1079,110 @@ class VidedApp extends LitElement {
     this.runStage("manifest", ["--context-pack", "work/context.md"]);
   }
 
-  renderNarration() {
+  renderNarrationList() {
     const n = this.narration;
     if (!n) return html`<p class="muted">loading…</p>`;
     if (!n.exists) {
       return html`
-        <div class="grouphead">Narration script</div>
-        <p class="muted">No <code>narration.yaml</code> yet — run the <b>script</b> stage to scaffold one from the annotated frames, or write one by hand.</p>
+        <p class="muted">No <code>narration.yaml</code> yet.</p>
         <div class="actions">
           <button class="primary" ?disabled=${DEMO} @click=${() => this.runStage("script", ["--out", "narration.yaml"])}>Scaffold from frames</button>
-          <span class="muted">${this.runhint}</span>
         </div>`;
     }
     if (n.error) {
-      return html`
-        <div class="grouphead">Narration script</div>
-        <p class="muted"><code>${n.file}</code> could not be parsed: ${(n.issues || []).join("; ")}</p>`;
+      return html`<p class="muted"><code>${n.file}</code> could not be parsed: ${(n.issues || []).join("; ")}</p>`;
     }
-    const timing = new Map((n.timing || []).map((s) => [s.id, s]));
+    const selIdx = this.selection.kind === "narration" ? this.selection.index : -1;
     return html`
-      <div class="grouphead">Narration script <span class="muted">(narration.yaml · ${n.segments.length} segments)</span></div>
       <div class="row">
-        <div style="flex:1"><label>Voice</label><input id="nr_voice" .value=${n.voice || ""} /></div>
-        <div style="flex:1"><label>Engine</label><input id="nr_engine" .value=${n.engine || ""} /></div>
+        <div style="flex:1"><label>Voice</label><input id="nr_voice" .value=${n.voice || ""} ?disabled=${DEMO} /></div>
+        <div style="flex:1"><label>Engine</label><input id="nr_engine" .value=${n.engine || ""} ?disabled=${DEMO} /></div>
       </div>
-      ${n.segments.map((s, i) => {
-        const t = timing.get(s.id || `s${i}`);
-        return html`
-          <div class="nr-seg">
-            <div class="row">
-              <div style="flex:0 0 180px"><label>id</label><input class="nr-id" .value=${s.id || ""} /></div>
-              <div style="flex:0 0 140px"><label>gap after (s)</label><input class="nr-gap" type="number" step="0.05" .value=${s.gap_after ?? 0.4} /></div>
-              ${t ? html`<div class="muted" style="align-self:flex-end;font-size:11px">${t.start.toFixed(1)}–${t.end.toFixed(1)}s</div>` : ""}
-            </div>
-            <textarea class="nr-text" rows="2" ?disabled=${DEMO}>${s.text}</textarea>
-          </div>`;
-      })}
+      <table class="nr-list"><tbody>
+        ${n.segments.map((s, i) => html`
+          <tr class="clickable ${selIdx === i ? "active" : ""}" @click=${() => { this.selection = { kind: "narration", index: i }; }}>
+            <td>
+              <div>${s.id || `segment ${i + 1}`}</div>
+              <div class="muted" style="font-size:11px">${(s.text || "").slice(0, 46)}</div>
+            </td>
+          </tr>`)}
+      </tbody></table>
       <div class="actions">
-        <button class="primary" ?disabled=${DEMO} @click=${this.saveNarration}>Save narration</button>
-        <button ?disabled=${DEMO} @click=${() => this.runStage("tts", ["narration.yaml"])}>Generate voice</button>
-        <button ?disabled=${DEMO} @click=${() => this.runStage("captions", ["--from", "narration", "--formats", "srt,vtt,ass"])}>Captions</button>
-        <span class="muted">${this.runhint}</span>
+        <button class="sm" ?disabled=${DEMO} @click=${this.addNarrationSegment}>+ segment</button>
+        <button class="sm" ?disabled=${DEMO} @click=${() => this.runStage("tts", ["narration.yaml"])}>Generate voice</button>
+        <button class="sm" ?disabled=${DEMO} @click=${() => this.runStage("captions", ["--from", "narration", "--formats", "srt,vtt,ass"])}>Captions</button>
+      </div>
+      <span class="muted" style="font-size:11px">${this.runhint}</span>`;
+  }
+  renderNarrationSegment(i) {
+    const n = this.narration;
+    if (!n || !n.exists || !n.segments[i]) {
+      return html`<p class="muted">Select a segment in the Narration list.</p>`;
+    }
+    const s = n.segments[i];
+    const t = (n.timing || []).find((x) => x.id === (s.id || `s${i}`));
+    return html`
+      <div class="detail-head">
+        <div><span class="pill">narration</span> <strong>${s.id || `segment ${i + 1}`}</strong></div>
+        <div class="muted">${t ? `${t.start.toFixed(1)}–${t.end.toFixed(1)}s` : ""}</div>
+      </div>
+      <div class="section-editor">
+        <div class="row">
+          <div style="flex:0 0 220px"><label>id</label><input id="ns_id" .value=${s.id || ""} ?disabled=${DEMO} /></div>
+          <div style="flex:0 0 160px"><label>gap after (s)</label><input id="ns_gap" type="number" step="0.05" .value=${s.gap_after ?? 0.4} ?disabled=${DEMO} /></div>
+        </div>
+        <label>text</label>
+        <textarea id="ns_text" rows="6" ?disabled=${DEMO}>${s.text}</textarea>
+        <div class="actions">
+          <button class="primary" ?disabled=${DEMO} @click=${() => this.saveNarrationSegment(i)}>Save segment</button>
+          <button class="sm secondary" ?disabled=${DEMO} @click=${() => this.removeNarrationSegment(i)}>remove</button>
+          <span class="muted">${this.runhint}</span>
+        </div>
       </div>`;
   }
-  async saveNarration() {
-    if (DEMO) return this.demoBlocked();
-    const root = this.renderRoot;
-    const segments = [...root.querySelectorAll(".nr-seg")].map((el) => {
-      const id = (el.querySelector(".nr-id")?.value || "").trim();
-      const gap = Number(el.querySelector(".nr-gap")?.value ?? 0);
-      const text = el.querySelector(".nr-text")?.value ?? "";
-      return { ...(id ? { id } : {}), text, gap_after: Number.isFinite(gap) ? gap : 0.4 };
-    });
-    const r = await api.put("api/narration", {
-      voice: (root.getElementById("nr_voice")?.value || "").trim() || undefined,
-      engine: (root.getElementById("nr_engine")?.value || "").trim() || undefined,
-      segments,
-    });
+  headerFields(root) {
+    const v = root.getElementById("nr_voice");
+    const e = root.getElementById("nr_engine");
+    return {
+      voice: ((v ? v.value : this.narration?.voice) || "").trim() || undefined,
+      engine: ((e ? e.value : this.narration?.engine) || "").trim() || undefined,
+    };
+  }
+  async persistNarration(body) {
+    const r = await api.put("api/narration", body);
     const j = await r.json().catch(() => ({}));
     this.runhint = r.ok ? "narration.yaml saved" : (j.error || "narration save failed");
     await this.loadNarration();
     await this.loadHistory();
+    return r.ok;
+  }
+  async saveNarrationSegment(i) {
+    if (DEMO) return this.demoBlocked();
+    const root = this.renderRoot;
+    const segments = this.narration.segments.map((s, idx) => {
+      if (idx !== i) return s;
+      const id = (root.getElementById("ns_id")?.value || "").trim();
+      const gap = Number(root.getElementById("ns_gap")?.value ?? 0);
+      const text = root.getElementById("ns_text")?.value ?? "";
+      return { ...(id ? { id } : {}), text, gap_after: Number.isFinite(gap) ? gap : 0.4 };
+    });
+    await this.persistNarration({ ...this.headerFields(root), segments });
+  }
+  async addNarrationSegment() {
+    if (DEMO) return this.demoBlocked();
+    if (!this.narration?.exists) return;
+    const root = this.renderRoot;
+    const segments = [...this.narration.segments, { text: "", gap_after: 0.4 }];
+    const ok = await this.persistNarration({ ...this.headerFields(root), segments });
+    if (ok) this.selection = { kind: "narration", index: this.narration.segments.length - 1 };
+  }
+  async removeNarrationSegment(i) {
+    if (DEMO) return this.demoBlocked();
+    const segments = this.narration.segments.filter((_, idx) => idx !== i);
+    if (!segments.length) { this.runhint = "narration needs at least one segment"; return; }
+    const root = this.renderRoot;
+    const ok = await this.persistNarration({ ...this.headerFields(root), segments });
+    if (ok) this.selection = { kind: "narration", index: Math.max(0, Math.min(i, this.narration.segments.length - 1)) };
   }
 
   renderChanges() {
@@ -1300,6 +1343,7 @@ class VidedApp extends LitElement {
     const sel = this.selection;
     if (this.proposal) return this.renderProposal();
     if (sel.kind === "section") return html`<div class="section-editor">${this.renderSection(sel.id)}</div>`;
+    if (sel.kind === "narration") return this.renderNarrationSegment(sel.index);
     if (sel.kind === "history") return this.renderHistory();
     if (sel.kind === "output") return this.renderOutputDetail(sel.output);
     if (sel.kind === "clip") return this.renderClipDetail(sel.clip, sel.timelineItem);
@@ -1666,8 +1710,8 @@ class VidedApp extends LitElement {
     .details { overflow: auto; min-width: 0; scrollbar-width: thin; scrollbar-color: #2c3542 transparent; }
     .section-editor { padding: 8px 16px 20px; max-width: 980px; }
     .section-editor textarea { width: 100%; }
-    .nr-seg { border-top: 1px solid var(--line-soft); padding: 8px 0; }
-    .nr-seg textarea { width: 100%; }
+    .nr-list { width: 100%; }
+    .nr-list td { padding: 6px 8px; }
     .timeline-resize { cursor: row-resize; background: var(--line); }
     .timeline-resize:hover { background: var(--accent); }
     .timeline { border-top: 1px solid var(--line); background: var(--panel); display: flex; flex-direction: column; min-height: 0; }

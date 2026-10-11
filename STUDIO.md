@@ -34,9 +34,14 @@ role/tags/notes → `context.yaml`). Raw CLI output stays behind a collapsed
 
 **Layout** — the left rail is a **navigator**: it holds the **lists** (Media bin,
 Clips pool, Output renders, Changes, Activity) inline. Sections that are
-**editors/forms** (Analysis, Context, Vision, Narration, Captions) are
-**selected** and render in the **right Details pane**
-(`selection.kind: "section"`), so long documents get the full width.
+**editors/forms** (Analysis, Context, Vision, Captions) are **selected** and
+render in the **right Details pane** (`selection.kind: "section"`), so long
+documents get the full width.
+
+**Narration** is a **list on the left** (one row per segment) — click a segment
+to edit it individually in the right pane (`selection.kind: "narration"`), with
+the script-level Voice/Engine fields and **Generate voice**
+(`tts`)/**Captions** buttons on the list.
 
 **Sections — Phase D done** — **Analysis** (project-wide parameterized stage
 runs: scan/extract-text/sample/dedupe/manifest/script/tts/captions/render),
@@ -44,10 +49,7 @@ runs: scan/extract-text/sample/dedupe/manifest/script/tts/captions/render),
 duration, must-include, avoid, voice, language, pronunciation; save + build
 context pack; the generated pack `work/context.md` is editable and versioned —
 Edit → Save context pack, and "Build context pack" warns before overwriting),
-**Vision** (selected/annotated counts; build packet / ingest results),
-**Narration** (edit `narration.yaml` — one row per segment with `id`/text/`gap_after`
-and its generated timing; Save is a versioned proposal; **Generate voice** runs
-`tts` and **Captions** runs `captions`).
+**Vision** (selected/annotated counts; build packet / ingest results).
 
 **Timeline — Phase E done; multi-track (edl/4) done** — the bottom timeline
 renders `edit.yaml` via `GET /api/edl` (explain): ruler, one lane per track
