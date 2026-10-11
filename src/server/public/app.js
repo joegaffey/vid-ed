@@ -89,6 +89,10 @@ const HELP = {
     title: "Vision",
     body: "Annotate the frames that survived dedupe. Build packet writes a vision packet for the agent; Ingest results merges the descriptions back into the manifest. Per-asset frames and controls live in Details → Frames.",
   },
+  narration: {
+    title: "Narration",
+    body: "The narration script (narration.yaml) as one row per segment. Click a segment to edit its id, gap-after and prose in the right pane; Save proposes it (versioned). Generate voice runs `tts` (each beat → work/narration/<id>.wav + timing), Captions builds SRT/VTT/ASS, and Decompose → clips turns each segment into a vo-<id> audio clip placed on the a1 track.",
+  },
   captions: {
     title: "Captions",
     body: "The captions layer of edit.yaml. None = no captions; Soft = muxed mov_text (toggleable); Burn = rendered into the picture. Save proposes the change to edit.yaml (which you then apply). The caption file is usually work/captions.ass from `vided captions`.",
