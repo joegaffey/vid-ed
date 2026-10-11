@@ -92,6 +92,14 @@ test("studio API: history, apply, diff, revert, edl edit, staleness", async () =
     const bad = await post(base, "/api/edl/edit", { ops: [{ op: "set", id: "a", patch: { speed: -1 } }] });
     assert.equal(bad.status, 400);
 
+    // /api/edl exposes the v4 shape: tracks[] with absolute starts
+    const view = (await getJSON(base + "/api/edl")) as {
+      tracks?: Array<{ id: string; kind: string; items: Array<{ start: number }> }>;
+    };
+    assert.ok(Array.isArray(view.tracks));
+    assert.equal(view.tracks![0]!.kind, "video");
+    assert.equal(view.tracks![0]!.items[0]!.start, 0);
+
     // per-render metadata: 404 for unknown names, file facts otherwise (ffprobe optional)
     assert.equal((await fetch(base + "/api/render-info/nope.mp4")).status, 404);
     await mkdir(join(root, "out"), { recursive: true });

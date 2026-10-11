@@ -151,12 +151,12 @@ on v4 with no extra schema work. (This supersedes issue #5's `align_to`.)
 - [x] Phase 3 — renderer (`V4b`) — `src/render.ts` (placement compositor)
 - [x] Phase 4 — CLI (`V4b`) — `compose`/`render`/`preview` (no `migrate`, §9)
 - [x] Phase 5 — overlays fold + `text` kind (`V4c`) — `src/schemas/clips.ts`
-- [ ] Phase 6 — studio (`V4d`) — **pending** (server passes through; the Lit
-      timeline UI still assumes the old `visual`/`audio` shape)
-- [~] Phase 7 — docs / examples / samples (`V4d`) — examples, sample, `AGENTS.md`,
-      `README.md`, `SPEC.md`, `DEVELOPMENT.md`, `SPEC-v4.md` updated; **studio
-      docs (`STUDIO.md`) pending**
-- [ ] Phase 8 — cleanup / release — package version bump pending
+- [x] Phase 6 — studio (`V4d`) — multi-lane timeline (one lane per track),
+      `start` editing, add-to-track; verified live in-browser
+- [x] Phase 7 — docs / examples / samples (`V4d`) — examples, sample, `AGENTS.md`,
+      `README.md`, `SPEC.md`, `DEVELOPMENT.md`, `SPEC-v4.md`, `STUDIO.md`
+- [ ] Phase 8 — cleanup / release — package version bump pending (breaking
+      change → candidate 0.3.0)
 
 Notes: `edl/3` is removed outright (no converter) per the finalized decision;
 `duck_under` deferred. Verified with `npm run verify` (typecheck + 78 tests +
