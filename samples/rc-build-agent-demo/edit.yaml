@@ -2,97 +2,56 @@ schema: vided.edl/4
 output:
   format: 1080p30
   path: out/build-and-test.mp4
-captions:
-  mode: burn
-  file: work/captions.ass
+  loudness_lufs: -14
 tracks:
   - id: v1
     kind: video
     items:
-      - id: t-intro
+      - id: hero
+        use: c-hero
+        start: 0
+      - id: reveal
+        use: c-cockpit
+        start: 10.929
+      - id: gist
+        use: g-code
+        start: 21.723
+      - id: casebuild
+        use: c-casebuild
+        start: 93.676
+      - id: casedetail
+        use: c-casedetail
+        start: 109.676
+      - id: test
+        use: c-test
+        start: 116.441
+  - id: titles
+    kind: video
+    items:
+      - id: card-intro
         use: t-intro
         start: 0
-      - id: ctrl-open
-        use: ctrl-open
-        start: 3.4
-      - id: t-drive1
-        use: t-drive1
-        start: 4.4
-      - id: ch-adapter
-        use: ch-adapter
-        start: 9.06
-      - id: pov-adapter
-        use: pov-adapter
-        start: 12.06
-      - id: gist-code
-        use: gist-code
-        start: 16.944
-      - id: ch-design
-        use: ch-design
-        start: 24.661
-      - id: d-addpart
-        use: d-addpart
-        start: 27.721
-      - id: d-shell
-        use: d-shell
-        start: 29.721
-      - id: d-casepcb
-        use: d-casepcb
-        start: 31.721
-      - id: d-lidbase
-        use: d-lidbase
-        start: 33.721
-      - id: d-exploded
-        use: d-exploded
-        start: 35.721
-      - id: d-side
-        use: d-side
-        start: 37.721
-      - id: d-basepcb
-        use: d-basepcb
-        start: 39.721
-      - id: d-cross
-        use: d-cross
-        start: 41.721
-      - id: d-topdown
-        use: d-topdown
-        start: 43.721
-      - id: d-openpcb
-        use: d-openpcb
-        start: 45.721
-      - id: d-finished
-        use: d-finished
-        start: 47.721
-      - id: ch-test
-        use: ch-test
-        start: 49.721
-      - id: t-hand
-        use: t-hand
-        start: 52.221
-      - id: pov-test1
-        use: pov-test1
-        start: 58.221
-      - id: t-drive2
-        use: t-drive2
-        start: 60.221
-      - id: pov-test2
-        use: pov-test2
-        start: 61.451
-      - id: ctrl-outro
-        use: ctrl-outro
-        start: 63.451
-      - id: outro-exploded
-        use: outro-exploded
-        start: 65.451
-      - id: pov-outro
-        use: pov-outro
-        start: 67.951
-      - id: t-outro
+      - id: card-fw
+        use: t-fw
+        start: 21.723
+      - id: card-case
+        use: t-case
+        start: 93.676
+      - id: card-test
+        use: t-test
+        start: 116.441
+      - id: card-outro
         use: t-outro
-        start: 71.951
+        start: 137.693
   - id: a1
     kind: audio
     items:
       - id: vo
         use: vo
         start: 0
+captions:
+  mode: soft
+  file: work/captions.srt
+  export:
+    - srt
+    - vtt

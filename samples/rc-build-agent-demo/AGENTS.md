@@ -52,10 +52,10 @@ Every clip has a `kind` (video/image/audio/title/slide/text), a `source` (or
       - { id: sel-a, kind: video, source: input/a.mp4, format: 1080p30, in: 0, out: 4 }
       - { id: title-open, kind: title, source: generated, format: 1080p30, title: "Demo", duration: 3 }
 
-    # edit.yaml  (vided.edl/4 — an ordered list of tracks)
+    # edit.yaml
     schema: vided.edl/4
     output: { format: 1080p30, path: out/final.mp4 }
-    tracks:                       # later video tracks composite on top
+    tracks:                    # ordered; later video tracks composite on top
       - id: v1
         kind: video
         items:
@@ -65,9 +65,9 @@ Every clip has a `kind` (video/image/audio/title/slide/text), a `source` (or
         kind: audio
         items: []
 
-Every item has an absolute `start` in seconds; a track's first item may omit it
-(defaults to 0). Uncovered time renders black (video) / silence (audio); `text`
-clips render transparent.
+Every item has an absolute `start` (seconds); a track's first item may omit it
+(defaults to 0). Gaps render black/silence. Position/opacity/transform are
+per-item placement props.
 
 Gather context through conversation and persist it to `brief.md` + per-input
 sidecars. `vided <command> --help` lists flags; all commands emit JSON.

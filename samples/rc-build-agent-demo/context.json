@@ -1,47 +1,55 @@
 {
   "schema": "vided.context/1",
-  "project": "agent-demo",
-  "created_at": "2026-09-26T17:07:39.867Z",
-  "brief": "# Brief — build & test demo\n\n## Who / what\nA solo maker's build-and-test demo. Two source videos plus a firmware gist:\n\n1. **case-design.mp4** — a screen recording of the maker's own browser-based 3D\n   CAD editor, called **3table**. He modelled a custom enclosure for a DIY\n   racing controller: a long grey case with internal ribs, threaded mounting\n   posts, a green lid, snap-fit tabs and a green power switch on the front.\n   The PCB of the controller is modelled alongside/inside the case. It is\n   silent, a talky screen-capture, and is the \"build\" half of the story.\n2. **controller-test.mp4** — cockpit POV footage of the finished controller\n   being used on a real race track (Renault Sport dash, RaceLogic timer). The\n   maker was **recording with one hand and steering with the other**, which is\n   why the driving looks rough. This is the \"test\" half.\n3. **gist-code.png** — a screenshot of the firmware (Arduino/C++, `Joystick.h`)\n   that reads two RC PWM inputs: throttle on pin 2 and steering on pin 3 via\n   `pulseIn`, then maps them to USB joystick X/Y axes with `setXAxisRange` /\n   `setYAxisRange`.\n\n## Audience & tone\nFellow makers and sim-racing DIY people. Friendly, first-person, a little\nself-deprecating about the one-handed driving. Not a polished product ad — a\n\"here's what I built and how it went\" show-and-tell.\n\n## Editorial intent\n- Structure: intro title → **case design / 3table** chapter → **firmware/code**\n  chapter (show the gist) → **track test** chapter (one-handed) → outro.\n- ~60–100 seconds, narrated with captions, single 1080p output.\n- Let the frame descriptions drive clip choice: pick frames that show the model\n  being built up (shells → assembly → case interior → finished box → exploded\n  view) for the design section, and the cockpit controller shots for the test.\n- The 3table section should read as \"I wrote this editor myself\".\n- Credit that the track footage was shot one-handed; make a joke of it.\n\n## Key facts to carry through\n- Editor name: **3table**, built by the maker.\n- Enclosure: long grey case, green lid, mounting posts, snap-fit tabs, front\n  power switch, PCB inside.\n- Firmware: two PWM channels (throttle pin 2, steering pin 3) → USB joystick.\n- Track test: one hand on the wheel, one on the camera.",
+  "project": "rc-test",
+  "created_at": "2026-10-11T14:55:06.577Z",
   "totals": {
     "assets": 3,
-    "duration_s": 500.381,
-    "unique_frames": 50
+    "duration_s": 500.46,
+    "unique_frames": 20
   },
   "assets": [
     {
-      "id": "5a7aeccdc483",
+      "id": "0834b4ba71bb",
+      "path": "input/gist-code.png",
+      "kind": "image",
+      "tags": [],
+      "scenes": [],
+      "transcript": [],
+      "frames": [],
+      "clips": [
+        {
+          "id": "sel-gist-code-0-5000",
+          "kind": "image",
+          "duration": 5
+        }
+      ]
+    },
+    {
+      "id": "34e7956a2705",
       "path": "input/case-design.mp4",
       "kind": "video",
-      "duration_s": 467.332,
+      "duration_s": 467.371247,
       "tags": [
         "3table",
-        "editor-ui",
-        "file-menu",
+        "editor",
         "intro",
-        "add-part",
-        "modelling",
-        "cad",
-        "case-shell",
+        "file-menu",
         "pcb",
-        "case",
-        "case-lid",
+        "circuit-board",
+        "component",
         "assembly",
-        "exploded-view",
-        "side-view",
-        "assembled",
+        "case",
+        "shell",
+        "tabs",
+        "housing",
+        "add-part",
         "case-interior",
-        "snap-fit",
-        "empty",
-        "cross-section",
-        "internals",
-        "closed",
         "mounting-posts",
+        "posts",
         "detail",
-        "components",
         "finished",
-        "part-edit",
-        "final"
+        "power-switch",
+        "exploded-view"
       ],
       "scenes": [
         {
@@ -182,7 +190,7 @@
         {
           "id": "s27",
           "start": 448.2,
-          "end": 467.332
+          "end": 467.371247
         }
       ],
       "transcript": [],
@@ -190,519 +198,112 @@
         {
           "t": 0,
           "scene": "s0",
-          "description": "The 3table editor opens on a dark grid viewport with its File menu showing Import and Export options.",
+          "description": "The 3table editor just opened: a dark 3D grid with the File menu showing Import and Export options (OBJ, STL, 3MF).",
           "tags": [
             "3table",
-            "editor-ui",
-            "file-menu",
-            "intro"
+            "editor",
+            "intro",
+            "file-menu"
           ]
         },
         {
-          "t": 16,
+          "t": 66,
           "scene": "s0",
-          "description": "An 'Add Part' dialog lists part types such as Basic shapes and Extruded Profile over the empty 3table grid.",
+          "description": "Early assembly in 3table: a green PCB modelled next to a green component on a grey base, with the parts/properties table open on the left.",
           "tags": [
             "3table",
-            "editor-ui",
-            "add-part",
-            "modelling"
-          ]
-        },
-        {
-          "t": 28,
-          "scene": "s0",
-          "description": "A semi-transparent red case shell and a green circuit board sit side by side on the 3table grid.",
-          "tags": [
-            "3table",
-            "cad",
-            "case-shell",
             "pcb",
-            "modelling"
-          ]
-        },
-        {
-          "t": 38,
-          "scene": "s0",
-          "description": "The red case body, a white cube and the green PCB are laid out in the 3D viewport.",
-          "tags": [
-            "3table",
-            "cad",
-            "case",
-            "pcb"
-          ]
-        },
-        {
-          "t": 42,
-          "scene": "s0",
-          "description": "The red case shell and green PCB lie flat on the grid with a white placeholder cube to the right.",
-          "tags": [
-            "3table",
-            "cad",
-            "case",
-            "pcb"
-          ]
-        },
-        {
-          "t": 58,
-          "scene": "s0",
-          "description": "A green case lid and the green PCB rest on a red base plate as the model takes shape.",
-          "tags": [
-            "3table",
-            "cad",
-            "case-lid",
-            "pcb",
+            "circuit-board",
+            "component",
             "assembly"
-          ]
-        },
-        {
-          "t": 78,
-          "scene": "s0",
-          "description": "An exploded view shows the green case, PCB and a red panel separated above the base.",
-          "tags": [
-            "3table",
-            "cad",
-            "exploded-view",
-            "assembly"
-          ]
-        },
-        {
-          "t": 84,
-          "scene": "s0",
-          "description": "The case is shown in side profile: a grey body with a green lid seated on a grey base plate.",
-          "tags": [
-            "3table",
-            "cad",
-            "case",
-            "side-view"
-          ]
-        },
-        {
-          "t": 95.72,
-          "scene": "s1",
-          "description": "A front view of the assembled enclosure, a green base and lid between two grey side walls.",
-          "tags": [
-            "3table",
-            "cad",
-            "case",
-            "assembled"
-          ]
-        },
-        {
-          "t": 100,
-          "scene": "s1",
-          "description": "Looking into the open case, the green PCB and components sit between the grey walls.",
-          "tags": [
-            "3table",
-            "cad",
-            "case-interior",
-            "pcb"
           ]
         },
         {
           "t": 214,
           "scene": "s1",
-          "description": "The closed grey case box shows small green snap-fit tabs on its top and front faces.",
+          "description": "An open grey case shell on the grid with a green tab inside and a green clip on the front face; properties table open.",
           "tags": [
             "3table",
-            "cad",
             "case",
-            "snap-fit"
+            "shell",
+            "tabs"
           ]
         },
         {
-          "t": 216.56,
-          "scene": "s2",
-          "description": "A top-down close-up of the case interior reveals the green PCB module nested inside.",
-          "tags": [
-            "3table",
-            "cad",
-            "case-interior",
-            "pcb"
-          ]
-        },
-        {
-          "t": 218.6,
-          "scene": "s5",
-          "description": "An exploded view separates the grey case base, green PCB and green module.",
-          "tags": [
-            "3table",
-            "cad",
-            "exploded-view",
-            "pcb"
-          ]
-        },
-        {
-          "t": 224,
-          "scene": "s7",
-          "description": "The case base holds the green PCB with the green lid partially seated.",
-          "tags": [
-            "3table",
-            "cad",
-            "assembly",
-            "pcb"
-          ]
-        },
-        {
-          "t": 228,
+          "t": 236,
           "scene": "s8",
-          "description": "A long, empty grey case body is shown open at an angle on the grid.",
+          "description": "The long grey rectangular case body on the grid, one end open showing an orange interior accent.",
           "tags": [
             "3table",
-            "cad",
             "case",
-            "empty"
+            "shell",
+            "housing"
           ]
         },
         {
-          "t": 232,
-          "scene": "s8",
-          "description": "Top-down into the case, the green PCB and module are seated in their slots.",
-          "tags": [
-            "3table",
-            "cad",
-            "case-interior",
-            "pcb"
-          ]
-        },
-        {
-          "t": 238,
-          "scene": "s8",
-          "description": "An angled view of the grey case base with the green PCB seated inside.",
-          "tags": [
-            "3table",
-            "cad",
-            "case",
-            "pcb"
-          ]
-        },
-        {
-          "t": 242,
-          "scene": "s8",
-          "description": "A cross-section view exposes the red interior and an orange internal partition above the green base.",
-          "tags": [
-            "3table",
-            "cad",
-            "cross-section",
-            "internals"
-          ]
-        },
-        {
-          "t": 246,
-          "scene": "s8",
-          "description": "The finished case appears as a plain sealed grey box on the grid.",
-          "tags": [
-            "3table",
-            "cad",
-            "case",
-            "closed"
-          ]
-        },
-        {
-          "t": 248.84,
-          "scene": "s9",
-          "description": "A cross-section close-up of the case wall shows the red internal structure.",
-          "tags": [
-            "3table",
-            "cad",
-            "cross-section",
-            "internals"
-          ]
-        },
-        {
-          "t": 252,
+          "t": 254,
           "scene": "s10",
-          "description": "Inside the open case, a green module sits in a red compartment at an angle.",
+          "description": "An 'Add Part' dialog over the open grey case, with a green PCB visible inside the shell.",
           "tags": [
             "3table",
-            "cad",
-            "case-interior",
+            "case",
+            "add-part",
             "pcb"
           ]
         },
         {
-          "t": 258,
+          "t": 322,
           "scene": "s10",
-          "description": "A top-down view of the case interior shows the green PCB next to a red round component.",
+          "description": "Inside the open case: two green circuit boards mounted on posts with a red divider, seen from above; properties table open.",
           "tags": [
             "3table",
-            "cad",
             "case-interior",
-            "pcb"
-          ]
-        },
-        {
-          "t": 282,
-          "scene": "s10",
-          "description": "The case interior holds the green PCB and module alongside grey threaded mounting posts.",
-          "tags": [
-            "3table",
-            "cad",
-            "case-interior",
+            "pcb",
             "mounting-posts"
           ]
         },
         {
-          "t": 290,
-          "scene": "s10",
-          "description": "Green PCBs and grey threaded inserts sit inside the open case with a red component.",
+          "t": 358,
+          "scene": "s23",
+          "description": "Interior of the case showing a green board and bracket held on threaded posts.",
           "tags": [
             "3table",
-            "cad",
             "case-interior",
-            "pcb"
-          ]
-        },
-        {
-          "t": 308,
-          "scene": "s10",
-          "description": "An angled view shows green PCB sections, grey posts and a red part inside the case.",
-          "tags": [
-            "3table",
-            "cad",
-            "case-interior",
-            "pcb"
-          ]
-        },
-        {
-          "t": 318,
-          "scene": "s10",
-          "description": "Top-down into the case, a green PCB and a red divider separate the internal compartments.",
-          "tags": [
-            "3table",
-            "cad",
-            "case-interior",
-            "pcb"
-          ]
-        },
-        {
-          "t": 325.76,
-          "scene": "s11",
-          "description": "A close-up of the interior shows green panel dividers and grey posts.",
-          "tags": [
-            "3table",
-            "cad",
-            "case-interior",
-            "detail"
-          ]
-        },
-        {
-          "t": 327.24,
-          "scene": "s17",
-          "description": "Macro detail of a green PCB component next to a grey cylindrical post.",
-          "tags": [
-            "3table",
-            "cad",
             "pcb",
-            "detail"
-          ]
-        },
-        {
-          "t": 330.44,
-          "scene": "s18",
-          "description": "Grey cylindrical posts stand between green PCB sections inside the case.",
-          "tags": [
-            "3table",
-            "cad",
-            "case-interior",
-            "mounting-posts"
-          ]
-        },
-        {
-          "t": 332.16,
-          "scene": "s23",
-          "description": "A close-up shows a green PCB and module with grey mounting posts between them.",
-          "tags": [
-            "3table",
-            "cad",
-            "pcb",
-            "detail"
-          ]
-        },
-        {
-          "t": 338,
-          "scene": "s23",
-          "description": "The open case is viewed top-down with green PCBs and mounting posts fitted.",
-          "tags": [
-            "3table",
-            "cad",
-            "case-interior",
-            "pcb"
-          ]
-        },
-        {
-          "t": 362,
-          "scene": "s23",
-          "description": "A long red rod runs through the green PCB sections inside the open case.",
-          "tags": [
-            "3table",
-            "cad",
-            "case-interior",
-            "components"
-          ]
-        },
-        {
-          "t": 366,
-          "scene": "s23",
-          "description": "The case interior shows two green PCB sections divided by a central rib.",
-          "tags": [
-            "3table",
-            "cad",
-            "case-interior",
-            "pcb"
-          ]
-        },
-        {
-          "t": 370,
-          "scene": "s23",
-          "description": "An angled view into the case shows green PCB strips slotted between grey walls and posts.",
-          "tags": [
-            "3table",
-            "cad",
-            "case-interior",
-            "pcb"
-          ]
-        },
-        {
-          "t": 374,
-          "scene": "s23",
-          "description": "Green PCBs are seated in slots inside the grey case with threaded posts.",
-          "tags": [
-            "3table",
-            "cad",
-            "case-interior",
-            "pcb"
-          ]
-        },
-        {
-          "t": 378,
-          "scene": "s23",
-          "description": "A corner close-up of the case shows a green panel and a grey post.",
-          "tags": [
-            "3table",
-            "cad",
-            "case-interior",
-            "detail"
+            "posts"
           ]
         },
         {
           "t": 380,
           "scene": "s25",
-          "description": "The open case interior holds two green PCB strips along its length.",
+          "description": "Overhead view into the open case: green boards and threaded mounting posts inside.",
           "tags": [
             "3table",
-            "cad",
             "case-interior",
-            "pcb"
-          ]
-        },
-        {
-          "t": 394,
-          "scene": "s25",
-          "description": "Straight into the open case, a green module sits between grey walls and posts.",
-          "tags": [
-            "3table",
-            "cad",
-            "case-interior",
-            "pcb"
-          ]
-        },
-        {
-          "t": 400,
-          "scene": "s25",
-          "description": "A close-up of green PCBs and grey cylindrical posts inside the case.",
-          "tags": [
-            "3table",
-            "cad",
-            "pcb",
+            "posts",
             "detail"
           ]
         },
         {
-          "t": 414,
+          "t": 426,
           "scene": "s25",
-          "description": "Top-down, two green PCBs are separated by a red divider inside the case.",
+          "description": "The finished closed grey case: a long box with a small green power switch on the front face.",
           "tags": [
             "3table",
-            "cad",
-            "case-interior",
-            "pcb"
-          ]
-        },
-        {
-          "t": 420,
-          "scene": "s25",
-          "description": "The completed grey case box sits closed with a green switch on its front face.",
-          "tags": [
-            "3table",
-            "cad",
             "case",
-            "finished"
-          ]
-        },
-        {
-          "t": 428,
-          "scene": "s25",
-          "description": "The closed case sits on the grid while the 'Add Part' dialog is reopened.",
-          "tags": [
-            "3table",
-            "editor-ui",
-            "add-part",
-            "case"
-          ]
-        },
-        {
-          "t": 446,
-          "scene": "s25",
-          "description": "A view of the model shows a green module against a beige panel as a part is edited.",
-          "tags": [
-            "3table",
-            "cad",
-            "part-edit"
-          ]
-        },
-        {
-          "t": 450,
-          "scene": "s27",
-          "description": "A side view of the case base and walls with grey mounting posts.",
-          "tags": [
-            "3table",
-            "cad",
-            "side-view",
-            "case"
-          ]
-        },
-        {
-          "t": 454,
-          "scene": "s27",
-          "description": "A side profile shows the case wall, base and internal posts.",
-          "tags": [
-            "3table",
-            "cad",
-            "side-view",
-            "case"
-          ]
-        },
-        {
-          "t": 460,
-          "scene": "s27",
-          "description": "A final exploded view fans out the case lid, base, red module and green PCB.",
-          "tags": [
-            "3table",
-            "cad",
-            "exploded-view",
-            "final"
+            "finished",
+            "power-switch"
           ]
         },
         {
           "t": 464,
           "scene": "s27",
-          "description": "The exploded view separates the case base from its lid on the grid.",
+          "description": "Exploded view: the grey case body and its dark lid floating apart on the grid.",
           "tags": [
             "3table",
-            "cad",
             "exploded-view",
-            "final"
+            "assembly",
+            "case"
           ]
         }
       ],
@@ -714,11 +315,11 @@
           "out": 1,
           "tags": [
             "3table",
-            "editor-ui",
-            "file-menu",
-            "intro"
+            "editor",
+            "intro",
+            "file-menu"
           ],
-          "note": "The 3table editor opens on a dark grid viewport with its File menu showing Import and Export options."
+          "note": "The 3table editor just opened: a dark 3D grid with the File menu showing Import and Export options (OBJ, STL, 3MF)."
         },
         {
           "id": "sel-case-design-0-95720",
@@ -727,128 +328,29 @@
           "out": 95.72,
           "tags": [
             "3table",
-            "editor-ui",
-            "file-menu",
+            "editor",
             "intro",
-            "add-part",
-            "modelling",
-            "cad",
-            "case-shell",
+            "file-menu",
             "pcb",
-            "case",
-            "case-lid",
-            "assembly",
-            "exploded-view",
-            "side-view",
-            "assembled"
-          ],
-          "note": "The 3table editor opens on a dark grid viewport with its File menu showing Import and Export options. An 'Add Part' dialog lists part types such as Basic shapes and Extruded Profile over the empty 3table grid. A semi-transparent red case shell and a green circuit board sit side by side on the 3table grid. The red case body, a white cube and the green PCB are laid out in the 3D viewport. The red case shell and green PCB lie flat on the grid with a white placeholder cube to the right. A green case lid and the green PCB rest on a red base plate as the model takes shape. An exploded view shows the green case, PCB and a red panel separated above the base. The case is shown in side profile: a grey body with a green lid seated on a grey base plate. A front view of the assembled enclosure, a green base and lid between two grey side walls."
-        },
-        {
-          "id": "sel-case-design-15000-17000",
-          "kind": "video",
-          "in": 15,
-          "out": 17,
-          "tags": [
-            "3table",
-            "editor-ui",
-            "add-part",
-            "modelling"
-          ],
-          "note": "An 'Add Part' dialog lists part types such as Basic shapes and Extruded Profile over the empty 3table grid."
-        },
-        {
-          "id": "sel-case-design-27000-29000",
-          "kind": "video",
-          "in": 27,
-          "out": 29,
-          "tags": [
-            "3table",
-            "cad",
-            "case-shell",
-            "pcb",
-            "modelling"
-          ],
-          "note": "A semi-transparent red case shell and a green circuit board sit side by side on the 3table grid."
-        },
-        {
-          "id": "sel-case-design-37000-39000",
-          "kind": "video",
-          "in": 37,
-          "out": 39,
-          "tags": [
-            "3table",
-            "cad",
-            "case",
-            "pcb"
-          ],
-          "note": "The red case body, a white cube and the green PCB are laid out in the 3D viewport."
-        },
-        {
-          "id": "sel-case-design-41000-43000",
-          "kind": "video",
-          "in": 41,
-          "out": 43,
-          "tags": [
-            "3table",
-            "cad",
-            "case",
-            "pcb"
-          ],
-          "note": "The red case shell and green PCB lie flat on the grid with a white placeholder cube to the right."
-        },
-        {
-          "id": "sel-case-design-57000-59000",
-          "kind": "video",
-          "in": 57,
-          "out": 59,
-          "tags": [
-            "3table",
-            "cad",
-            "case-lid",
-            "pcb",
+            "circuit-board",
+            "component",
             "assembly"
           ],
-          "note": "A green case lid and the green PCB rest on a red base plate as the model takes shape."
+          "note": "The 3table editor just opened: a dark 3D grid with the File menu showing Import and Export options (OBJ, STL, 3MF). Early assembly in 3table: a green PCB modelled next to a green component on a grey base, with the parts/properties table open on the left."
         },
         {
-          "id": "sel-case-design-77000-79000",
+          "id": "sel-case-design-65000-67000",
           "kind": "video",
-          "in": 77,
-          "out": 79,
+          "in": 65,
+          "out": 67,
           "tags": [
             "3table",
-            "cad",
-            "exploded-view",
+            "pcb",
+            "circuit-board",
+            "component",
             "assembly"
           ],
-          "note": "An exploded view shows the green case, PCB and a red panel separated above the base."
-        },
-        {
-          "id": "sel-case-design-83000-85000",
-          "kind": "video",
-          "in": 83,
-          "out": 85,
-          "tags": [
-            "3table",
-            "cad",
-            "case",
-            "side-view"
-          ],
-          "note": "The case is shown in side profile: a grey body with a green lid seated on a grey base plate."
-        },
-        {
-          "id": "sel-case-design-94720-96720",
-          "kind": "video",
-          "in": 94.72,
-          "out": 96.72,
-          "tags": [
-            "3table",
-            "cad",
-            "case",
-            "assembled"
-          ],
-          "note": "A front view of the assembled enclosure, a green base and lid between two grey side walls."
+          "note": "Early assembly in 3table: a green PCB modelled next to a green component on a grey base, with the parts/properties table open on the left."
         },
         {
           "id": "sel-case-design-95720-216560",
@@ -857,56 +359,30 @@
           "out": 216.56,
           "tags": [
             "3table",
-            "cad",
             "case",
-            "assembled",
-            "case-interior",
-            "pcb",
-            "snap-fit"
+            "shell",
+            "tabs"
           ],
-          "note": "A front view of the assembled enclosure, a green base and lid between two grey side walls. Looking into the open case, the green PCB and components sit between the grey walls. The closed grey case box shows small green snap-fit tabs on its top and front faces. A top-down close-up of the case interior reveals the green PCB module nested inside."
+          "note": "An open grey case shell on the grid with a green tab inside and a green clip on the front face; properties table open."
         },
         {
-          "id": "sel-case-design-99000-101000",
-          "kind": "video",
-          "in": 99,
-          "out": 101,
-          "tags": [
-            "3table",
-            "cad",
-            "case-interior",
-            "pcb"
-          ],
-          "note": "Looking into the open case, the green PCB and components sit between the grey walls."
-        },
-        {
-          "id": "sel-case-design-213000-219600",
+          "id": "sel-case-design-213000-215000",
           "kind": "video",
           "in": 213,
-          "out": 219.6,
+          "out": 215,
           "tags": [
             "3table",
-            "cad",
             "case",
-            "snap-fit",
-            "case-interior",
-            "pcb",
-            "exploded-view"
+            "shell",
+            "tabs"
           ],
-          "note": "The closed grey case box shows small green snap-fit tabs on its top and front faces. A top-down close-up of the case interior reveals the green PCB module nested inside. An exploded view separates the grey case base, green PCB and green module."
+          "note": "An open grey case shell on the grid with a green tab inside and a green clip on the front face; properties table open."
         },
         {
           "id": "sel-case-design-217040-218600",
           "kind": "video",
           "in": 217.04,
-          "out": 218.6,
-          "tags": [
-            "3table",
-            "cad",
-            "exploded-view",
-            "pcb"
-          ],
-          "note": "An exploded view separates the grey case base, green PCB and green module."
+          "out": 218.6
         },
         {
           "id": "sel-case-design-218800-221720",
@@ -918,27 +394,7 @@
           "id": "sel-case-design-221720-226200",
           "kind": "video",
           "in": 221.72,
-          "out": 226.2,
-          "tags": [
-            "3table",
-            "cad",
-            "assembly",
-            "pcb"
-          ],
-          "note": "The case base holds the green PCB with the green lid partially seated."
-        },
-        {
-          "id": "sel-case-design-223000-225000",
-          "kind": "video",
-          "in": 223,
-          "out": 225,
-          "tags": [
-            "3table",
-            "cad",
-            "assembly",
-            "pcb"
-          ],
-          "note": "The case base holds the green PCB with the green lid partially seated."
+          "out": 226.2
         },
         {
           "id": "sel-case-design-226200-248840",
@@ -947,96 +403,30 @@
           "out": 248.84,
           "tags": [
             "3table",
-            "cad",
             "case",
-            "empty",
-            "case-interior",
-            "pcb",
-            "cross-section",
-            "internals",
-            "closed"
+            "shell",
+            "housing"
           ],
-          "note": "A long, empty grey case body is shown open at an angle on the grid. Top-down into the case, the green PCB and module are seated in their slots. An angled view of the grey case base with the green PCB seated inside. A cross-section view exposes the red interior and an orange internal partition above the green base. The finished case appears as a plain sealed grey box on the grid. A cross-section close-up of the case wall shows the red internal structure."
+          "note": "The long grey rectangular case body on the grid, one end open showing an orange interior accent."
         },
         {
-          "id": "sel-case-design-227000-229000",
+          "id": "sel-case-design-235000-237000",
           "kind": "video",
-          "in": 227,
-          "out": 229,
+          "in": 235,
+          "out": 237,
           "tags": [
             "3table",
-            "cad",
             "case",
-            "empty"
+            "shell",
+            "housing"
           ],
-          "note": "A long, empty grey case body is shown open at an angle on the grid."
-        },
-        {
-          "id": "sel-case-design-231000-233000",
-          "kind": "video",
-          "in": 231,
-          "out": 233,
-          "tags": [
-            "3table",
-            "cad",
-            "case-interior",
-            "pcb"
-          ],
-          "note": "Top-down into the case, the green PCB and module are seated in their slots."
-        },
-        {
-          "id": "sel-case-design-237000-239000",
-          "kind": "video",
-          "in": 237,
-          "out": 239,
-          "tags": [
-            "3table",
-            "cad",
-            "case",
-            "pcb"
-          ],
-          "note": "An angled view of the grey case base with the green PCB seated inside."
-        },
-        {
-          "id": "sel-case-design-241000-243000",
-          "kind": "video",
-          "in": 241,
-          "out": 243,
-          "tags": [
-            "3table",
-            "cad",
-            "cross-section",
-            "internals"
-          ],
-          "note": "A cross-section view exposes the red interior and an orange internal partition above the green base."
-        },
-        {
-          "id": "sel-case-design-245000-249840",
-          "kind": "video",
-          "in": 245,
-          "out": 249.84,
-          "tags": [
-            "3table",
-            "cad",
-            "case",
-            "closed",
-            "cross-section",
-            "internals"
-          ],
-          "note": "The finished case appears as a plain sealed grey box on the grid. A cross-section close-up of the case wall shows the red internal structure."
+          "note": "The long grey rectangular case body on the grid, one end open showing an orange interior accent."
         },
         {
           "id": "sel-case-design-248840-249560",
           "kind": "video",
           "in": 248.84,
-          "out": 249.56,
-          "tags": [
-            "3table",
-            "cad",
-            "cross-section",
-            "internals"
-          ],
-          "note": "A cross-section close-up of the case wall shows the red internal structure."
+          "out": 249.56
         },
         {
           "id": "sel-case-design-249560-325760",
@@ -1045,148 +435,51 @@
           "out": 325.76,
           "tags": [
             "3table",
-            "cad",
-            "case-interior",
+            "case",
+            "add-part",
             "pcb",
-            "mounting-posts",
-            "detail"
-          ],
-          "note": "Inside the open case, a green module sits in a red compartment at an angle. A top-down view of the case interior shows the green PCB next to a red round component. The case interior holds the green PCB and module alongside grey threaded mounting posts. Green PCBs and grey threaded inserts sit inside the open case with a red component. An angled view shows green PCB sections, grey posts and a red part inside the case. Top-down into the case, a green PCB and a red divider separate the internal compartments. A close-up of the interior shows green panel dividers and grey posts."
-        },
-        {
-          "id": "sel-case-design-251000-253000",
-          "kind": "video",
-          "in": 251,
-          "out": 253,
-          "tags": [
-            "3table",
-            "cad",
-            "case-interior",
-            "pcb"
-          ],
-          "note": "Inside the open case, a green module sits in a red compartment at an angle."
-        },
-        {
-          "id": "sel-case-design-257000-259000",
-          "kind": "video",
-          "in": 257,
-          "out": 259,
-          "tags": [
-            "3table",
-            "cad",
-            "case-interior",
-            "pcb"
-          ],
-          "note": "A top-down view of the case interior shows the green PCB next to a red round component."
-        },
-        {
-          "id": "sel-case-design-281000-283000",
-          "kind": "video",
-          "in": 281,
-          "out": 283,
-          "tags": [
-            "3table",
-            "cad",
             "case-interior",
             "mounting-posts"
           ],
-          "note": "The case interior holds the green PCB and module alongside grey threaded mounting posts."
+          "note": "An 'Add Part' dialog over the open grey case, with a green PCB visible inside the shell. Inside the open case: two green circuit boards mounted on posts with a red divider, seen from above; properties table open."
         },
         {
-          "id": "sel-case-design-289000-291000",
+          "id": "sel-case-design-253000-255000",
           "kind": "video",
-          "in": 289,
-          "out": 291,
+          "in": 253,
+          "out": 255,
           "tags": [
             "3table",
-            "cad",
-            "case-interior",
+            "case",
+            "add-part",
             "pcb"
           ],
-          "note": "Green PCBs and grey threaded inserts sit inside the open case with a red component."
+          "note": "An 'Add Part' dialog over the open grey case, with a green PCB visible inside the shell."
         },
         {
-          "id": "sel-case-design-307000-309000",
+          "id": "sel-case-design-321000-323000",
           "kind": "video",
-          "in": 307,
-          "out": 309,
+          "in": 321,
+          "out": 323,
           "tags": [
             "3table",
-            "cad",
             "case-interior",
-            "pcb"
+            "pcb",
+            "mounting-posts"
           ],
-          "note": "An angled view shows green PCB sections, grey posts and a red part inside the case."
-        },
-        {
-          "id": "sel-case-design-317000-319000",
-          "kind": "video",
-          "in": 317,
-          "out": 319,
-          "tags": [
-            "3table",
-            "cad",
-            "case-interior",
-            "pcb"
-          ],
-          "note": "Top-down into the case, a green PCB and a red divider separate the internal compartments."
-        },
-        {
-          "id": "sel-case-design-324760-328240",
-          "kind": "video",
-          "in": 324.76,
-          "out": 328.24,
-          "tags": [
-            "3table",
-            "cad",
-            "case-interior",
-            "detail",
-            "pcb"
-          ],
-          "note": "A close-up of the interior shows green panel dividers and grey posts. Macro detail of a green PCB component next to a grey cylindrical post."
+          "note": "Inside the open case: two green circuit boards mounted on posts with a red divider, seen from above; properties table open."
         },
         {
           "id": "sel-case-design-326560-327240",
           "kind": "video",
           "in": 326.56,
-          "out": 327.24,
-          "tags": [
-            "3table",
-            "cad",
-            "pcb",
-            "detail"
-          ],
-          "note": "Macro detail of a green PCB component next to a grey cylindrical post."
+          "out": 327.24
         },
         {
           "id": "sel-case-design-327240-330440",
           "kind": "video",
           "in": 327.24,
-          "out": 330.44,
-          "tags": [
-            "3table",
-            "cad",
-            "pcb",
-            "detail",
-            "case-interior",
-            "mounting-posts"
-          ],
-          "note": "Macro detail of a green PCB component next to a grey cylindrical post. Grey cylindrical posts stand between green PCB sections inside the case."
-        },
-        {
-          "id": "sel-case-design-329440-333160",
-          "kind": "video",
-          "in": 329.44,
-          "out": 333.16,
-          "tags": [
-            "3table",
-            "cad",
-            "case-interior",
-            "mounting-posts",
-            "pcb",
-            "detail"
-          ],
-          "note": "Grey cylindrical posts stand between green PCB sections inside the case. A close-up shows a green PCB and module with grey mounting posts between them."
+          "out": 330.44
         },
         {
           "id": "sel-case-design-330920-331480",
@@ -1198,14 +491,7 @@
           "id": "sel-case-design-331560-332160",
           "kind": "video",
           "in": 331.56,
-          "out": 332.16,
-          "tags": [
-            "3table",
-            "cad",
-            "pcb",
-            "detail"
-          ],
-          "note": "A close-up shows a green PCB and module with grey mounting posts between them."
+          "out": 332.16
         },
         {
           "id": "sel-case-design-332160-379360",
@@ -1214,92 +500,37 @@
           "out": 379.36,
           "tags": [
             "3table",
-            "cad",
+            "case-interior",
             "pcb",
-            "detail",
-            "case-interior",
-            "components"
+            "posts"
           ],
-          "note": "A close-up shows a green PCB and module with grey mounting posts between them. The open case is viewed top-down with green PCBs and mounting posts fitted. A long red rod runs through the green PCB sections inside the open case. The case interior shows two green PCB sections divided by a central rib. An angled view into the case shows green PCB strips slotted between grey walls and posts. Green PCBs are seated in slots inside the grey case with threaded posts. A corner close-up of the case shows a green panel and a grey post."
+          "note": "Interior of the case showing a green board and bracket held on threaded posts."
         },
         {
-          "id": "sel-case-design-337000-339000",
+          "id": "sel-case-design-357000-359000",
           "kind": "video",
-          "in": 337,
-          "out": 339,
+          "in": 357,
+          "out": 359,
           "tags": [
             "3table",
-            "cad",
             "case-interior",
-            "pcb"
+            "pcb",
+            "posts"
           ],
-          "note": "The open case is viewed top-down with green PCBs and mounting posts fitted."
+          "note": "Interior of the case showing a green board and bracket held on threaded posts."
         },
         {
-          "id": "sel-case-design-361000-363000",
+          "id": "sel-case-design-379000-381000",
           "kind": "video",
-          "in": 361,
-          "out": 363,
-          "tags": [
-            "3table",
-            "cad",
-            "case-interior",
-            "components"
-          ],
-          "note": "A long red rod runs through the green PCB sections inside the open case."
-        },
-        {
-          "id": "sel-case-design-365000-367000",
-          "kind": "video",
-          "in": 365,
-          "out": 367,
-          "tags": [
-            "3table",
-            "cad",
-            "case-interior",
-            "pcb"
-          ],
-          "note": "The case interior shows two green PCB sections divided by a central rib."
-        },
-        {
-          "id": "sel-case-design-369000-371000",
-          "kind": "video",
-          "in": 369,
-          "out": 371,
-          "tags": [
-            "3table",
-            "cad",
-            "case-interior",
-            "pcb"
-          ],
-          "note": "An angled view into the case shows green PCB strips slotted between grey walls and posts."
-        },
-        {
-          "id": "sel-case-design-373000-375000",
-          "kind": "video",
-          "in": 373,
-          "out": 375,
-          "tags": [
-            "3table",
-            "cad",
-            "case-interior",
-            "pcb"
-          ],
-          "note": "Green PCBs are seated in slots inside the grey case with threaded posts."
-        },
-        {
-          "id": "sel-case-design-377000-381000",
-          "kind": "video",
-          "in": 377,
+          "in": 379,
           "out": 381,
           "tags": [
             "3table",
-            "cad",
             "case-interior",
-            "detail",
-            "pcb"
+            "posts",
+            "detail"
           ],
-          "note": "A corner close-up of the case shows a green panel and a grey post. The open case interior holds two green PCB strips along its length."
+          "note": "Overhead view into the open case: green boards and threaded mounting posts inside."
         },
         {
           "id": "sel-case-design-379520-448080",
@@ -1308,148 +539,40 @@
           "out": 448.08,
           "tags": [
             "3table",
-            "cad",
             "case-interior",
-            "pcb",
+            "posts",
             "detail",
             "case",
             "finished",
-            "editor-ui",
-            "add-part",
-            "part-edit"
+            "power-switch"
           ],
-          "note": "The open case interior holds two green PCB strips along its length. Straight into the open case, a green module sits between grey walls and posts. A close-up of green PCBs and grey cylindrical posts inside the case. Top-down, two green PCBs are separated by a red divider inside the case. The completed grey case box sits closed with a green switch on its front face. The closed case sits on the grid while the 'Add Part' dialog is reopened. A view of the model shows a green module against a beige panel as a part is edited."
+          "note": "Overhead view into the open case: green boards and threaded mounting posts inside. The finished closed grey case: a long box with a small green power switch on the front face."
         },
         {
-          "id": "sel-case-design-393000-395000",
+          "id": "sel-case-design-425000-427000",
           "kind": "video",
-          "in": 393,
-          "out": 395,
+          "in": 425,
+          "out": 427,
           "tags": [
             "3table",
-            "cad",
-            "case-interior",
-            "pcb"
-          ],
-          "note": "Straight into the open case, a green module sits between grey walls and posts."
-        },
-        {
-          "id": "sel-case-design-399000-401000",
-          "kind": "video",
-          "in": 399,
-          "out": 401,
-          "tags": [
-            "3table",
-            "cad",
-            "pcb",
-            "detail"
-          ],
-          "note": "A close-up of green PCBs and grey cylindrical posts inside the case."
-        },
-        {
-          "id": "sel-case-design-413000-415000",
-          "kind": "video",
-          "in": 413,
-          "out": 415,
-          "tags": [
-            "3table",
-            "cad",
-            "case-interior",
-            "pcb"
-          ],
-          "note": "Top-down, two green PCBs are separated by a red divider inside the case."
-        },
-        {
-          "id": "sel-case-design-419000-421000",
-          "kind": "video",
-          "in": 419,
-          "out": 421,
-          "tags": [
-            "3table",
-            "cad",
             "case",
-            "finished"
+            "finished",
+            "power-switch"
           ],
-          "note": "The completed grey case box sits closed with a green switch on its front face."
+          "note": "The finished closed grey case: a long box with a small green power switch on the front face."
         },
         {
-          "id": "sel-case-design-427000-429000",
-          "kind": "video",
-          "in": 427,
-          "out": 429,
-          "tags": [
-            "3table",
-            "editor-ui",
-            "add-part",
-            "case"
-          ],
-          "note": "The closed case sits on the grid while the 'Add Part' dialog is reopened."
-        },
-        {
-          "id": "sel-case-design-445000-447000",
-          "kind": "video",
-          "in": 445,
-          "out": 447,
-          "tags": [
-            "3table",
-            "cad",
-            "part-edit"
-          ],
-          "note": "A view of the model shows a green module against a beige panel as a part is edited."
-        },
-        {
-          "id": "sel-case-design-448200-467332",
+          "id": "sel-case-design-448200-467371",
           "kind": "video",
           "in": 448.2,
-          "out": 467.332,
+          "out": 467.371,
           "tags": [
             "3table",
-            "cad",
-            "side-view",
-            "case",
             "exploded-view",
-            "final"
-          ],
-          "note": "A side view of the case base and walls with grey mounting posts. A side profile shows the case wall, base and internal posts. A final exploded view fans out the case lid, base, red module and green PCB. The exploded view separates the case base from its lid on the grid."
-        },
-        {
-          "id": "sel-case-design-449000-451000",
-          "kind": "video",
-          "in": 449,
-          "out": 451,
-          "tags": [
-            "3table",
-            "cad",
-            "side-view",
+            "assembly",
             "case"
           ],
-          "note": "A side view of the case base and walls with grey mounting posts."
-        },
-        {
-          "id": "sel-case-design-453000-455000",
-          "kind": "video",
-          "in": 453,
-          "out": 455,
-          "tags": [
-            "3table",
-            "cad",
-            "side-view",
-            "case"
-          ],
-          "note": "A side profile shows the case wall, base and internal posts."
-        },
-        {
-          "id": "sel-case-design-459000-461000",
-          "kind": "video",
-          "in": 459,
-          "out": 461,
-          "tags": [
-            "3table",
-            "cad",
-            "exploded-view",
-            "final"
-          ],
-          "note": "A final exploded view fans out the case lid, base, red module and green PCB."
+          "note": "Exploded view: the grey case body and its dark lid floating apart on the grid."
         },
         {
           "id": "sel-case-design-463000-465000",
@@ -1458,32 +581,36 @@
           "out": 465,
           "tags": [
             "3table",
-            "cad",
             "exploded-view",
-            "final"
+            "assembly",
+            "case"
           ],
-          "note": "The exploded view separates the case base from its lid on the grid."
+          "note": "Exploded view: the grey case body and its dark lid floating apart on the grid."
         }
       ]
     },
     {
-      "id": "86f0efa1d268",
+      "id": "aa44cf7773a4",
       "path": "input/controller-test.mp4",
       "kind": "video",
-      "duration_s": 33.049,
+      "duration_s": 33.088435,
       "tags": [
-        "controller",
-        "track-test",
         "cockpit",
         "pov",
-        "one-handed",
-        "racing"
+        "controller",
+        "track",
+        "racelogic",
+        "grandstand",
+        "traffic",
+        "straight",
+        "corner",
+        "closeup"
       ],
       "scenes": [
         {
           "id": "s0",
           "start": 0,
-          "end": 33.049
+          "end": 33.088435
         }
       ],
       "transcript": [],
@@ -1491,36 +618,112 @@
         {
           "t": 0,
           "scene": "s0",
-          "description": "Cockpit POV on track: a hand holds a black DIY controller with red spoke marks while cars run ahead and the dash shows a Renault Sport display and RaceLogic timer.",
+          "description": "Cockpit POV on a real race track: a hand holds the 3D-printed controller (carbon-look shell with a fan vent) up to the camera; the Renault Sport dash shows neutral and a RaceLogic timer.",
           "tags": [
-            "controller",
-            "track-test",
             "cockpit",
             "pov",
-            "one-handed"
+            "controller",
+            "track",
+            "racelogic"
+          ]
+        },
+        {
+          "t": 4,
+          "scene": "s0",
+          "description": "Track POV with the controller held near the roll cage; dash in neutral; grandstands and cars ahead.",
+          "tags": [
+            "cockpit",
+            "pov",
+            "controller",
+            "grandstand"
+          ]
+        },
+        {
+          "t": 6,
+          "scene": "s0",
+          "description": "Driving shot: the controller held to the left, cars ahead including a green Clio; pit building on the right.",
+          "tags": [
+            "cockpit",
+            "pov",
+            "controller",
+            "traffic"
+          ]
+        },
+        {
+          "t": 12,
+          "scene": "s0",
+          "description": "On-track POV in traffic (green Clio, white cars) with the controller at the left edge.",
+          "tags": [
+            "cockpit",
+            "pov",
+            "traffic",
+            "track"
+          ]
+        },
+        {
+          "t": 16,
+          "scene": "s0",
+          "description": "Following cars down the straight; controller in hand; RaceLogic timer reads 0:10; dash in 3rd gear.",
+          "tags": [
+            "cockpit",
+            "pov",
+            "straight",
+            "racelogic"
           ]
         },
         {
           "t": 18,
           "scene": "s0",
-          "description": "The cockpit view shows the DIY controller held in one hand, dash in gear 3 with the RaceLogic timer running as cars battle ahead.",
+          "description": "Straight/corner approach, RaceLogic 0:12, 3rd gear, cars ahead.",
           "tags": [
-            "controller",
-            "track-test",
             "cockpit",
-            "racing",
-            "one-handed"
+            "pov",
+            "track",
+            "racelogic"
+          ]
+        },
+        {
+          "t": 22,
+          "scene": "s0",
+          "description": "Turning into a corner, RaceLogic 0:16, 2nd gear, a green car ahead.",
+          "tags": [
+            "cockpit",
+            "pov",
+            "corner",
+            "racelogic"
+          ]
+        },
+        {
+          "t": 26,
+          "scene": "s0",
+          "description": "Mid-corner with the controller and wheel in view, RaceLogic 0:20, gravel trap beside the track.",
+          "tags": [
+            "cockpit",
+            "pov",
+            "corner",
+            "controller"
+          ]
+        },
+        {
+          "t": 28,
+          "scene": "s0",
+          "description": "Corner exit, RaceLogic 0:22, controller held, track curving right.",
+          "tags": [
+            "cockpit",
+            "pov",
+            "corner",
+            "track"
           ]
         },
         {
           "t": 32,
           "scene": "s0",
-          "description": "The hand-held DIY controller is framed over the dash in gear 1, timer at 0:26, during the on-track test.",
+          "description": "Close-up of the controller in hand against the Renault Sport dash, 1st gear.",
           "tags": [
-            "controller",
-            "track-test",
             "cockpit",
-            "one-handed"
+            "pov",
+            "controller",
+            "closeup"
           ]
         }
       ],
@@ -1531,42 +734,100 @@
           "in": 0,
           "out": 1,
           "tags": [
-            "controller",
-            "track-test",
             "cockpit",
             "pov",
-            "one-handed"
+            "controller",
+            "track",
+            "racelogic"
           ],
-          "note": "Cockpit POV on track: a hand holds a black DIY controller with red spoke marks while cars run ahead and the dash shows a Renault Sport display and RaceLogic timer."
+          "note": "Cockpit POV on a real race track: a hand holds the 3D-printed controller (carbon-look shell with a fan vent) up to the camera; the Renault Sport dash shows neutral and a RaceLogic timer."
         },
         {
-          "id": "sel-controller-test-0-33049",
+          "id": "sel-controller-test-0-33088",
           "kind": "video",
           "in": 0,
-          "out": 33.049,
+          "out": 33.088,
           "tags": [
-            "controller",
-            "track-test",
             "cockpit",
             "pov",
-            "one-handed",
-            "racing"
+            "controller",
+            "track",
+            "racelogic",
+            "grandstand",
+            "traffic",
+            "straight",
+            "corner",
+            "closeup"
           ],
-          "note": "Cockpit POV on track: a hand holds a black DIY controller with red spoke marks while cars run ahead and the dash shows a Renault Sport display and RaceLogic timer. The cockpit view shows the DIY controller held in one hand, dash in gear 3 with the RaceLogic timer running as cars battle ahead. The hand-held DIY controller is framed over the dash in gear 1, timer at 0:26, during the on-track test."
+          "note": "Cockpit POV on a real race track: a hand holds the 3D-printed controller (carbon-look shell with a fan vent) up to the camera; the Renault Sport dash shows neutral and a RaceLogic timer. Track POV with the controller held near the roll cage; dash in neutral; grandstands and cars ahead. Driving shot: the controller held to the left, cars ahead including a green Clio; pit building on the right. On-track POV in traffic (green Clio, white cars) with the controller at the left edge. Following cars down the straight; controller in hand; RaceLogic timer reads 0:10; dash in 3rd gear. Straight/corner approach, RaceLogic 0:12, 3rd gear, cars ahead. Turning into a corner, RaceLogic 0:16, 2nd gear, a green car ahead. Mid-corner with the controller and wheel in view, RaceLogic 0:20, gravel trap beside the track. Corner exit, RaceLogic 0:22, controller held, track curving right. Close-up of the controller in hand against the Renault Sport dash, 1st gear."
         },
         {
-          "id": "sel-controller-test-17000-19000",
+          "id": "sel-controller-test-3000-7000",
           "kind": "video",
-          "in": 17,
+          "in": 3,
+          "out": 7,
+          "tags": [
+            "cockpit",
+            "pov",
+            "controller",
+            "grandstand",
+            "traffic"
+          ],
+          "note": "Track POV with the controller held near the roll cage; dash in neutral; grandstands and cars ahead. Driving shot: the controller held to the left, cars ahead including a green Clio; pit building on the right."
+        },
+        {
+          "id": "sel-controller-test-11000-13000",
+          "kind": "video",
+          "in": 11,
+          "out": 13,
+          "tags": [
+            "cockpit",
+            "pov",
+            "traffic",
+            "track"
+          ],
+          "note": "On-track POV in traffic (green Clio, white cars) with the controller at the left edge."
+        },
+        {
+          "id": "sel-controller-test-15000-19000",
+          "kind": "video",
+          "in": 15,
           "out": 19,
           "tags": [
-            "controller",
-            "track-test",
             "cockpit",
-            "racing",
-            "one-handed"
+            "pov",
+            "straight",
+            "racelogic",
+            "track"
           ],
-          "note": "The cockpit view shows the DIY controller held in one hand, dash in gear 3 with the RaceLogic timer running as cars battle ahead."
+          "note": "Following cars down the straight; controller in hand; RaceLogic timer reads 0:10; dash in 3rd gear. Straight/corner approach, RaceLogic 0:12, 3rd gear, cars ahead."
+        },
+        {
+          "id": "sel-controller-test-21000-23000",
+          "kind": "video",
+          "in": 21,
+          "out": 23,
+          "tags": [
+            "cockpit",
+            "pov",
+            "corner",
+            "racelogic"
+          ],
+          "note": "Turning into a corner, RaceLogic 0:16, 2nd gear, a green car ahead."
+        },
+        {
+          "id": "sel-controller-test-25000-29000",
+          "kind": "video",
+          "in": 25,
+          "out": 29,
+          "tags": [
+            "cockpit",
+            "pov",
+            "corner",
+            "controller",
+            "track"
+          ],
+          "note": "Mid-corner with the controller and wheel in view, RaceLogic 0:20, gravel trap beside the track. Corner exit, RaceLogic 0:22, controller held, track curving right."
         },
         {
           "id": "sel-controller-test-31000-33000",
@@ -1574,28 +835,12 @@
           "in": 31,
           "out": 33,
           "tags": [
-            "controller",
-            "track-test",
             "cockpit",
-            "one-handed"
+            "pov",
+            "controller",
+            "closeup"
           ],
-          "note": "The hand-held DIY controller is framed over the dash in gear 1, timer at 0:26, during the on-track test."
-        }
-      ]
-    },
-    {
-      "id": "acf3344b9a04",
-      "path": "input/gist-code.png",
-      "kind": "image",
-      "tags": [],
-      "scenes": [],
-      "transcript": [],
-      "frames": [],
-      "clips": [
-        {
-          "id": "sel-gist-code-0-5000",
-          "kind": "image",
-          "duration": 5
+          "note": "Close-up of the controller in hand against the Renault Sport dash, 1st gear."
         }
       ]
     }

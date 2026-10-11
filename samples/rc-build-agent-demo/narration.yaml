@@ -2,32 +2,50 @@ schema: vided.narration/1
 voice: en_US-amy-medium
 segments:
   - id: intro
-    text: "This is my DIY RC sim-racing controller build: a receiver adapter, a little firmware, a custom case, and a track test."
+    text: "This is a DIY RC sim-racing controller: a receiver adapter, a handful of firmware, a custom case I modelled myself, and then a rather brave track test."
     gap_after: 0.35
-  - id: adapter-1
-    text: "The core is a receiver adapter that reads two RC channels and presents itself to the PC as a USB joystick."
-    gap_after: 0.3
-  - id: firmware-1
-    text: "Its firmware is tiny: throttle on pin two, steering on pin three, mapped straight onto the joystick axes."
+  - id: cock-pit
+    text: "Here it is on track — the RC controller in one hand while I drive, and that receiver signal is what my little adapter turns into an ordinary USB joystick."
     gap_after: 0.4
-  - id: case-1
-    text: "The adapter needed a home, so I modelled a case in 3table, the CAD editor I built myself."
-    gap_after: 0.3
-  - id: case-2
-    text: "Starting from a blank grid, I shaped a long grey shell around the circuit board — a green lid, snap-fit tabs, and a power switch up front."
-    gap_after: 0.3
-  - id: case-3
-    text: "Inside there are ribs, threaded mounting posts, and slots that hold the board exactly where it needs to sit."
+  - id: code-intro
+    text: "Let us look at the firmware, because the whole trick is only a handful of lines. It is an Arduino sketch called rc controller."
     gap_after: 0.35
-  - id: test-1
-    text: "Then came the track test."
-    gap_after: 0.25
-  - id: test-2
-    text: "Full disclosure: I was filming with one hand and steering with the other, so the driving is, frankly, brave."
-    gap_after: 0.25
-  - id: test-3
-    text: "But the controller worked, and that is the whole point."
-    gap_after: 0.35
+  - id: code-include
+    text: "First it pulls in Joystick dot h, a library that turns the board into a standard USB game controller, so the PC needs no special driver."
+    gap_after: 0.3
+  - id: code-pins
+    text: "Then it names the two inputs: throttle on digital pin two, and steering on digital pin three."
+    gap_after: 0.3
+  - id: code-setup
+    text: "In setup, both pins are set as inputs, and Joystick dot begin hands the controller over to the operating system."
+    gap_after: 0.3
+  - id: code-ranges
+    text: "The clever part is the axis ranges: set X axis range from nineteen hundred down to ten fifty, and the Y axis the other way round."
+    gap_after: 0.3
+  - id: code-ranges2
+    text: "An RC receiver sends a pulse between roughly one and two milliseconds, and the ends come in reversed — so the firmware deliberately flips them back into the right direction."
+    gap_after: 0.4
+  - id: code-loop
+    text: "The main loop then does the real work. pulse in measures the length of the pulse arriving on each pin, and that length is the stick position."
+    gap_after: 0.3
+  - id: code-map
+    text: "Steering goes to the X axis and throttle to the Y axis, so the transmitter moves the joystick. And that is the entire adapter."
+    gap_after: 0.4
+  - id: case-intro
+    text: "The board needed a home, so I modelled a case in 3table, the CAD editor I built myself."
+    gap_after: 0.3
+  - id: case-build
+    text: "Starting from a blank grid, I shaped a long grey shell around the board — snap-fit tabs and a power switch up front."
+    gap_after: 0.3
+  - id: case-detail
+    text: "Inside there are ribs, threaded mounting posts and slots that hold the board exactly where it needs to sit."
+    gap_after: 0.4
+  - id: test
+    text: "Then came the track test. Full disclosure: I was filming with one hand and steering with the other, so the driving is, frankly, brave. But the controller worked, and that is the whole point."
+    gap_after: 0.4
   - id: outro
-    text: "Receiver adapter, a few lines of firmware, a case modelled in 3table, and one very sketchy lap. Thanks for watching."
+    text: "A receiver adapter, a few dozen lines of firmware, a case modelled in 3table, and one very sketchy lap."
+    gap_after: 0.35
+  - id: thanks
+    text: "Thanks for watching."
     gap_after: 0

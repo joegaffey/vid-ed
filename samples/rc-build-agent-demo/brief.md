@@ -1,44 +1,45 @@
-# Brief — build & test demo
+# Brief — DIY RC sim-racing controller (v2, code-forward)
 
 ## Who / what
-A solo maker's build-and-test demo. Two source videos plus a firmware gist:
+A solo maker's build-and-test show-and-tell. Two source videos plus a firmware
+gist:
 
-1. **case-design.mp4** — a screen recording of the maker's own browser-based 3D
-   CAD editor, called **3table**. He modelled a custom enclosure for a DIY
-   racing controller: a long grey case with internal ribs, threaded mounting
-   posts, a green lid, snap-fit tabs and a green power switch on the front.
-   The PCB of the controller is modelled alongside/inside the case. It is
-   silent, a talky screen-capture, and is the "build" half of the story.
-2. **controller-test.mp4** — cockpit POV footage of the finished controller
-   being used on a real race track (Renault Sport dash, RaceLogic timer). The
-   maker was **recording with one hand and steering with the other**, which is
-   why the driving looks rough. This is the "test" half.
-3. **gist-code.png** — a screenshot of the firmware (Arduino/C++, `Joystick.h`)
-   that reads two RC PWM inputs: throttle on pin 2 and steering on pin 3 via
-   `pulseIn`, then maps them to USB joystick X/Y axes with `setXAxisRange` /
-   `setYAxisRange`.
+1. **case-design.mp4** — screen recording of my own browser-based 3D CAD editor,
+   **3table**. I modelled a custom enclosure for a DIY racing controller: a long
+   grey case with internal ribs, threaded mounting posts, a green lid, snap-fit
+   tabs and a green power switch. Silent talky screen-capture; the "build" half.
+2. **controller-test.mp4** — cockpit POV of the finished controller on a real
+   track (Renault Sport dash, RaceLogic timer). I was **filming with one hand and
+   steering with the other**, so the driving is rough. The "test" half.
+3. **gist-code.png** — a screenshot of the firmware (`rc_controller.ino`,
+   Arduino/C++): `#include <Joystick.h>`, `ThrottlePin 2`, `SteeringPin 3`,
+   `setup()` sets the pins `INPUT` and calls `Joystick_.begin()` /
+   `setXAxisRange(1900,1050)` / `setYAxisRange(1050,1900)`, and `loop()` reads
+   both channels with `pulseIn(...)` and maps them with `setXAxis(steering)` /
+   `setYAxis(throttle)`.
 
 ## Audience & tone
-Fellow makers and sim-racing DIY people. Friendly, first-person, a little
-self-deprecating about the one-handed driving. Not a polished product ad — a
-"here's what I built and how it went" show-and-tell.
+Fellow makers and sim-racing DIY people. Friendly, first-person, a bit
+self-deprecating about the one-handed driving.
 
 ## Editorial intent
-- Structure: intro title → **receiver adapter / firmware** chapter (the core
-  build) → **case design / 3table** chapter (supporting context) → **track test**
-  chapter (one-handed) → outro. The controller build is the main subject; the
-  3D editor is only the tool used for the enclosure, so it stays in the case
-  chapter and never headlines the intro.
-- ~60–100 seconds, narrated with captions, single 1080p output.
-- Let the frame descriptions drive clip choice: pick frames that show the model
-  being built up (shells → assembly → case interior → finished box → exploded
-  view) for the design section, and the cockpit controller shots for the test.
-- The 3table section should read as "I wrote this editor myself".
-- Credit that the track footage was shot one-handed; make a joke of it.
+- **Spend real time on the firmware.** The code is the star this time: walk the
+  gist line by line — the `Joystick.h` include, the two pin `#define`s, the
+  `setup()` pin modes + `Joystick_.begin()`, the **inverted axis ranges**
+  (`setXAxisRange(1900,1050)`) as signal calibration, and the `loop()` that
+  `pulseIn`s PWM on pins 2 and 3 and feeds steering→X, throttle→Y.
+- Structure: intro → **firmware walkthrough** (the core) → **case design /
+  3table** → **track test** (one-handed) → outro. Show the gist screenshot while
+  explaining it.
+- ~90–120s, narrated with captions, single 1080p output.
+- Let the frame descriptions drive clip choice: build-up (shells → interior →
+  finished → exploded) for the design chapter; cockpit controller shots for the
+  test chapter.
 
-## Key facts to carry through
-- Editor name: **3table**, built by the maker.
+## Key facts
+- Editor: **3table**, built by me.
+- Firmware: `pulseIn` on pins 2 (throttle) and 3 (steering) → USB joystick X/Y;
+  inverted axis ranges because the RC signal reads high-to-low.
 - Enclosure: long grey case, green lid, mounting posts, snap-fit tabs, front
-  power switch, PCB inside.
-- Firmware: two PWM channels (throttle pin 2, steering pin 3) → USB joystick.
+  switch, PCB inside.
 - Track test: one hand on the wheel, one on the camera.

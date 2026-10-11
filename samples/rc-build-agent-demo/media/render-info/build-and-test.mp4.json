@@ -1,25 +1,25 @@
 {
   "name": "build-and-test.mp4",
-  "bytes": 6698999,
-  "mtime": "2026-09-26T20:40:02.373Z",
+  "bytes": 36629660,
+  "mtime": "2026-10-11T16:44:17.226Z",
   "container": "mov,mp4,m4a,3gp,3g2,mj2",
   "format_long_name": "QuickTime / MOV",
-  "duration_s": 74.334,
-  "size_bytes": 6698999,
+  "duration_s": 141.2,
+  "size_bytes": 36629660,
   "video": {
     "index": 0,
     "codec": "h264",
     "profile": "High",
-    "width": 1280,
-    "height": 720,
+    "width": 1920,
+    "height": 1080,
     "fps": 30,
-    "bitrate": 525130
+    "bitrate": 1878717
   },
   "audio": {
     "index": 1,
     "codec": "aac",
     "sample_rate": 48000,
-    "channels": 1,
-    "bitrate": 195021
+    "channels": 2,
+    "bitrate": 190012
   }
 }
