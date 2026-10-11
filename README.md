@@ -303,9 +303,9 @@ reads/writes the project files.
   the printed URL.
 - **Static demo (read-only):** https://joegaffey.com/vid-ed/ — a snapshot of the
   sample project with editing, jobs and uploads disabled. Build it locally with
-  `npm run build:studio && npm run build:studio-demo`, then `npm run serve:demo`
-  (use this, not `python -m http.server` — the browser needs HTTP `Range` to seek
-  the master video).
+  `npm run build:studio && npm run build:studio-demo`, then
+  `npx serve dist/studio-demo` (it honours HTTP `Range`, which the browser needs
+  to seek the master video — plain `python -m http.server` does not).
 
 Expect rough edges — the UI and its on-disk behavior may change.
 
