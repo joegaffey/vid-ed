@@ -290,7 +290,7 @@ path so it is stable across re-runs.
   "title": "Intro shot",
   "role": "intro",
   "notes": "Use the first 6 seconds; ignore the camera shake.",
-  "provenance": { "tool": "vided", "version": "0.2.0",
+  "provenance": { "tool": "vided", "version": "0.3.0",
                   "generated_at": "2026-09-25T16:05:00Z" }
 }
 ```
