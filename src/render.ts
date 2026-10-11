@@ -240,7 +240,16 @@ export function buildRenderPlan(edl: ResolvedEdl, opts: BuildOptions): RenderPla
     const idx = inputs.length - 1;
     const start = clip.in;
     const end = clip.out ?? (clip.duration !== undefined ? start + clip.duration : undefined);
+    const dur = end !== undefined ? end - start : undefined;
     const parts = [`atrim=start=${start}${end !== undefined ? `:end=${end}` : ""}`, "asetpts=PTS-STARTPTS"];
+    if (item.fade_in && item.fade_in > 0) parts.push(`afade=t=in:st=0:d=${item.fade_in}`);
+    if (item.fade_out && item.fade_out > 0) {
+      if (dur !== undefined && dur > item.fade_out) {
+        parts.push(`afade=t=out:st=${Number((dur - item.fade_out).toFixed(3))}:d=${item.fade_out}`);
+      } else {
+        warnings.push(`Audio item "${item.id}" fade_out ignored: clip length unknown or shorter than the fade.`);
+      }
+    }
     if (item.gain_db) parts.push(`volume=${item.gain_db}dB`);
     parts.push(`aresample=${sampleRate}`);
     const delay = Math.round(item.offset * 1000);

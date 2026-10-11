@@ -115,6 +115,35 @@ test("master audio chain pins a stereo layout before alimiter (ffmpeg 4.4.x)", (
   assert.ok(aformat < alimiter, "aformat must precede alimiter");
 });
 
+test("buildRenderPlan applies audio-track fade in and out", () => {
+  const edl = resolved({
+    format: "720p30",
+    clips: [
+      { id: "v1", kind: "video", source: "clipA", format: "720p30", out: 6 },
+      { id: "m1", kind: "audio", source: "mu", format: "audio48k", in: 0, out: 4 },
+    ],
+    visual: [{ id: "a", use: "v1" }],
+    audio: [{ id: "m", use: "m1", fade_in: 0.5, fade_out: 0.75 }],
+  });
+  const plan = buildRenderPlan(edl, { root: "/tmp", resolveSource: resolve, ffmpeg: "ffmpeg", workDir: "/tmp/work" });
+  assert.ok(plan.filter.includes("afade=t=in:st=0:d=0.5"), plan.filter);
+  assert.ok(plan.filter.includes("afade=t=out:st=3.25:d=0.75"), plan.filter);
+});
+
+test("buildRenderPlan warns when fade_out cannot be placed", () => {
+  const edl = resolved({
+    format: "720p30",
+    clips: [
+      { id: "v1", kind: "video", source: "clipA", format: "720p30", out: 6 },
+      { id: "m1", kind: "audio", source: "mu", format: "audio48k" },
+    ],
+    visual: [{ id: "a", use: "v1" }],
+    audio: [{ id: "m", use: "m1", fade_out: 0.5 }],
+  });
+  const plan = buildRenderPlan(edl, { root: "/tmp", resolveSource: resolve, ffmpeg: "ffmpeg", workDir: "/tmp/work" });
+  assert.ok(plan.warnings.some((w) => w.includes("fade_out ignored")), plan.warnings.join("; "));
+});
+
 test("muted video clips contribute no audio", () => {
   const edl = resolved({
     format: "720p30",
