@@ -1,49 +1,12 @@
 {
   "schema": "vided.manifest/1",
   "project": "rc-test",
-  "created_at": "2026-10-11T14:55:06.555Z",
+  "created_at": "2026-10-11T17:01:04.705Z",
   "input_roots": [
     "input"
   ],
-  "config_hash": "sha256:74dfe19329c3f441915138ce7d7828e07851098ad0985762e28781d784705571",
+  "config_hash": "sha256:3eee2767b279a7ea746e39d33fda975814d9b798dae7b9e230e1cdaa683696d0",
   "assets": [
-    {
-      "schema": "vided.asset/1",
-      "id": "0834b4ba71bb",
-      "path": "input/gist-code.png",
-      "kind": "image",
-      "content_hash": "sha256:0834b4ba71bbf1b226ee1f876f7e9472c99a394de23be812b874745de464d218",
-      "bytes": 174567,
-      "mtime": "2026-10-11T14:53:22.328Z",
-      "status": "probed",
-      "technical": {
-        "container": "png_pipe",
-        "format_long_name": "piped png sequence",
-        "size_bytes": 174567,
-        "video": {
-          "index": 0,
-          "codec": "png",
-          "width": 1730,
-          "height": 1371,
-          "fps": 25
-        }
-      },
-      "extracted": {
-        "transcript": null,
-        "ocr": null,
-        "sidecar": null
-      },
-      "visual": {
-        "scenes": [],
-        "frames": []
-      },
-      "tags": [],
-      "provenance": {
-        "tool": "vided",
-        "version": "0.1.0",
-        "generated_at": "2026-10-11T14:53:34.308Z"
-      }
-    },
     {
       "schema": "vided.asset/1",
       "id": "34e7956a2705",
@@ -2484,8 +2447,8 @@
       ],
       "provenance": {
         "tool": "vided",
-        "version": "0.1.0",
-        "generated_at": "2026-10-11T14:53:34.114Z"
+        "version": "0.3.0",
+        "generated_at": "2026-10-11T17:01:04.508Z"
       }
     },
     {
@@ -2767,8 +2730,45 @@
       ],
       "provenance": {
         "tool": "vided",
-        "version": "0.1.0",
-        "generated_at": "2026-10-11T14:53:34.235Z"
+        "version": "0.3.0",
+        "generated_at": "2026-10-11T17:01:04.631Z"
+      }
+    },
+    {
+      "schema": "vided.asset/1",
+      "id": "0834b4ba71bb",
+      "path": "input/gist-code.png",
+      "kind": "image",
+      "content_hash": "sha256:0834b4ba71bbf1b226ee1f876f7e9472c99a394de23be812b874745de464d218",
+      "bytes": 174567,
+      "mtime": "2026-10-11T14:53:22.328Z",
+      "status": "probed",
+      "technical": {
+        "container": "png_pipe",
+        "format_long_name": "piped png sequence",
+        "size_bytes": 174567,
+        "video": {
+          "index": 0,
+          "codec": "png",
+          "width": 1730,
+          "height": 1371,
+          "fps": 25
+        }
+      },
+      "extracted": {
+        "transcript": null,
+        "ocr": null,
+        "sidecar": null
+      },
+      "visual": {
+        "scenes": [],
+        "frames": []
+      },
+      "tags": [],
+      "provenance": {
+        "tool": "vided",
+        "version": "0.3.0",
+        "generated_at": "2026-10-11T17:01:04.704Z"
       }
     }
   ],

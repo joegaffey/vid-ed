@@ -8,9 +8,9 @@ Audience: implementers.
 
 - **Branch per phase**, merged in order into an integration branch
   (`feat/edl-v4`) or straight to `main` once each phase is green.
-- **Additive first.** The v4 schema/reader/renderer land *alongside* v3; v3 keeps
-  rendering until the port is complete. A compat converter (v3 → v4) is the
-  bridge and may stay permanently.
+- **In place, big-bang.** `src/schemas/edl.ts` is rewritten to v4 on the branch;
+  `edl/3` is **removed outright — no converter** (`SPEC-v4.md` §9). Examples,
+  sample, tests and the studio are ported in the same branch.
 - **Every phase** exits on `npm run verify` (typecheck + tests + studio build)
   plus phase-specific fixtures. `--dry-run` snapshots are the renderer contract.
 
@@ -50,12 +50,8 @@ typecheck green.
   - `explainEdl4` — per-track items, total duration, gaps, audio-fit.
   - `lintEdl4` — same-track overlap (§4.2), gaps, `start < 0`, fade > item,
     format mismatch, audio-longer-than-video.
-- `src/edl-migrate.ts` — v3→v4: visual cursor → absolute `start`s; audio
-  `offset` → `start`; `overlays` → an implicit `overlays` video track.
-- `loadEdlFromString` — detect `schema:` and convert v3 input to v4 for v4
-  callers (v3 callers still get v3).
-- Tests: `edl4.test.ts` (resolve/explain/overlap lint) + `migrate.test.ts`
-  (v3→v4 round-trip).
+- `loadEdlFromString` — parses exactly one schema (`vided.edl/4`); no converter.
+- Tests: `edl4.test.ts` (resolve/explain/overlap lint).
 
 **Exit:** `compose --check/--explain/--lint` runs on both a v3 and a v4 file;
 migration is lossless for the fixture.
@@ -78,8 +74,7 @@ migration is lossless for the fixture.
 
 ## Phase 4 — CLI (`V4b`)
 
-- `compose` / `render` accept v4 via the dispatcher.
-- New `vided migrate <file> [--out]` (`src/commands/migrate.ts`).
+- `compose` / `render` operate on v4 (no `migrate` — `SPEC-v4.md` §9).
 - Update help text and JSON payloads; update `SPEC.md` §7.
 
 **Exit:** the command surface in `SPEC.md` §7 matches the implementation.
@@ -88,13 +83,13 @@ migration is lossless for the fixture.
 
 - `src/schemas/clips.ts`: add the `text` generated kind (`text`, `style`,
   `duration`).
-- `src/render.ts`: render text clips via libass (reuse the title/slide path);
-  retire the overlay render path (v3 converter lifts overlays to items/tracks).
+- `src/render.ts`: render text clips via libass (transparent, `alpha=1`); the
+  old overlay render path is deleted.
 - `src/clips.ts`, `src/preview.ts`: `text` is authored (not derived) and
   previewable.
-- Tests: text clip renders; migrated overlays become v4 items.
+- Tests: text clip renders transparent over a lower track.
 
-**Exit:** v3 `overlays` migrate and render identically.
+**Exit:** `overlays` are gone; text clips composite correctly.
 
 ## Phase 6 — studio (`V4d`) — `src/server/*`, `src/edl-edit.ts`
 
@@ -116,21 +111,19 @@ migration is lossless for the fixture.
 
 ## Phase 8 — cleanup / release
 
-- Decide v3 fate: **keep the converter** (recommended) vs delete the v3 code
-  path.
+- v3 code path is already deleted (no converter).
 - Bump `package.json` (0.3.0) with the release.
 
 ## Cross-cutting
 
-- **Tests:** `node --test`; new `edl4.test.ts`, `migrate.test.ts`, v4 render
-  parity; extend `m2.test.ts`, `example.test.ts`, `studio-api.test.ts`.
+- **Tests:** `node --test`; new `edl4.test.ts`; extend `m2.test.ts`,
+  `example.test.ts`, `studio-api.test.ts`.
 - **Verification:** `npm run verify` at every phase gate.
 - **Risks:**
   1. Compositor correctness/perf with many layers → per-track intermediates
      behind a future `--debug`.
   2. Studio multi-lane is the largest UI change.
-  3. Migration fidelity (gaps, overlays).
-  4. `text` semantics and the overlay equivalence.
+  3. `text` transparency (needs `ass=…:alpha=1`).
 - **Deferred (per `SPEC-v4.md` §14):** `duck_under` (`sidechaincompress`, still
   unimplemented), `clips.yaml`/`edit.yaml` file unification, crossfades,
   keyframes.
