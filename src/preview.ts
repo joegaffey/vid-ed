@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
-import { existsSync } from "node:fs";
-import { mkdir, rm, writeFile } from "node:fs/promises";
+import { existsSync, statSync } from "node:fs";
+import { mkdir, rename, rm, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { execa } from "execa";
 import type { Paths } from "./config.js";
@@ -36,8 +36,13 @@ export async function renderClipPreview(opts: {
 }): Promise<PreviewResult> {
   const { paths, ffmpeg, clip } = opts;
   const out = previewPath(paths, clip);
-  if (!opts.force && existsSync(out)) return { path: out, cached: true };
+  // A non-empty preview is a cache hit; a zero-byte file (e.g. left by an
+  // interrupted render) is not — re-render it.
+  if (!opts.force && existsSync(out) && statSync(out).size > 0) return { path: out, cached: true };
 
+  // Render to a temp file (keeping the extension, so ffmpeg can infer the
+  // muxer) and rename on success — a killed render can't leave a partial result.
+  const tmp = out.replace(/(\.[^./]+)$/, ".part$1");
   const isAudio = clip.kind === "audio";
   const item: ResolvedItem = isAudio
     ? {
@@ -61,7 +66,7 @@ export async function renderClipPreview(opts: {
         opacity: 1,
       };
   const edl: ResolvedEdl = {
-    output: OutputSchema.parse({ format: clip.format, path: out }),
+    output: OutputSchema.parse({ format: clip.format, path: tmp }),
     tracks: [{ id: isAudio ? "a1" : "v1", kind: isAudio ? "audio" : "video", items: [item] }],
     captions: CaptionsSchema.parse({}),
   };
@@ -70,7 +75,7 @@ export async function renderClipPreview(opts: {
     resolveSource: makeSourceResolver(paths, opts.manifest),
     ffmpeg,
     workDir: paths.workDir,
-    outputOverride: out,
+    outputOverride: tmp,
   });
 
   await mkdir(dirname(out), { recursive: true });
@@ -80,8 +85,9 @@ export async function renderClipPreview(opts: {
   }
   const res = await execa(ffmpeg, plan.args, { reject: false, cwd: paths.root });
   if (res.exitCode !== 0) {
-    await rm(out, { force: true });
+    await rm(tmp, { force: true });
     throw new Error(res.stderr || `ffmpeg exited ${res.exitCode}`);
   }
+  await rename(tmp, out);
   return { path: out, cached: false };
 }
