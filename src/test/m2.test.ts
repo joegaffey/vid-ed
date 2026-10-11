@@ -90,6 +90,9 @@ test("buildRenderPlan composites video tracks and a text clip", () => {
   assert.ok(plan.filter.includes("color=c=black:s=1280x720"), plan.filter);
   assert.ok(plan.filter.includes("overlay="), plan.filter);
   assert.ok(plan.filter.includes("enable='between(t,0.5,3)'"), plan.filter);
+  // a transparent text layer must process alpha, or libass draws nothing
+  assert.ok(plan.filter.includes("format=rgba,ass="), plan.filter);
+  assert.ok(plan.filter.includes(":alpha=1"), plan.filter);
   assert.ok(plan.artifacts.some((a) => a.content.includes("Hi there")));
   assert.equal(plan.duration, 5);
 });
