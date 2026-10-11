@@ -97,6 +97,24 @@ test("buildRenderPlan mixes attached video audio with an audio-track clip", () =
   assert.equal(plan.args[ai + 1], "48000");
 });
 
+test("master audio chain pins a stereo layout before alimiter (ffmpeg 4.4.x)", () => {
+  const edl = resolved({
+    format: "720p30",
+    clips: [
+      { id: "v1", kind: "video", source: "clipA", format: "720p30", out: 4, muted: true },
+      { id: "m1", kind: "audio", source: "vo", format: "audio48k", out: 4 },
+    ],
+    visual: [{ id: "a", use: "v1" }],
+    audio: [{ id: "m", use: "m1" }],
+  });
+  const plan = buildRenderPlan(edl, { root: "/tmp", resolveSource: resolve, ffmpeg: "ffmpeg", workDir: "/tmp/work" });
+  const aformat = plan.filter.indexOf("aformat=channel_layouts=stereo");
+  const alimiter = plan.filter.indexOf("alimiter=");
+  assert.ok(aformat >= 0, plan.filter);
+  assert.ok(alimiter >= 0, plan.filter);
+  assert.ok(aformat < alimiter, "aformat must precede alimiter");
+});
+
 test("muted video clips contribute no audio", () => {
   const edl = resolved({
     format: "720p30",
