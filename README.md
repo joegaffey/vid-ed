@@ -23,7 +23,7 @@ flowchart TD
 
     subgraph ARTIFACTS["generated artifacts"]
         direction LR
-        MANIFEST[".vided/manifest.json"] --> CLIPS["clips.yaml · clip pool"] --> CONTEXT["context pack (.md + .json)"]
+        MANIFEST[".vided/manifest.json"] --> CLIPS["clips.yaml · clip pool"] --> CONTEXT["context pack (.md + .json)<br/>review before composing"]
     end
 
     COMPOSE["COMPOSE · agent<br/>reads the pack, writes edit.yaml"]
@@ -32,6 +32,12 @@ flowchart TD
 
     MEDIA --> ANALYZE --> ARTIFACTS --> COMPOSE --> RENDER --> OUT
 ```
+
+The **context pack** (`work/context.md` / `context.json`) is generated from
+`brief.md` + the analysis — the distilled digest the agent composes from and the
+contract for the edit. **Review it (and refine framing in `brief.md` + sidecars,
+then re-run) before composing** — it's the last cheap point to correct tone,
+facts and must-include/avoid before `edit.yaml` is written.
 
 See [`SPEC.md`](./SPEC.md) for the full design and [`AGENTS.md`](./AGENTS.md)
 for the agent-facing workflow.
@@ -83,7 +89,7 @@ vided dedupe                          # cluster to the target density
 vided annotate --packet-out vision.packet.json   # agent describes the frames
 vided annotate --ingest vision.results.json      # merge descriptions back
 
-vided manifest --context-pack context.md         # distilled agent-facing digest
+vided manifest --context-pack context.md         # distilled brief + analysis — review before composing
 vided script --out narration.yaml                # scaffold narration from frames
 # ...agent edits narration.yaml...
 

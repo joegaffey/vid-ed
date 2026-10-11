@@ -176,7 +176,9 @@ A user should be able to start from a one-line ask:
 1. `vided scan` → `extract-text` → `sample` → `dedupe` → `annotate` (describe
    the frames; see above).
 2. Write `brief.md` (audience/tone/target length), then
-   `vided manifest --context-pack work/context.md` and read it.
+   `vided manifest --context-pack work/context.md` and read it. **Review it with
+   the human before composing** — it's the contract for the edit; fix framing in
+   `brief.md` + per-input sidecars and re-run if anything is off.
 3. `vided script --out narration.yaml`; rewrite the prose. Then
    `vided tts narration.yaml`. Trim visual clips to roughly the narration length.
 4. `vided captions --from narration --formats srt,vtt,ass` → `work/captions.ass`.
