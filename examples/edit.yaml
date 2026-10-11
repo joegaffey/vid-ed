@@ -1,11 +1,11 @@
-# Example vided edit script (EDL, `vided.edl/3`).
-# The timeline is two tracks of clip references; clips are defined ONLY in
-# clips.yaml (see ./clips.yaml). Validate/resolve with:
-#   vided compose edit.yaml --check --lint
-# Render with:
+# Example vided edit script (EDL, `vided.edl/4`).
+# The timeline is an ordered list of tracks; every item has an absolute `start`
+# (seconds). Clips are defined ONLY in clips.yaml (see ./clips.yaml). Validate:
+#   vided compose edit.yaml --check --lint --explain
+# Render:
 #   vided render edit.yaml --dry-run
 
-schema: vided.edl/3
+schema: vided.edl/4
 
 output:
   format: 1080p30            # a name from the canonical set (see AGENTS.md)
@@ -14,34 +14,26 @@ output:
   crf: 23
   preset: medium
 
-tracks:
-  visual:
-    - { id: intro, use: title-intro }
-    - { id: chapter1, use: chapter1 }
-    - { id: broll, use: sel-open, transition_in: { type: fade, duration: 0.5 } }
-    - { id: detail, use: sel-detail, speed: 0.5 }
-    - { id: fw, use: slide-fw }
-    - { id: gist, use: still-gist }
-  audio:
-    # Free-positioned on the audio track; offset + gain per placement.
-    - { id: vo, use: vo, offset: 0 }
+tracks:                      # ordered: later video tracks composite on top
+  - id: v1
+    kind: video
+    items:
+      - { id: intro, use: title-intro, start: 0 }
+      - { id: chapter1, use: chapter1, start: 3 }
+      - { id: broll, use: sel-open, start: 5.5, transition_in: { type: fade, duration: 0.5 } }
+      - { id: detail, use: sel-detail, start: 10.5, speed: 0.5 }
+      - { id: fw, use: slide-fw, start: 22.5 }
+      - { id: gist, use: still-gist, start: 28.5 }
+  - id: v2                   # a lower-third layer over v1
+    kind: video
+    items:
+      - { id: lower, use: still-gist, start: 2, position: bottom-right, opacity: 0.9, transform: { scale: 640x360, pad: false } }
+  - id: a1                   # narration
+    kind: audio
+    items:
+      - { id: vo, use: vo, start: 0 }
 
 captions:
   mode: soft            # soft (default) | burn (opt-in) | none
   file: work/captions.srt
   export: [srt, vtt]
-
-overlays:
-  - type: image
-    source: <image-asset-id>
-    start: 0
-    end: 4
-    position: top-right
-    opacity: 0.9
-    width: 160
-  - type: text
-    text: "Chapter 1"
-    start: 1
-    end: 3.5
-    position: bottom
-    style: { size: 64, color: "#ffffff" }

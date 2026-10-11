@@ -14,7 +14,7 @@ const sources: Record<string, { path: string; kind?: string; duration?: number }
 };
 const resolve = (s: string) => sources[s];
 
-test("explainEdl accumulates positions with speed", () => {
+test("explainEdl reports absolute starts and durations", () => {
   const edl = resolved({
     format: "720p30",
     clips: [
@@ -24,9 +24,11 @@ test("explainEdl accumulates positions with speed", () => {
     visual: [{ id: "a", use: "v1" }, { id: "b", use: "v2" }],
   });
   const ex = explainEdl(edl, resolve);
-  assert.equal(ex.clips[0]!.start, 0);
-  assert.equal(ex.clips[0]!.end, 4);
-  assert.equal(ex.clips[1]!.duration, 1);
+  const items = ex.tracks[0]!.items;
+  assert.equal(items[0]!.start, 0);
+  assert.equal(items[0]!.end, 4);
+  assert.equal(items[1]!.duration, 1);
+  assert.equal(items[1]!.start, 4);
   assert.equal(ex.duration, 5);
 });
 
@@ -42,6 +44,15 @@ test("lintEdl flags unknown sources and duplicate ids", () => {
   const issues = lintEdl(edl, resolve);
   assert.ok(issues.some((i) => i.message.includes("not found")));
   assert.ok(issues.some((i) => i.message.includes("Duplicate")));
+});
+
+test("lintEdl errors on a same-track overlap", () => {
+  const edl = resolved({
+    format: "720p30",
+    clips: [{ id: "v1", kind: "video", source: "clipA", format: "720p30", in: 0, out: 4 }],
+    visual: [{ id: "a", use: "v1", start: 0 }, { id: "b", use: "v1", start: 2 }],
+  });
+  assert.ok(lintEdl(edl, resolve).some((i) => i.level === "error" && i.message.includes("overlaps")));
 });
 
 test("lintEdl warns when a clip exceeds source duration", () => {
@@ -62,20 +73,24 @@ test("lintEdl warns on a format mismatch with the output", () => {
   assert.ok(lintEdl(edl, resolve).some((i) => i.message.includes("differs from output")));
 });
 
-test("buildRenderPlan builds concat and a text overlay", () => {
+test("buildRenderPlan composites video tracks and a text clip", () => {
   const edl = resolved({
     format: "720p30",
     clips: [
       { id: "v1", kind: "video", source: "clipA", format: "720p30", in: 0, out: 4 },
       { id: "v2", kind: "video", source: "clipB", format: "720p30", in: 1, out: 3, speed: 2 },
+      { id: "t1", kind: "text", source: "generated", format: "720p30", text: "Hi there", duration: 2.5 },
     ],
-    visual: [{ id: "a", use: "v1" }, { id: "b", use: "v2" }],
-    overlays: [{ type: "text", text: "Hi there", start: 0.5, end: 3 }],
+    tracks: [
+      { id: "v1", kind: "video", items: [{ id: "a", use: "v1", start: 0 }, { id: "b", use: "v2", start: 4 }] },
+      { id: "v2", kind: "video", items: [{ id: "cap", use: "t1", start: 0.5 }] },
+    ],
   });
   const plan = buildRenderPlan(edl, { root: "/tmp", resolveSource: resolve, ffmpeg: "ffmpeg", workDir: "/tmp/work" });
-  assert.ok(plan.filter.includes("concat=n=2:v=1:a=0"));
-  assert.ok(plan.filter.includes("ass=/tmp/work/overlays.ass"));
-  assert.ok(plan.artifacts[0]!.content.includes("Hi there"));
+  assert.ok(plan.filter.includes("color=c=black:s=1280x720"), plan.filter);
+  assert.ok(plan.filter.includes("overlay="), plan.filter);
+  assert.ok(plan.filter.includes("enable='between(t,0.5,3)'"), plan.filter);
+  assert.ok(plan.artifacts.some((a) => a.content.includes("Hi there")));
   assert.equal(plan.duration, 5);
 });
 
@@ -87,7 +102,7 @@ test("buildRenderPlan mixes attached video audio with an audio-track clip", () =
       { id: "m1", kind: "audio", source: "mu", format: "audio48k", out: 20 },
     ],
     visual: [{ id: "a", use: "v1" }],
-    audio: [{ id: "m", use: "m1", offset: 1, gain_db: -6 }],
+    audio: [{ id: "m", use: "m1", start: 1, gain_db: -6 }],
   });
   const plan = buildRenderPlan(edl, { root: "/tmp", resolveSource: resolve, ffmpeg: "ffmpeg", workDir: "/tmp/work" });
   assert.ok(plan.filter.includes("amix=inputs=2"));
@@ -154,7 +169,7 @@ test("muted video clips contribute no audio", () => {
   assert.ok(plan.args.includes("-an"));
 });
 
-test("explainEdl reports whether the audio track fits the video", () => {
+test("explainEdl reports the audio extent and fit", () => {
   const long = resolved({
     format: "720p30",
     clips: [
@@ -162,12 +177,12 @@ test("explainEdl reports whether the audio track fits the video", () => {
       { id: "m1", kind: "audio", source: "mu", format: "audio48k", duration: 20 },
     ],
     visual: [{ id: "a", use: "v1" }],
-    audio: [{ id: "m", use: "m1", offset: 0 }],
+    audio: [{ id: "m", use: "m1" }],
   });
   const ex = explainEdl(long, resolve);
-  assert.equal(ex.duration, 4);
+  assert.equal(ex.duration, 20);
   assert.equal(ex.audio.end, 20);
-  assert.equal(ex.audio.fits, false);
+  assert.equal(ex.audio.fits, true);
 
   const short = resolved({
     format: "720p30",
@@ -176,9 +191,10 @@ test("explainEdl reports whether the audio track fits the video", () => {
       { id: "m1", kind: "audio", source: "mu", format: "audio48k", duration: 5 },
     ],
     visual: [{ id: "a", use: "v1" }],
-    audio: [{ id: "m", use: "m1", offset: 0 }],
+    audio: [{ id: "m", use: "m1" }],
   });
-  assert.equal(explainEdl(short, resolve).audio.fits, true);
+  assert.equal(explainEdl(short, resolve).duration, 10);
+  assert.equal(explainEdl(short, resolve).audio.end, 5);
 });
 
 test("parseResolution and positionExpr helpers", () => {
@@ -198,8 +214,8 @@ test("title clips render via color + libass", () => {
     visual: [{ id: "intro", use: "t1" }],
   });
   const ex = explainEdl(edl, resolve);
-  assert.equal(ex.clips[0]!.kind, "title");
-  assert.equal(ex.clips[0]!.duration, 2);
+  assert.equal(ex.tracks[0]!.items[0]!.kind, "title");
+  assert.equal(ex.tracks[0]!.items[0]!.duration, 2);
   const plan = buildRenderPlan(edl, { root: "/tmp", resolveSource: resolve, ffmpeg: "ffmpeg", workDir: "/tmp/work" });
   assert.ok(plan.filter.includes("color=c=0x101820:s=1280x720"));
   assert.ok(plan.filter.includes("ass=/tmp/work/title_0.ass"));

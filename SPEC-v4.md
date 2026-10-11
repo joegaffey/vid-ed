@@ -1,7 +1,9 @@
 # vided — EDL v4: absolute multi-track timeline
 
-Status: DRAFT (proposal, not implemented). Current implementation is
-`vided.edl/3` (`edit.yaml`) + `vided.clips/1` (`clips.yaml`); see
+Status: IMPLEMENTED (core). `vided.edl/4` is the current schema; `edl/3` is
+**removed** (breaking change — no converter). The renderer, resolve/explain/lint,
+`clips.yaml`, examples and the checked-in sample are ported. Remaining: the
+studio timeline UI (see [`PLAN-v4.md`](./PLAN-v4.md) Phase 6). See
 [`SPEC.md`](./SPEC.md) §5.8–5.9 and §6.3.
 Audience: implementers + CLI agents.
 Related: issue #5 (per-sentence anchoring), `SPEC.md`, `DEVELOPMENT.md`,
@@ -227,18 +229,19 @@ composite (behind a future `--debug`; single pass by default — see `SPEC.md`
   longer than the item; format mismatch with `output.format`; audio longer than
   video.
 
-## 9. Migration & compatibility
+## 9. Breaking change (no compatibility)
 
-- `edl/3` remains readable: a converter computes absolute `start`s for the
-  visual track from the old running cursor, maps `offset` → `start` for audio,
-  and lifts `overlays` onto a video track. `vided migrate <file>` writes the
-  v4 form (or a compat reader does it on load).
-- `clips.yaml` (`vided.clips/1`) is unchanged; `clips/types` need only the new
-  `text` kind (additive).
+`edl/3` is **removed** — there is **no converter and no `vided migrate`**. An
+existing `edit.yaml` must be rewritten to v4 (the agent/human does it by hand;
+for a sequential visual timeline, compute absolute `start`s from the running
+cursor). Decisions (finalized):
+
+- `clips.yaml` (`vided.clips/1`) is unchanged apart from the additive `text`
+  kind.
 - `vided render --clip <id>` (single-clip preview) is unaffected.
 - Examples (`examples/edit.yaml`), the checked-in sample, `AGENTS.md`,
-  `README.md`, `SPEC.md`, `DEVELOPMENT.md`, and the studio timeline all port to
-  v4.
+  `README.md`, `SPEC.md`, `DEVELOPMENT.md` are ported. The studio timeline UI is
+  the remaining port (Phase 6).
 
 ## 10. Studio (`src/server/*`)
 
@@ -279,22 +282,25 @@ This supersedes the `align_to` proposal in issue #5.
   see Open Questions).
 - Track-level effect chains beyond `duck_under`.
 
-## 14. Open questions
+## 14. Decisions (resolved) / open questions
 
-1. **`duck_under` shape**: `sidechaincompress` is still unimplemented despite
-   being promised (`SPEC.md:217`). Is per-track ducking in v4 scope, or defer?
-2. **Text as a clip kind** (`kind: text`) vs keeping a lighter overlay item —
-   confirm the `text` kind before folding `overlays`.
-3. **Track ids**: free-form (`v1`, `music`) — any reserved names? Auto-generate
-   if omitted?
-4. **Concurrency within a track**: strict non-overlap (proposed) — is a
-   same-track overlap ever wanted (e.g. replace with a transition)?
-5. **`start` units**: seconds (float, as today) vs rational/timecode. Seconds for
-   parity with `edl/3`; timecode is a later concern.
-6. **File unification**: merge `clips.yaml` into `edit.yaml` (one project file)
-   — deferred; v4 keeps them separate.
-7. **Implicit first item `start`**: allow `start` to default to `0` only for the
-   first item, or require it everywhere for uniformity?
+Resolved:
+
+1. **`duck_under` / ducking** — **deferred**; not in v4. Manual `gain_db` only.
+2. **`text` clip kind** — **added**; `overlays` **removed** and folded into video
+   tracks (image → `image` clip, text → `text` clip).
+3. **Same-track overlap** — **hard error** (`lint`).
+4. **`start` default** — a track's **first** item may omit `start` (defaults 0);
+   later items must declare it.
+5. **`start` units** — seconds (float).
+6. **File unification** — **deferred**; `clips.yaml` + `edit.yaml` stay separate.
+7. **v3** — **removed**; no converter (breaking change, §9).
+
+Open:
+
+- **Track ids**: free-form (`v1`, `music`); auto-generate if omitted (studio).
+- **Transitions between adjacent items** (crossfades) — future; v4 fades only.
+- **Keyframes / automation** — future.
 
 ## 15. Milestones / acceptance
 

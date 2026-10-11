@@ -138,12 +138,34 @@ export const SlideClipSchema = z.object({
   transition_out: TransitionSchema.optional(),
 });
 
+export const TextClipSchema = z.object({
+  ...ClipBase,
+  kind: z.literal("text"),
+  text: z.string(),
+  duration: z.number().positive().default(4),
+  position: z
+    .enum(["top-left", "top-right", "bottom-left", "bottom-right", "center", "top", "bottom"])
+    .default("bottom"),
+  style: z
+    .object({
+      size: z.number().default(42),
+      color: z.string().default("white"),
+      font: z.string().optional(),
+      box: z.boolean().default(false),
+      box_color: z.string().default("&H80000000"),
+      outline: z.number().default(2),
+      shadow: z.number().default(1),
+    })
+    .default({}),
+});
+
 export const ClipSchema = z.discriminatedUnion("kind", [
   VideoClipSchema,
   ImageClipSchema,
   AudioClipSchema,
   TitleClipSchema,
   SlideClipSchema,
+  TextClipSchema,
 ]);
 
 export const ClipsSchema = z.object({
@@ -158,6 +180,7 @@ export type ImageClip = z.infer<typeof ImageClipSchema>;
 export type AudioClip = z.infer<typeof AudioClipSchema>;
 export type TitleClip = z.infer<typeof TitleClipSchema>;
 export type SlideClip = z.infer<typeof SlideClipSchema>;
+export type TextClip = z.infer<typeof TextClipSchema>;
 export type ClipKind = Clip["kind"];
 export type Clips = z.infer<typeof ClipsSchema>;
 

@@ -92,7 +92,7 @@ M1 complete: `extract-text` (whisper.cpp + sidecar + optional OCR),
 `sample` (ffmpeg scene detection + initial sample rate), `dedupe` (pHash
 clustering + cross-asset dedupe + density-based vision budget).
 M2 complete: `compose` (EDL check/explain/lint) and `render` (trim/concat,
-image + text overlays via libass, audio mix + ducking + loudnorm,
+image + text layers (incl. transparent `text` clips) via libass, audio mix + loudnorm,
 `--dry-run`/`--preview`).
 M3 complete: `tts` (Piper narration -> work/narration.wav + timing) and
 `captions` (narration/transcript -> SRT/VTT/ASS); render burns captions via
@@ -103,9 +103,10 @@ M4 complete: `annotate` (vision packet `--packet-out` / `--ingest` round-trip),
 from annotated frames), and cost reporting in `status`.
 
 Clips stage: `vided clips` derives `clips.yaml` (`vided.clips/1`) — the pool
-every edit composes from. The edit schema is `vided.edl/3`: `tracks.visual` and
-`tracks.audio` reference clips by `use:`, so trimming a clip in `clips.yaml`
-affects everywhere it is used.
+every edit composes from. The edit schema is `vided.edl/4`: an ordered list of
+`tracks` (video/audio) whose items reference clips by `use:` at an absolute
+`start`; trimming a clip in `clips.yaml` affects everywhere it is used. See
+[`SPEC-v4.md`](./SPEC-v4.md).
 
 Studio (optional, experimental): `vided studio` starts a local web UI — a thin
 adapter over the same CLI and artifacts (job queue, history/proposals, staleness,

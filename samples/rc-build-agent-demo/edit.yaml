@@ -1,4 +1,4 @@
-schema: vided.edl/3
+schema: vided.edl/4
 output:
   format: 1080p30
   path: out/build-and-test.mp4
@@ -6,38 +6,93 @@ captions:
   mode: burn
   file: work/captions.ass
 tracks:
-  visual:
-    # --- intro: the controller build is the subject ---
-    - { id: intro-card, use: t-intro }
-    - { id: intro-pov-open, use: ctrl-open }
-    - { id: intro-pov, use: t-drive1 }
-    # --- chapter 1: receiver adapter + firmware (the core build) ---
-    - { id: ch-adapter, use: ch-adapter }
-    - { id: build-pov, use: pov-adapter }
-    - { id: build-code, use: gist-code }
-    # --- chapter 2: case design / 3table (supporting context) ---
-    - { id: ch-design, use: ch-design }
-    - { id: design-addpart, use: d-addpart }
-    - { id: design-shell, use: d-shell }
-    - { id: design-casepcb, use: d-casepcb }
-    - { id: design-lidbase, use: d-lidbase }
-    - { id: design-exploded, use: d-exploded }
-    - { id: design-side, use: d-side }
-    - { id: design-basepcb, use: d-basepcb }
-    - { id: design-cross, use: d-cross }
-    - { id: design-topdown, use: d-topdown }
-    - { id: design-openpcb, use: d-openpcb }
-    - { id: design-finished, use: d-finished }
-    # --- chapter 3: track test (one-handed) ---
-    - { id: ch-test, use: ch-test }
-    - { id: test-hand, use: t-hand }
-    - { id: test-drive1, use: pov-test1 }
-    - { id: test-drive2, use: t-drive2 }
-    - { id: test-drive3, use: pov-test2 }
-    - { id: test-outro, use: ctrl-outro }
-    # --- outro ---
-    - { id: outro-exploded, use: outro-exploded }
-    - { id: outro-pov, use: pov-outro }
-    - { id: outro-card, use: t-outro }
-  audio:
-    - { id: vo, use: vo }
+  - id: v1
+    kind: video
+    items:
+      - id: t-intro
+        use: t-intro
+        start: 0
+      - id: ctrl-open
+        use: ctrl-open
+        start: 3.4
+      - id: t-drive1
+        use: t-drive1
+        start: 4.4
+      - id: ch-adapter
+        use: ch-adapter
+        start: 9.06
+      - id: pov-adapter
+        use: pov-adapter
+        start: 12.06
+      - id: gist-code
+        use: gist-code
+        start: 16.944
+      - id: ch-design
+        use: ch-design
+        start: 24.661
+      - id: d-addpart
+        use: d-addpart
+        start: 27.721
+      - id: d-shell
+        use: d-shell
+        start: 29.721
+      - id: d-casepcb
+        use: d-casepcb
+        start: 31.721
+      - id: d-lidbase
+        use: d-lidbase
+        start: 33.721
+      - id: d-exploded
+        use: d-exploded
+        start: 35.721
+      - id: d-side
+        use: d-side
+        start: 37.721
+      - id: d-basepcb
+        use: d-basepcb
+        start: 39.721
+      - id: d-cross
+        use: d-cross
+        start: 41.721
+      - id: d-topdown
+        use: d-topdown
+        start: 43.721
+      - id: d-openpcb
+        use: d-openpcb
+        start: 45.721
+      - id: d-finished
+        use: d-finished
+        start: 47.721
+      - id: ch-test
+        use: ch-test
+        start: 49.721
+      - id: t-hand
+        use: t-hand
+        start: 52.221
+      - id: pov-test1
+        use: pov-test1
+        start: 58.221
+      - id: t-drive2
+        use: t-drive2
+        start: 60.221
+      - id: pov-test2
+        use: pov-test2
+        start: 61.451
+      - id: ctrl-outro
+        use: ctrl-outro
+        start: 63.451
+      - id: outro-exploded
+        use: outro-exploded
+        start: 65.451
+      - id: pov-outro
+        use: pov-outro
+        start: 67.951
+      - id: t-outro
+        use: t-outro
+        start: 71.951
+  - id: a1
+    kind: audio
+    items:
+      - id: vo
+        use: vo
+        start: 0

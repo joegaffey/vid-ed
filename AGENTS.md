@@ -86,9 +86,9 @@ and their `tags` are merged onto the asset. Re-run `vided manifest
 — no idea what the footage shows.
 
 A clip is defined **only** in `clips.yaml`; `edit.yaml` references it by `use:`
-(every `tracks.visual[]` item needs `id`). `clips --add` takes one or more clip
-objects (JSON) — each object is a clip, not an array. Generated kinds
-(`title`/`slide`) use `source: generated` and a `title` (or `heading`).
+(every track item needs `id`). `clips --add` takes one or more clip objects
+(JSON) — each object is a clip, not an array. Generated kinds
+(`title`/`slide`/`text`) use `source: generated`.
 
 ```yaml
 # clips.yaml
@@ -99,15 +99,24 @@ clips:
 ```
 
 ```yaml
-# edit.yaml
-schema: vided.edl/3
+# edit.yaml  (vided.edl/4 — an ordered list of tracks)
+schema: vided.edl/4
 output: { format: 1080p30, path: out/final.mp4 }
-tracks:
-  visual:
-    - { id: intro, use: title-open }
-    - { id: a, use: sel-a }
-  audio: []
+tracks:                       # later video tracks composite on top
+  - id: v1
+    kind: video
+    items:
+      - { id: intro, use: title-open, start: 0 }
+      - { id: a, use: sel-a, start: 3 }
+  - id: a1
+    kind: audio
+    items: []
 ```
+
+Every item has an absolute `start` in seconds; a track's first item may omit it
+(defaults to 0), later items must declare it. Uncovered time renders black
+(video) / silence (audio). There is no `overlays` block — text/image elements are
+just items on a video track (`text` clips render transparent).
 
 `output.format` should match the clips' `format`; a mismatch is reported by
 `compose --lint` (not an error). Derived clips are stamped from the source's
@@ -115,9 +124,9 @@ resolution where it maps to a known format, else `1080p30`.
 
 ## Clips and formats
 
-Every clip has a `kind` (`video`/`image`/`audio`/`title`/`slide`), a `source`
-(or `"generated"` for title/slide) and a `format` from this canonical set
-(`src/schemas/clips.ts`):
+Every clip has a `kind` (`video`/`image`/`audio`/`title`/`slide`/`text`), a
+`source` (or `"generated"` for title/slide/text) and a `format` from this
+canonical set (`src/schemas/clips.ts`):
 
 `1080p30`, `1080p60`, `720p30`, `540p30`, `480p30`, `360p30`,
 `vertical1080p30`, `square1080p30`, `audio48k`.
@@ -146,7 +155,8 @@ toggleable track); burn-in needs the `.ass` and is opt-in with
 Register the narration as an audio clip with its duration (from `tts`) so the
 fit check works, e.g.
 `clips --add '{"id":"vo","kind":"audio","source":"work/narration.wav","format":"audio48k","duration":42.5}'`,
-then put it on `tracks.audio: [{ id: vo, use: vo }]` and set
+then place it on the audio track
+(`- { id: a1, kind: audio, items: [{ id: vo, use: vo, start: 0 }] }`) and set
 `captions: { mode: burn, file: work/captions.ass }`.
 
 `vided compose edit.yaml --check --lint --explain` — `--explain` reports the
@@ -172,8 +182,9 @@ A user should be able to start from a one-line ask:
 4. `vided captions --from narration --formats srt,vtt,ass` → `work/captions.ass`.
 5. `vided clips`; add generated cards with `clips --add`, and register the
    narration as an audio clip with its duration (see above).
-6. Write `edit.yaml`: visual clips on `tracks.visual`, the narration on
-   `tracks.audio`, and `captions: { mode: burn, file: work/captions.ass }`.
+6. Write `edit.yaml`: video clips on a `video` track, the narration on an
+   `audio` track (each item an absolute `start`), and
+   `captions: { mode: burn, file: work/captions.ass }`.
 7. `vided compose edit.yaml --check --lint --explain`, then `vided render edit.yaml`.
 
 ## Studio (optional, experimental)

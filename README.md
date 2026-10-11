@@ -117,12 +117,14 @@ clips:
   - { id: title-intro, kind: title, source: generated, format: 1080p30, title: "My Project", subtitle: "An agentic edit", duration: 3, background: "#101820" }
 # edit.yaml
 tracks:
-  visual:
-    - { id: intro, use: title-intro }
-    - { id: clip1, use: sel-a }
+  - id: v1
+    kind: video
+    items:
+      - { id: intro, use: title-intro, start: 0 }
+      - { id: clip1, use: sel-a, start: 3 }
 ```
 
-They're rendered as solid-colour pages via libass and concatenated inline.
+They're rendered as solid-colour pages via libass and placed on a video track.
 
 **Code / text slides** for walkthroughs use `kind: slide` with `body`
 (`variant: mono` for a monospace body):
@@ -159,17 +161,20 @@ clips:
     zoom: { x: 0, y: 0.4, w: 1, h: 0.34 }
 ```
 
-**Text overlays** are placed on the concatenated video. Over busy footage,
-give a label a background box so it stays readable:
+**Text** is a generated clip (`kind: text`) placed on a video track — it renders
+transparent, so it composites over the layers below. Over busy footage, give a
+label a background box so it stays readable:
 
 ```yaml
-overlays:
-  - type: text
-    text: "Without a tool, the graph renders EMPTY"
-    start: 58
-    end: 67.5
-    position: bottom
-    style: { size: 44, color: "#ffffff", box: true, box_color: "#000000cc", outline: 0 }
+# clips.yaml
+clips:
+  - { id: warn, kind: text, source: generated, format: 1080p30, text: "Without a tool, the graph renders EMPTY", duration: 9.5, position: bottom, style: { size: 44, color: "#ffffff", box: true, box_color: "#000000cc", outline: 0 } }
+# edit.yaml
+tracks:
+  - id: v2
+    kind: video
+    items:
+      - { id: warn, use: warn, start: 58 }
 ```
 
 ## Example agent prompt
@@ -219,12 +224,14 @@ Four versioned schemas are the source of truth (zod, in `src/schemas/`):
 - **`vided.asset/1`** / **`vided.manifest/1`** — probe + extracted text + frames
   + annotations. Written by the analyze stages; read by the agent.
 - **`vided.clips/1`** — the clip pool (`clips.yaml`): every clip the edit can use.
-  Each clip has a `kind` (`video`/`image`/`audio`/`title`/`slide`), a `source`
-  (or `"generated"`), and an output **`format`** (below). Derive a seed pool with
-  `vided clips`; curate it (agent or studio) with `--add/--set/--rm`.
-- **`vided.edl/3`** — the edit script (`edit.yaml`): `tracks.visual` and
-  `tracks.audio` reference clips by `use:`, plus captions and overlays. Written
-  by the agent; validated by `compose`, executed by `render`.
+  Each clip has a `kind` (`video`/`image`/`audio`/`title`/`slide`/`text`), a
+  `source` (or `"generated"`), and an output **`format`** (below). Derive a seed
+  pool with `vided clips`; curate it (agent or studio) with `--add/--set/--rm`.
+- **`vided.edl/4`** — the edit script (`edit.yaml`): an ordered list of `tracks`
+  (video/audio), each item placed at an absolute `start` and referencing a clip
+  by `use:`, plus captions. Later video tracks composite on top; `text` clips
+  render transparent. Written by the agent; validated by `compose`, executed by
+  `render`.
 - **`vided.narration/1`** — narration script + timing.
 
 ### Clip formats

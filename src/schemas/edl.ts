@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { FormatSchema, TransformSchema, TransitionSchema } from "./clips.js";
 
-export const SCHEMA_VERSION = "vided.edl/3";
+export const SCHEMA_VERSION = "vided.edl/4";
 
 export { TransformSchema, TransitionSchema };
 
@@ -12,32 +12,78 @@ export const OutputSchema = z.object({
   crf: z.number().default(23),
   preset: z.string().default("medium"),
   audio_bitrate: z.string().default("192k"),
+  /** Optional total timeline length; default = max item end across tracks. */
+  duration: z.number().positive().optional(),
 });
 
-/** A visual-track placement referencing a clip in the pool. */
-export const VisualItemSchema = z.object({
+/** Placement anchors used when a video item is not full-frame. */
+export const PositionSchema = z.enum([
+  "top-left",
+  "top-right",
+  "bottom-left",
+  "bottom-right",
+  "center",
+  "top",
+  "bottom",
+]);
+
+/**
+ * A placement on a video track. `start` is absolute seconds on the shared
+ * timeline; a track's first item may omit it (defaults to 0), later items must
+ * declare it (enforced in `resolveEdl`). Clip `in`/`out` stay source-relative.
+ */
+export const VideoItemSchema = z.object({
   id: z.string(),
   use: z.string(),
+  start: z.number().min(0).optional(),
   speed: z.number().positive().optional(),
   transform: TransformSchema.optional(),
+  position: PositionSchema.default("center"),
+  opacity: z.number().min(0).max(1).default(1),
   transition_in: TransitionSchema.optional(),
   transition_out: TransitionSchema.optional(),
 });
 
-/** A free-positioned audio-track placement referencing a clip in the pool. */
+/** A placement on an audio track. `start` is absolute seconds (see above). */
 export const AudioItemSchema = z.object({
   id: z.string(),
   use: z.string(),
-  offset: z.number().default(0),
+  start: z.number().min(0).optional(),
   gain_db: z.number().optional(),
-  fade_in: z.number().optional(),
-  fade_out: z.number().optional(),
+  fade_in: z.number().nonnegative().optional(),
+  fade_out: z.number().nonnegative().optional(),
 });
 
-export const TracksSchema = z.object({
-  visual: z.array(VisualItemSchema).min(1),
-  audio: z.array(AudioItemSchema).default([]),
+export const VideoTrackSchema = z.object({
+  id: z.string(),
+  kind: z.literal("video"),
+  items: z.array(VideoItemSchema),
 });
+
+export const AudioTrackSchema = z.object({
+  id: z.string(),
+  kind: z.literal("audio"),
+  items: z.array(AudioItemSchema),
+});
+
+export const TrackSchema = z.discriminatedUnion("kind", [
+  VideoTrackSchema,
+  AudioTrackSchema,
+]);
+
+/** Ordered tracks; later video tracks composite on top. Ids must be unique. */
+export const TracksSchema = z
+  .array(TrackSchema)
+  .min(1)
+  .superRefine((tracks, ctx) => {
+    const seen = new Set<string>();
+    tracks.forEach((t, i) => {
+      if (seen.has(t.id)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: `duplicate track id "${t.id}".`, path: [i, "id"] });
+      }
+      seen.add(t.id);
+    });
+  });
 
 export const CaptionStyleSchema = z.object({
   font: z.string().optional(),
@@ -55,51 +101,18 @@ export const CaptionsSchema = z.object({
   export: z.array(z.enum(["srt", "vtt", "ass"])).default([]),
 });
 
-export const ImageOverlaySchema = z.object({
-  type: z.literal("image"),
-  source: z.string(),
-  start: z.number().default(0),
-  end: z.number(),
-  position: z.string().default("top-right"),
-  opacity: z.number().min(0).max(1).default(1),
-  width: z.number().optional(),
-});
-
-export const TextOverlaySchema = z.object({
-  type: z.literal("text"),
-  text: z.string(),
-  start: z.number().default(0),
-  end: z.number(),
-  position: z.string().default("bottom"),
-  style: z
-    .object({
-      size: z.number().default(42),
-      color: z.string().default("white"),
-      font: z.string().optional(),
-      box: z.boolean().default(false),
-      box_color: z.string().default("&H80000000"),
-      outline: z.number().default(2),
-      shadow: z.number().default(1),
-    })
-    .default({}),
-});
-
-export const OverlaySchema = z.discriminatedUnion("type", [
-  ImageOverlaySchema,
-  TextOverlaySchema,
-]);
-
 export const EdlSchema = z.object({
   schema: z.literal(SCHEMA_VERSION),
   output: OutputSchema.default({}),
   tracks: TracksSchema,
   captions: CaptionsSchema.default({}),
-  overlays: z.array(OverlaySchema).default([]),
 });
 
 export type Edl = z.infer<typeof EdlSchema>;
 export type Output = z.infer<typeof OutputSchema>;
-export type VisualItem = z.infer<typeof VisualItemSchema>;
+export type VideoItem = z.infer<typeof VideoItemSchema>;
 export type AudioItem = z.infer<typeof AudioItemSchema>;
-export type ImageOverlay = z.infer<typeof ImageOverlaySchema>;
-export type TextOverlay = z.infer<typeof TextOverlaySchema>;
+export type VideoTrack = z.infer<typeof VideoTrackSchema>;
+export type AudioTrack = z.infer<typeof AudioTrackSchema>;
+export type Track = z.infer<typeof TrackSchema>;
+export type Position = z.infer<typeof PositionSchema>;

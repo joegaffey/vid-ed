@@ -6,10 +6,11 @@ import { execa } from "execa";
 import type { Paths } from "./config.js";
 import type { Manifest } from "./schemas/manifest.js";
 import { CaptionsSchema, OutputSchema } from "./schemas/edl.js";
-import type { ResolvedEdl } from "./edl.js";
+import { audioClipDuration, type ResolvedEdl, type ResolvedItem } from "./edl.js";
 import { buildRenderPlan } from "./render.js";
 import { makeSourceResolver } from "./manifest.js";
-import type { Clip } from "./schemas/clips.js";
+import { clipDuration } from "./av.js";
+import type { AudioClip, Clip } from "./schemas/clips.js";
 
 /** Content hash of a clip definition — the preview cache key. */
 export function clipHash(clip: Clip): string {
@@ -37,12 +38,32 @@ export async function renderClipPreview(opts: {
   const out = previewPath(paths, clip);
   if (!opts.force && existsSync(out)) return { path: out, cached: true };
 
+  const isAudio = clip.kind === "audio";
+  const item: ResolvedItem = isAudio
+    ? {
+        kind: "audio",
+        id: "preview",
+        clip: clip as AudioClip,
+        trackId: "a1",
+        start: 0,
+        duration: audioClipDuration(clip as AudioClip),
+        gain_db: (clip as AudioClip).gain_db,
+      }
+    : {
+        kind: "video",
+        id: "preview",
+        clip,
+        trackId: "v1",
+        start: 0,
+        duration: clip.kind === "video" ? clipDuration({ in: clip.in, out: clip.out, speed: clip.speed }) : clip.duration,
+        speed: clip.kind === "video" ? clip.speed : 1,
+        position: "center",
+        opacity: 1,
+      };
   const edl: ResolvedEdl = {
     output: OutputSchema.parse({ format: clip.format, path: out }),
-    visual: [{ id: "preview", clip, speed: clip.kind === "video" ? clip.speed : 1 }],
-    audio: [],
+    tracks: [{ id: isAudio ? "a1" : "v1", kind: isAudio ? "audio" : "video", items: [item] }],
     captions: CaptionsSchema.parse({}),
-    overlays: [],
   };
   const plan = buildRenderPlan(edl, {
     root: paths.root,
