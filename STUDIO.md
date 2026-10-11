@@ -32,6 +32,12 @@ for images), **Transcript** (video/audio; transcribe/re-transcribe + segments),
 role/tags/notes → `context.yaml`). Raw CLI output stays behind a collapsed
 "technical log".
 
+**Layout** — the left rail is a **navigator**: it holds the **lists** (Media bin,
+Clips pool, Output renders, Changes, Activity) inline. Sections that are
+**editors/forms** (Analysis, Context, Vision, Captions) are **selected** and
+render in the **right Details pane** (`selection.kind: "section"`), so long
+documents get the full width.
+
 **Sections — Phase D done** — **Analysis** (project-wide parameterized stage
 runs: scan/extract-text/sample/dedupe/manifest/script/tts/captions/render),
 **Context** (`brief.md` (the brief) plus `context.yaml`: audience, tone, target

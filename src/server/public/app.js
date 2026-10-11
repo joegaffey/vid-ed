@@ -58,6 +58,10 @@ const SECTIONS = [
   ["activity", "Activity"],
 ];
 
+// Sections that are editors/forms (open in the right pane on selection); the
+// rest are lists/navigators and stay inline in the left rail.
+const EDITOR_SECTIONS = new Set(["analysis", "context", "vision", "captions"]);
+
 // Short in-UI explanations for each major panel (the "?" popups).
 const HELP = {
   project: {
@@ -534,8 +538,15 @@ class VidedApp extends LitElement {
     window.addEventListener("pointerup", up);
   }
 
+  onSection(id) {
+    if (EDITOR_SECTIONS.has(id)) {
+      // Editors open in the right pane; select the section.
+      this.selection = { kind: "section", id };
+    } else {
+      this.toggle(id);
+    }
+  }
   renderSection(id) {
-    if (this.open !== id) return "";
     switch (id) {
       case "project": return this.renderProject();
       case "media": return this.renderMedia();
@@ -1218,6 +1229,7 @@ class VidedApp extends LitElement {
   renderDetails() {
     const sel = this.selection;
     if (this.proposal) return this.renderProposal();
+    if (sel.kind === "section") return html`<div class="section-editor">${this.renderSection(sel.id)}</div>`;
     if (sel.kind === "history") return this.renderHistory();
     if (sel.kind === "output") return this.renderOutputDetail(sel.output);
     if (sel.kind === "clip") return this.renderClipDetail(sel.clip, sel.timelineItem);
@@ -1528,14 +1540,20 @@ class VidedApp extends LitElement {
 
       <div class="main">
         <aside class="rail">
-          ${SECTIONS.map(([id, label]) => html`
-            <section class="acc ${this.open === id ? "open" : ""}">
-              <button class="acc-head" @click=${() => this.toggle(id)}>
-                <span class="chev">${this.open === id ? "▾" : "▸"}</span>${label}
+          ${SECTIONS.map(([id, label]) => {
+            const editor = EDITOR_SECTIONS.has(id);
+            const active = editor
+              ? this.selection?.kind === "section" && this.selection.id === id
+              : this.open === id;
+            return html`
+            <section class="acc ${active ? "open" : ""} ${editor ? "nav" : ""}">
+              <button class="acc-head" @click=${() => this.onSection(id)}>
+                <span class="chev">${editor ? "▸" : (this.open === id ? "▾" : "▸")}</span>${label}
               </button>
               ${this.renderHelpButton(id, "acc-help")}
-              ${this.open === id ? html`<div class="acc-body">${this.renderSection(id)}</div>` : ""}
-            </section>`)}
+              ${!editor && this.open === id ? html`<div class="acc-body">${this.renderSection(id)}</div>` : ""}
+            </section>`;
+          })}
         </aside>
         <div class="rail-handle" @pointerdown=${this.startRailDrag}></div>
         <main class="details">${this.renderDetails()}</main>
@@ -1576,6 +1594,8 @@ class VidedApp extends LitElement {
     .rail-handle { cursor: col-resize; background: transparent; }
     .rail-handle:hover { background: var(--accent); }
     .details { overflow: auto; min-width: 0; scrollbar-width: thin; scrollbar-color: #2c3542 transparent; }
+    .section-editor { padding: 8px 16px 20px; max-width: 980px; }
+    .section-editor textarea { width: 100%; }
     .timeline-resize { cursor: row-resize; background: var(--line); }
     .timeline-resize:hover { background: var(--accent); }
     .timeline { border-top: 1px solid var(--line); background: var(--panel); display: flex; flex-direction: column; min-height: 0; }
