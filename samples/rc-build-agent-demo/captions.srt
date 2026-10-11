@@ -1,82 +1,160 @@
 1
-00:00:00,000 --> 00:00:05,583
-This is my DIY RC sim-racing controller
-build: a receiver adapter, a little
+00:00:00,000 --> 00:00:05,924
+This is a DIY RC sim-racing controller: a
+receiver adapter, a handful of firmware, a
 
 2
-00:00:05,583 --> 00:00:08,710
-firmware, a custom case, and a track test.
+00:00:05,924 --> 00:00:10,579
+custom case I modelled myself, and then a
+rather brave track test.
 
 3
-00:00:09,060 --> 00:00:15,127
-The core is a receiver adapter that reads
-two RC channels and presents itself to the
+00:00:10,929 --> 00:00:16,636
+Here it is on track — the RC controller in
+one hand while I drive, and that receiver
 
 4
-00:00:15,127 --> 00:00:16,644
-PC as a USB joystick.
+00:00:16,636 --> 00:00:21,323
+signal is what my little adapter turns
+into an ordinary USB joystick.
 
 5
-00:00:16,944 --> 00:00:22,643
-Its firmware is tiny: throttle on pin two,
-steering on pin three, mapped straight
+00:00:21,723 --> 00:00:27,631
+Let us look at the firmware, because the
+whole trick is only a handful of lines. It
 
 6
-00:00:22,643 --> 00:00:24,261
-onto the joystick axes.
+00:00:27,631 --> 00:00:30,621
+is an Arduino sketch called rc controller.
 
 7
-00:00:24,661 --> 00:00:31,065
-The adapter needed a home, so I modelled a
-case in 3table, the CAD editor I built
+00:00:30,971 --> 00:00:36,969
+First it pulls in Joystick dot h, a
+library that turns the board into a
+standard USB
 
 8
-00:00:31,065 --> 00:00:31,618
-myself.
+00:00:36,969 --> 00:00:40,610
+game controller, so the PC needs no
+special driver.
 
 9
-00:00:31,918 --> 00:00:37,469
-Starting from a blank grid, I shaped a
-long grey shell around the circuit board —
-a
+00:00:40,910 --> 00:00:46,231
+Then it names the two inputs: throttle on
+digital pin two, and steering on digital
 
 10
-00:00:37,469 --> 00:00:41,081
-green lid, snap-fit tabs, and a power
-switch up front.
+00:00:46,231 --> 00:00:46,880
+pin three.
 
 11
-00:00:41,381 --> 00:00:46,554
-Inside there are ribs, threaded mounting
-posts, and slots that hold the board
+00:00:47,180 --> 00:00:52,800
+In setup, both pins are set as inputs, and
+Joystick dot begin hands the controller
 
 12
-00:00:46,554 --> 00:00:48,570
-exactly where it needs to sit.
+00:00:52,800 --> 00:00:54,788
+over to the operating system.
 
 13
-00:00:48,920 --> 00:00:51,210
-Then came the track test.
+00:00:55,088 --> 00:01:00,675
+The clever part is the axis ranges: set X
+axis range from nineteen hundred down to
 
 14
-00:00:51,460 --> 00:00:56,792
-Full disclosure: I was filming with one
-hand and steering with the other, so the
+00:01:00,675 --> 00:01:03,809
+ten fifty, and the Y axis the other way
+round.
 
 15
-00:00:56,792 --> 00:00:58,591
-driving is, frankly, brave.
+00:01:04,109 --> 00:01:09,318
+An RC receiver sends a pulse between
+roughly one and two milliseconds, and the
+ends
 
 16
-00:00:58,841 --> 00:01:02,303
-But the controller worked, and that is the
-whole point.
+00:01:09,318 --> 00:01:14,212
+come in reversed — so the firmware
+deliberately flips them back into the
+right
 
 17
-00:01:02,653 --> 00:01:08,792
-Receiver adapter, a few lines of firmware,
-a case modelled in 3table, and one very
+00:01:14,212 --> 00:01:14,840
+direction.
 
 18
-00:01:08,792 --> 00:01:11,262
-sketchy lap. Thanks for watching.
+00:01:15,240 --> 00:01:20,210
+The main loop then does the real work.
+pulse in measures the length of the pulse
+
+19
+00:01:20,210 --> 00:01:23,938
+arriving on each pin, and that length is
+the stick position.
+
+20
+00:01:24,238 --> 00:01:30,312
+Steering goes to the X axis and throttle
+to the Y axis, so the transmitter moves
+the
+
+21
+00:01:30,312 --> 00:01:33,276
+joystick. And that is the entire adapter.
+
+22
+00:01:33,676 --> 00:01:39,864
+The board needed a home, so I modelled a
+case in 3table, the CAD editor I built
+
+23
+00:01:39,864 --> 00:01:40,412
+myself.
+
+24
+00:01:40,712 --> 00:01:46,327
+Starting from a blank grid, I shaped a
+long grey shell around the board —
+snap-fit
+
+25
+00:01:46,327 --> 00:01:48,587
+tabs and a power switch up front.
+
+26
+00:01:48,887 --> 00:01:54,556
+Inside there are ribs, threaded mounting
+posts and slots that hold the board
+exactly
+
+27
+00:01:54,556 --> 00:01:56,041
+where it needs to sit.
+
+28
+00:01:56,441 --> 00:02:02,139
+Then came the track test. Full disclosure:
+I was filming with one hand and steering
+
+29
+00:02:02,139 --> 00:02:07,699
+with the other, so the driving is,
+frankly, brave. But the controller worked,
+and
+
+30
+00:02:07,699 --> 00:02:09,347
+that is the whole point.
+
+31
+00:02:09,747 --> 00:02:15,779
+A receiver adapter, a few dozen lines of
+firmware, a case modelled in 3table, and
+
+32
+00:02:15,779 --> 00:02:17,343
+one very sketchy lap.
+
+33
+00:02:17,693 --> 00:02:19,368
+Thanks for watching.

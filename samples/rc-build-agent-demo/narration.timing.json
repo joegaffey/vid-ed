@@ -2,77 +2,119 @@
   "schema": "vided.narration.timing/1",
   "engine": "piper",
   "voice": "en_US-amy-medium",
-  "audio": "/tmp/opencode/agent-demo/work/narration.wav",
-  "duration": 71.262,
+  "audio": "/tmp/opencode/rc-test/work/narration.wav",
+  "duration": 139.368,
   "segments": [
     {
       "id": "intro",
-      "text": "This is my DIY RC sim-racing controller build: a receiver adapter, a little firmware, a custom case, and a track test.",
+      "text": "This is a DIY RC sim-racing controller: a receiver adapter, a handful of firmware, a custom case I modelled myself, and then a rather brave track test.",
       "start": 0,
-      "end": 8.71,
+      "end": 10.579,
       "gap_after": 0.35
     },
     {
-      "id": "adapter-1",
-      "text": "The core is a receiver adapter that reads two RC channels and presents itself to the PC as a USB joystick.",
-      "start": 9.06,
-      "end": 16.644,
-      "gap_after": 0.3
-    },
-    {
-      "id": "firmware-1",
-      "text": "Its firmware is tiny: throttle on pin two, steering on pin three, mapped straight onto the joystick axes.",
-      "start": 16.944,
-      "end": 24.261,
+      "id": "cock-pit",
+      "text": "Here it is on track — the RC controller in one hand while I drive, and that receiver signal is what my little adapter turns into an ordinary USB joystick.",
+      "start": 10.929,
+      "end": 21.323,
       "gap_after": 0.4
     },
     {
-      "id": "case-1",
-      "text": "The adapter needed a home, so I modelled a case in 3table, the CAD editor I built myself.",
-      "start": 24.661,
-      "end": 31.618,
-      "gap_after": 0.3
-    },
-    {
-      "id": "case-2",
-      "text": "Starting from a blank grid, I shaped a long grey shell around the circuit board — a green lid, snap-fit tabs, and a power switch up front.",
-      "start": 31.918,
-      "end": 41.081,
-      "gap_after": 0.3
-    },
-    {
-      "id": "case-3",
-      "text": "Inside there are ribs, threaded mounting posts, and slots that hold the board exactly where it needs to sit.",
-      "start": 41.381,
-      "end": 48.57,
+      "id": "code-intro",
+      "text": "Let us look at the firmware, because the whole trick is only a handful of lines. It is an Arduino sketch called rc controller.",
+      "start": 21.723,
+      "end": 30.621,
       "gap_after": 0.35
     },
     {
-      "id": "test-1",
-      "text": "Then came the track test.",
-      "start": 48.92,
-      "end": 51.21,
-      "gap_after": 0.25
+      "id": "code-include",
+      "text": "First it pulls in Joystick dot h, a library that turns the board into a standard USB game controller, so the PC needs no special driver.",
+      "start": 30.971,
+      "end": 40.61,
+      "gap_after": 0.3
     },
     {
-      "id": "test-2",
-      "text": "Full disclosure: I was filming with one hand and steering with the other, so the driving is, frankly, brave.",
-      "start": 51.46,
-      "end": 58.591,
-      "gap_after": 0.25
+      "id": "code-pins",
+      "text": "Then it names the two inputs: throttle on digital pin two, and steering on digital pin three.",
+      "start": 40.91,
+      "end": 46.88,
+      "gap_after": 0.3
     },
     {
-      "id": "test-3",
-      "text": "But the controller worked, and that is the whole point.",
-      "start": 58.841,
-      "end": 62.303,
-      "gap_after": 0.35
+      "id": "code-setup",
+      "text": "In setup, both pins are set as inputs, and Joystick dot begin hands the controller over to the operating system.",
+      "start": 47.18,
+      "end": 54.788,
+      "gap_after": 0.3
+    },
+    {
+      "id": "code-ranges",
+      "text": "The clever part is the axis ranges: set X axis range from nineteen hundred down to ten fifty, and the Y axis the other way round.",
+      "start": 55.088,
+      "end": 63.809,
+      "gap_after": 0.3
+    },
+    {
+      "id": "code-ranges2",
+      "text": "An RC receiver sends a pulse between roughly one and two milliseconds, and the ends come in reversed — so the firmware deliberately flips them back into the right direction.",
+      "start": 64.109,
+      "end": 74.84,
+      "gap_after": 0.4
+    },
+    {
+      "id": "code-loop",
+      "text": "The main loop then does the real work. pulse in measures the length of the pulse arriving on each pin, and that length is the stick position.",
+      "start": 75.24,
+      "end": 83.938,
+      "gap_after": 0.3
+    },
+    {
+      "id": "code-map",
+      "text": "Steering goes to the X axis and throttle to the Y axis, so the transmitter moves the joystick. And that is the entire adapter.",
+      "start": 84.238,
+      "end": 93.276,
+      "gap_after": 0.4
+    },
+    {
+      "id": "case-intro",
+      "text": "The board needed a home, so I modelled a case in 3table, the CAD editor I built myself.",
+      "start": 93.676,
+      "end": 100.412,
+      "gap_after": 0.3
+    },
+    {
+      "id": "case-build",
+      "text": "Starting from a blank grid, I shaped a long grey shell around the board — snap-fit tabs and a power switch up front.",
+      "start": 100.712,
+      "end": 108.587,
+      "gap_after": 0.3
+    },
+    {
+      "id": "case-detail",
+      "text": "Inside there are ribs, threaded mounting posts and slots that hold the board exactly where it needs to sit.",
+      "start": 108.887,
+      "end": 116.041,
+      "gap_after": 0.4
+    },
+    {
+      "id": "test",
+      "text": "Then came the track test. Full disclosure: I was filming with one hand and steering with the other, so the driving is, frankly, brave. But the controller worked, and that is the whole point.",
+      "start": 116.441,
+      "end": 129.347,
+      "gap_after": 0.4
     },
     {
       "id": "outro",
-      "text": "Receiver adapter, a few lines of firmware, a case modelled in 3table, and one very sketchy lap. Thanks for watching.",
-      "start": 62.653,
-      "end": 71.262,
+      "text": "A receiver adapter, a few dozen lines of firmware, a case modelled in 3table, and one very sketchy lap.",
+      "start": 129.747,
+      "end": 137.343,
+      "gap_after": 0.35
+    },
+    {
+      "id": "thanks",
+      "text": "Thanks for watching.",
+      "start": 137.693,
+      "end": 139.368,
       "gap_after": 0
     }
   ]

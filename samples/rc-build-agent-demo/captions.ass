@@ -11,21 +11,36 @@ Style: Default,DejaVu Sans,42,&H00FFFFFF,&H000000FF,&H00000000,&H80000000,0,0,0,
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-Dialogue: 0,0:00:00.00,0:00:05.58,Default,,0,0,24,,{\an2}This is my DIY RC sim-racing controller\Nbuild: a receiver adapter, a little
-Dialogue: 0,0:00:05.58,0:00:08.71,Default,,0,0,24,,{\an2}firmware, a custom case, and a track test.
-Dialogue: 0,0:00:09.06,0:00:15.13,Default,,0,0,24,,{\an2}The core is a receiver adapter that reads\Ntwo RC channels and presents itself to the
-Dialogue: 0,0:00:15.13,0:00:16.64,Default,,0,0,24,,{\an2}PC as a USB joystick.
-Dialogue: 0,0:00:16.94,0:00:22.64,Default,,0,0,24,,{\an2}Its firmware is tiny: throttle on pin two,\Nsteering on pin three, mapped straight
-Dialogue: 0,0:00:22.64,0:00:24.26,Default,,0,0,24,,{\an2}onto the joystick axes.
-Dialogue: 0,0:00:24.66,0:00:31.07,Default,,0,0,24,,{\an2}The adapter needed a home, so I modelled a\Ncase in 3table, the CAD editor I built
-Dialogue: 0,0:00:31.07,0:00:31.62,Default,,0,0,24,,{\an2}myself.
-Dialogue: 0,0:00:31.92,0:00:37.47,Default,,0,0,24,,{\an2}Starting from a blank grid, I shaped a\Nlong grey shell around the circuit board —\Na
-Dialogue: 0,0:00:37.47,0:00:41.08,Default,,0,0,24,,{\an2}green lid, snap-fit tabs, and a power\Nswitch up front.
-Dialogue: 0,0:00:41.38,0:00:46.55,Default,,0,0,24,,{\an2}Inside there are ribs, threaded mounting\Nposts, and slots that hold the board
-Dialogue: 0,0:00:46.55,0:00:48.57,Default,,0,0,24,,{\an2}exactly where it needs to sit.
-Dialogue: 0,0:00:48.92,0:00:51.21,Default,,0,0,24,,{\an2}Then came the track test.
-Dialogue: 0,0:00:51.46,0:00:56.79,Default,,0,0,24,,{\an2}Full disclosure: I was filming with one\Nhand and steering with the other, so the
-Dialogue: 0,0:00:56.79,0:00:58.59,Default,,0,0,24,,{\an2}driving is, frankly, brave.
-Dialogue: 0,0:00:58.84,0:01:02.30,Default,,0,0,24,,{\an2}But the controller worked, and that is the\Nwhole point.
-Dialogue: 0,0:01:02.65,0:01:08.79,Default,,0,0,24,,{\an2}Receiver adapter, a few lines of firmware,\Na case modelled in 3table, and one very
-Dialogue: 0,0:01:08.79,0:01:11.26,Default,,0,0,24,,{\an2}sketchy lap. Thanks for watching.
+Dialogue: 0,0:00:00.00,0:00:05.92,Default,,0,0,24,,{\an2}This is a DIY RC sim-racing controller: a\Nreceiver adapter, a handful of firmware, a
+Dialogue: 0,0:00:05.92,0:00:10.58,Default,,0,0,24,,{\an2}custom case I modelled myself, and then a\Nrather brave track test.
+Dialogue: 0,0:00:10.93,0:00:16.64,Default,,0,0,24,,{\an2}Here it is on track — the RC controller in\None hand while I drive, and that receiver
+Dialogue: 0,0:00:16.64,0:00:21.32,Default,,0,0,24,,{\an2}signal is what my little adapter turns\Ninto an ordinary USB joystick.
+Dialogue: 0,0:00:21.72,0:00:27.63,Default,,0,0,24,,{\an2}Let us look at the firmware, because the\Nwhole trick is only a handful of lines. It
+Dialogue: 0,0:00:27.63,0:00:30.62,Default,,0,0,24,,{\an2}is an Arduino sketch called rc controller.
+Dialogue: 0,0:00:30.97,0:00:36.97,Default,,0,0,24,,{\an2}First it pulls in Joystick dot h, a\Nlibrary that turns the board into a\Nstandard USB
+Dialogue: 0,0:00:36.97,0:00:40.61,Default,,0,0,24,,{\an2}game controller, so the PC needs no\Nspecial driver.
+Dialogue: 0,0:00:40.91,0:00:46.23,Default,,0,0,24,,{\an2}Then it names the two inputs: throttle on\Ndigital pin two, and steering on digital
+Dialogue: 0,0:00:46.23,0:00:46.88,Default,,0,0,24,,{\an2}pin three.
+Dialogue: 0,0:00:47.18,0:00:52.80,Default,,0,0,24,,{\an2}In setup, both pins are set as inputs, and\NJoystick dot begin hands the controller
+Dialogue: 0,0:00:52.80,0:00:54.79,Default,,0,0,24,,{\an2}over to the operating system.
+Dialogue: 0,0:00:55.09,0:01:00.68,Default,,0,0,24,,{\an2}The clever part is the axis ranges: set X\Naxis range from nineteen hundred down to
+Dialogue: 0,0:01:00.68,0:01:03.81,Default,,0,0,24,,{\an2}ten fifty, and the Y axis the other way\Nround.
+Dialogue: 0,0:01:04.11,0:01:09.32,Default,,0,0,24,,{\an2}An RC receiver sends a pulse between\Nroughly one and two milliseconds, and the\Nends
+Dialogue: 0,0:01:09.32,0:01:14.21,Default,,0,0,24,,{\an2}come in reversed — so the firmware\Ndeliberately flips them back into the\Nright
+Dialogue: 0,0:01:14.21,0:01:14.84,Default,,0,0,24,,{\an2}direction.
+Dialogue: 0,0:01:15.24,0:01:20.21,Default,,0,0,24,,{\an2}The main loop then does the real work.\Npulse in measures the length of the pulse
+Dialogue: 0,0:01:20.21,0:01:23.94,Default,,0,0,24,,{\an2}arriving on each pin, and that length is\Nthe stick position.
+Dialogue: 0,0:01:24.24,0:01:30.31,Default,,0,0,24,,{\an2}Steering goes to the X axis and throttle\Nto the Y axis, so the transmitter moves\Nthe
+Dialogue: 0,0:01:30.31,0:01:33.28,Default,,0,0,24,,{\an2}joystick. And that is the entire adapter.
+Dialogue: 0,0:01:33.68,0:01:39.86,Default,,0,0,24,,{\an2}The board needed a home, so I modelled a\Ncase in 3table, the CAD editor I built
+Dialogue: 0,0:01:39.86,0:01:40.41,Default,,0,0,24,,{\an2}myself.
+Dialogue: 0,0:01:40.71,0:01:46.33,Default,,0,0,24,,{\an2}Starting from a blank grid, I shaped a\Nlong grey shell around the board —\Nsnap-fit
+Dialogue: 0,0:01:46.33,0:01:48.59,Default,,0,0,24,,{\an2}tabs and a power switch up front.
+Dialogue: 0,0:01:48.89,0:01:54.56,Default,,0,0,24,,{\an2}Inside there are ribs, threaded mounting\Nposts and slots that hold the board\Nexactly
+Dialogue: 0,0:01:54.56,0:01:56.04,Default,,0,0,24,,{\an2}where it needs to sit.
+Dialogue: 0,0:01:56.44,0:02:02.14,Default,,0,0,24,,{\an2}Then came the track test. Full disclosure:\NI was filming with one hand and steering
+Dialogue: 0,0:02:02.14,0:02:07.70,Default,,0,0,24,,{\an2}with the other, so the driving is,\Nfrankly, brave. But the controller worked,\Nand
+Dialogue: 0,0:02:07.70,0:02:09.35,Default,,0,0,24,,{\an2}that is the whole point.
+Dialogue: 0,0:02:09.75,0:02:15.78,Default,,0,0,24,,{\an2}A receiver adapter, a few dozen lines of\Nfirmware, a case modelled in 3table, and
+Dialogue: 0,0:02:15.78,0:02:17.34,Default,,0,0,24,,{\an2}one very sketchy lap.
+Dialogue: 0,0:02:17.69,0:02:19.37,Default,,0,0,24,,{\an2}Thanks for watching.
