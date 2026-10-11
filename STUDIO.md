@@ -39,10 +39,12 @@ duration, must-include, avoid, voice, language, pronunciation; save + build
 context pack),
 **Vision** (selected/annotated counts; build packet / ingest results).
 
-**Timeline — Phase E done** — the bottom timeline renders `edit.yaml` read-only
-via `GET /api/edl` (explain): ruler, a video lane with items coloured by type
-(clip/title/slide/still), playhead (click to scrub), zoom/±/fit, and click-to-
-select which syncs the Details inspector. Editing (drag/trim) is P4.
+**Timeline — Phase E done; multi-track (edl/4) done** — the bottom timeline
+renders `edit.yaml` via `GET /api/edl` (explain): ruler, one lane per track
+(video layers composite top-down, audio lanes mix), items coloured by type
+(video/image/title/slide/text/audio), playhead (click to scrub), zoom/±/fit,
+and click-to-select which syncs the Details inspector. Editing (start/gain/
+speed/remove/reorder) is via proposals (P4).
 
 **P2 done** — per-artifact history in `.studio/history/<artifact>.json`
 (`{ artifact, versions }`, deduped), `GET /api/history[/:artifact]`,
@@ -234,9 +236,10 @@ one at a time.
   actions colocated with their output), the clip inspector, or the timeline-item
   editor (clip/title/slide/still). Diffs/apply/revert render inline here as a
   proposal (P2), not as a separate panel.
-- **Timeline** — from `edit.yaml`: ruler, video lane (items coloured by type) and
-  an audio lane, playhead (click/drag to scrub the rendered master), zoom (−/+,
-  fit) and keyboard transport; selectable, and editable via proposals (P4 done).
+- **Timeline** — from `edit.yaml` (`vided.edl/4`): ruler and one lane per track
+  (video layers + audio lanes; items coloured by type), playhead (click/drag to
+  scrub the rendered master), zoom (−/+, fit) and keyboard transport; selectable,
+  and editable via proposals (move in time, change `start`, gain/speed, remove).
 - **Help** — every major panel (rail sections, Details tabs, Timeline) has a
   `?` button opening an anchored, non-modal help popover (native `popover`, so
   click-away/`Esc` dismiss; `HELP` map in `app.js`).
